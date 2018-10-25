@@ -1,0 +1,24 @@
+{
+  "name": "project_se2_2018",
+  "version": "1.0.0",
+  "description": "Group repository for Exam Platform Project",
+  "main": "api.js",
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node api.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giovanniguadagnini/Project_SE2_2018.git"
+  },
+  "author": "Team Rocket (Marco, Devis, Daniel, Giovanni, Davide)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/giovanniguadagnini/Project_SE2_2018/issues"
+  },
+  "homepage": "https://github.com/giovanniguadagnini/Project_SE2_2018#readme"
+}
