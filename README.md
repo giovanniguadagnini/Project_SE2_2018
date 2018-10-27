@@ -6,3 +6,6 @@ Group repository for Exam Platform Project of the Software Engineering 2 course
     - Dissegna Daniel
     - Guadagnini Giovanni
     - Tessarolo Davide
+
+Documents: https://projectse22018.docs.apiary.io/#
+App: https://teamrocketproject.herokuapp.com/
