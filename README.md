@@ -8,5 +8,5 @@ Group repository for Exam Platform Project of the Software Engineering 2 course
     - Tessarolo Davide
 
 ## Useful Links:
-    * [Heroku deployment](https://projectse22018.docs.apiary.io)
-    * [Apiary documentation](https://teamrocketproject.herokuapp.com/)
+    - [Heroku deployment](https://projectse22018.docs.apiary.io)
+    - [Apiary documentation](https://teamrocketproject.herokuapp.com/)
