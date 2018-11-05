@@ -9,4 +9,5 @@ Group repository for Exam Platform Project of the Software Engineering 2 course
 
 ## Useful Links:
     - [Heroku deployment]( https://projectse22018.docs.apiary.io )
+    - [Heroku auto-deployment]( https://teamrocketproject-test.herokuapp.com/ )
     - [Apiary documentation]( https://teamrocketproject.herokuapp.com/ )
