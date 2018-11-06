@@ -1,4 +1,8 @@
 swagger: '2.0'
 info:
-  version: '1.0'
   title: "Project_SE2_2018"
+  description: "API to create,submit and manage survey."
+  version: '1.0'
+  contact:
+    email: "boh@boh.boh"
+host: "teamrocketproject.herokuapp.com"
