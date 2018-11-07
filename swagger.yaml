@@ -184,30 +184,28 @@ paths:
 definitions:
   Exam:
     type: "object"
-    required:
-    - "id"
     properties:
       id:
         type: "integer"
         format: "int64"
       name:
         type: "string"
-        example: "Devi"
+        example: "Git & collab - midterm test"
       owner:
         type: "integer"
         format: "int64"
       teachers:
         type: "array"
         items:
-          type: "integer"
+          $ref: "#/definitions/User"
       students:
         type: "array"
         items:
-          type: "integer"
-      task:
+          $ref: "#/definitions/User"
+      tasks:
         type: "array"
         items:
-          type: "integer"
+          $ref: "#/definitions/Task"
       deadline:
         type: "integer"
         format: "int64"
@@ -216,3 +214,104 @@ definitions:
       num_shuffle:
         type: "integer"
         format: "int64"
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "Bob"
+      surname:
+        type: "string"
+        format: "Strongman"
+      email:
+        type: "string"
+        format: "bob.strongman@studenti.unitn.it"
+      born:
+        $ref: "#/definitions/Datetime"
+      enrolment:
+        $ref: "#/definitions/Datetime"
+      tasks:
+        type: "array"
+        items:
+          $ref: "#/definitions/DeliverTask"
+  Task:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      task_type:
+        type: "string"
+        enum: ["open", "single_c", "multiple_c", "submit"]
+      question:
+        type: "object"
+  DeliverTask:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      task_type:
+        enum: ["open", "single_c", "multiple_c", "submit"]
+      question:
+        type: "object"
+      answer:
+        type: "string"
+      id_user:
+        type: "integer"
+        format: "int64"
+      id_exam:
+        type: "integer"
+        format: "int64"
+      completed:
+        type: "boolean"
+      comment_peer:
+        type: "array"
+        items:
+          type: "string"
+      comment:
+        type: "string"
+      mark:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 31
+      started:
+        $ref: "#/definitions/Datetime"
+      finished:
+        $ref: "#/definitions/Datetime"
+  Datetime:        
+    type: "object"
+    properties:
+      year:
+        type: "integer"
+        format: "int64"
+        minimum: 1900
+      month:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 12
+      day:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 31
+      hour:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 23
+      minute:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 60
+      second:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 60
