@@ -1,20 +1,35 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
-  title: "Project_SE2_2018"
-  description: "API to create,submit and manage survey."
-  version: '1.0'
+  description: "This is the API documentation of a RESTful web service, implemented
+  in order to sustain the Software Engineering II exam at University of Trento.
+  This API enables teachers to test the knowledge of their students by assigning 
+  them some tasks to do. There will also be some features in order to eventually 
+  perform a peer review session on some task"
+  version: "1.0.0"
+  title: "ExamsAPI - Project_SE2_2018"
+  termsOfService: "http://swagger.io/terms/"
   contact:
-    email: "boh@boh.boh"
+    email: "giovanni.guadagnini@studenti.unitn.it"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 host: "teamrocketproject.herokuapp.com"
+basePath: "/"
 tags:
-- name: "exam"
-  description: ""
-- name: "task"
+- name: "pet"
+  description: "Everything about your Pets"
+  externalDocs:
+    description: "Find out more"
+    url: "http://swagger.io"
+- name: "store"
   description: "Access to Petstore orders"
-- name: "delivery_task"
-  description: ""
 - name: "user"
-  description: ""
+  description: "Operations about user"
+  externalDocs:
+    description: "Find out more about our store"
+    url: "http://swagger.io"
+schemes:
+- "https"
 paths:
   /exam:
     post:
