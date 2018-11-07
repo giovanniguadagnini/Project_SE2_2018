@@ -31,7 +31,7 @@ tags:
 schemes:
 - "https"
 paths:
-   /exams:
+  /exams:
     post:
       tags:
       - "exams"
@@ -54,15 +54,13 @@ paths:
           description: "Invalid input"
     put:
       tags:
-      - "exam"
+      - "exams"
       summary: "Update an existing exam"
       description: ""
       operationId: "updateExam"
       consumes:
       - "application/json"
-      - "application/xml"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
       - in: "body"
@@ -78,23 +76,59 @@ paths:
           description: "Exam not found"
         405:
           description: "Validation exception"
-      security:
-      - petstore_auth:
-        - "write:exams"
-        - "read:exams"
+    get:
+      tags:
+      - "exams"
+      summary: "Get all the exams that i could manage"
+      description: ""
+      operationId: "getExams"
+      produces:
+      - "application/json"
+      responses:
+        400:
+          description: "Bad request"
+  /exams/{id}:
+    parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The exam ID
+    get:
+      tags:
+      - "exams"
+      summary: "Get an exam by ID"
+      description: ""
+      operationId: "getExam"
+      produces:
+      - "application/json"
+      responses:
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Exam not found"
+        405:
+          description: "Validation exception"
+    delete:
+      tags:
+      - "exams"
+      summary: "Delete an exam by ID"
+      description: ""
+      operationId: "deleteExam"
+      produces:
+      - "application/json"
+      responses:
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Exam not found"
+        405:
+          description: "Validation exception"
 definitions:
   Exam:
     type: "object"
     required:
     - "id"
-    - "name"
-    - "owner"
-    - "teachers"
-    - "students"
-    - "task"
-    - "deadline"
-    - "reviewable"
-    - "num_shuffle"
     properties:
       id:
         type: "integer"
