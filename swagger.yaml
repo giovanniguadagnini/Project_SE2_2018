@@ -31,18 +31,16 @@ tags:
 schemes:
 - "https"
 paths:
-  /exam:
+   /exams:
     post:
       tags:
-      - "exam"
+      - "exams"
       summary: "Add a new exam"
       description: ""
       operationId: "addExam"
       consumes:
       - "application/json"
-      - "application/xml"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
       - in: "body"
@@ -54,10 +52,6 @@ paths:
       responses:
         405:
           description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:exams"
-        - "read:exams"
     put:
       tags:
       - "exam"
@@ -92,14 +86,42 @@ definitions:
   Exam:
     type: "object"
     required:
+    - "id"
     - "name"
-    - "photoUrls"
+    - "owner"
+    - "teachers"
+    - "students"
+    - "task"
+    - "deadline"
+    - "reviewable"
+    - "num_shuffle"
     properties:
       id:
         type: "integer"
         format: "int64"
       name:
         type: "string"
-        example: "Verifica"
-    xml:
-      name: "Exam"
+        example: "Devi"
+      owner:
+        type: "integer"
+        format: "int64"
+      teachers:
+        type: "array"
+        items:
+          type: "integer"
+      students:
+        type: "array"
+        items:
+          type: "integer"
+      task:
+        type: "array"
+        items:
+          type: "integer"
+      deadline:
+        type: "integer"
+        format: "int64"
+      reviewable:
+        type: "boolean"
+      num_shuffle:
+        type: "integer"
+        format: "int64"
