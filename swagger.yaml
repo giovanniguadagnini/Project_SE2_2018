@@ -22,6 +22,8 @@ tags:
   description: "Operations delegated to user management"
 - name: "Task"
   description: "Define generic tasks that will be assigned in the future tests"
+- name: "DeliverTasks"
+  description: "Define the task and the option related the question that the student must answer"
 schemes:
 - "https"
 paths:
@@ -370,6 +372,97 @@ paths:
           description: "Task not found"
         405:
           description: "Validation exception"
+  /deliver_tasks:
+    put:
+      tags:
+      - "DeliverTasks"
+      summary: "Update an existing DeliverTasks"
+      description: ""
+      operationId: "updateDeliverTasks"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "DeliverTasks object that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/DeliverTasks"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DeliverTasks"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "DeliverTasks not found"
+        405:
+          description: "Validation exception"
+    get:
+      tags:
+      - "DeliverTasks"
+      summary: "Get all the manageable DeliverTasks"
+      description: ""
+      operationId: "getDeliverTasks"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/DeliverTasks"
+        400:
+          description: "Bad request"
+  /deliver_tasks/{id}:
+    parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The DeliverTasks ID
+    get:
+      tags:
+      - "DeliverTasks"
+      summary: "Get a DeliverTasks by ID"
+      description: ""
+      operationId: "getDeliverTasks"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/DeliverTasks"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "DeliverTasks not found"
+        405:
+          description: "Validation exception"
+    put:
+      tags:
+      - "DeliverTasks"
+      summary: "Update a DeliverTasks by ID"
+      description: ""
+      operationId: "updateDeliverTasks"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DeliverTasks"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "DeliverTasks not found"
+        405:
+          description: "Validation exception"        
 
 definitions:
   Exam:
@@ -426,7 +519,7 @@ definitions:
       tasks:
         type: "array"
         items:
-          $ref: "#/definitions/DeliverTask"
+          $ref: "#/definitions/DeliverTasks"
   Task:
     type: "object"
     properties:
@@ -440,7 +533,7 @@ definitions:
         enum: ["open", "single_c", "multiple_c", "submit"]
       question:
         type: "object"
-  DeliverTask:
+  DeliverTasks:
     type: "object"
     properties:
       id:
