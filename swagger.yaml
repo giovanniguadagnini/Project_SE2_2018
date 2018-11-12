@@ -1,10 +1,14 @@
 swagger: "2.0"
 info:
-  description: "This is the API documentation of a RESTful web service, implemented
-  in order to sustain the Software Engineering II exam at University of Trento.
-  This API enables teachers to test the knowledge of their students by assigning
-  them some tasks to do. There will also be some features in order to eventually
-  perform a peer review session on some task"
+  description: >
+    This is the API documentation of a RESTful web service, implemented
+    in order to sustain the Software Engineering II exam at University of Trento.
+    
+    #####Description
+    
+    This API enables teachers to test the knowledge of their students by assigning
+    them some tasks to do. There will also be some features in order to eventually 
+    perform a peer review session on some task
   version: "1.0.0"
   title: "ExamsAPI - Project_SE2_2018"
   termsOfService: "http://swagger.io/terms/"
@@ -32,7 +36,7 @@ paths:
       tags:
       - "Exam"
       summary: "Add a new exam"
-      description: ""
+      description: "Performed by a teacher when he wants to create a new exam that will be prompted to the students ( all of them will be specified internally in the resource that will be created to represent the exam )"
       operationId: "addExam"
       consumes:
       - "application/json"
@@ -56,7 +60,7 @@ paths:
       tags:
       - "Exam"
       summary: "Update an existing exam"
-      description: ""
+      description: "Performed by a techer in order to change the exam's specification"
       operationId: "updateExam"
       consumes:
       - "application/json"
@@ -84,7 +88,7 @@ paths:
       tags:
       - "Exam"
       summary: "Get all the manageable exams"
-      description: ""
+      description: "Performed by a teacher in order to get all the info about the exams he has requested to do"
       operationId: "getExams"
       produces:
       - "application/json"
@@ -108,7 +112,7 @@ paths:
       tags:
       - "Exam"
       summary: "Get an exam by ID"
-      description: ""
+      description: "Performed by the teacher in order to get specific info about an exam"
       operationId: "getExam"
       produces:
       - "application/json"
@@ -127,7 +131,7 @@ paths:
       tags:
       - "Exam"
       summary: "Delete an exam by ID"
-      description: ""
+      description: "Performed by the teacher, when some older or not reliable data about an exam are not necessary anymore"
       operationId: "deleteExam"
       produces:
       - "application/json"
@@ -147,7 +151,7 @@ paths:
       tags:
       - "User"
       summary: "Register as a new user"
-      description: ""
+      description: "One time thing in order to register itself into the application and use it"
       operationId: "addUser"
       consumes:
       - "application/json"
@@ -171,7 +175,7 @@ paths:
       tags:
       - "User"
       summary: "Return the list of users"
-      description: ""
+      description: "Every user can see a complete list of users that are related to them in some ways (teachers and/or students)"
       operationId: "getUsers"
       produces:
       - "application/json"
@@ -187,7 +191,7 @@ paths:
       tags:
       - "User"
       summary: "Find user by ID"
-      description: ""
+      description: "Could be performed by the user itself which wants to see its own profile, but also from other users that has the right to inspect other profile's data"
       operationId: "getUserById"
       produces:
       - "application/json"
@@ -211,7 +215,7 @@ paths:
       tags:
       - "User"
       summary: "Update user informations"
-      description: ""
+      description: "Performed by the user itself which wants to update its own profile"
       operationId: "updateUserByID"
       consumes:
       - "application/json"
@@ -237,7 +241,7 @@ paths:
       tags:
       - "User"
       summary: "Delete user with given ID"
-      description: ""
+      description: "Performed by the user itself which wants to delete its own profile"
       operationId: "deleteUser"
       produces:
       - "application/json"
@@ -262,7 +266,7 @@ paths:
       tags:
       - "Task"
       summary: "Create a new task"
-      description: ""
+      description: "Performed by the TA in order to add a new task template, in order to use it in future exams"
       operationId: "createTask"
       consumes:
       - "application/json"
@@ -282,39 +286,11 @@ paths:
             $ref: "#/definitions/Task"
         405:
           description: "Invalid input"
-    put:
-      tags:
-      - "Task"
-      summary: "Update an existing task"
-      description: ""
-      operationId: "updateTask"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Task object that needs to be updated"
-        required: true
-        schema:
-          $ref: "#/definitions/Task"
-      responses:
-        200:
-          description: "Successful operation"
-          schema:
-            $ref: "#/definitions/Task"
-        400:
-          description: "Invalid ID"
-        404:
-          description: "Task not found"
-        405:
-          description: "Validation exception"
     get:
       tags:
       - "Exam"
       summary: "Get all the manageable task"
-      description: ""
+      description: "Performed by the TA in order to get all the info about the task templates he/she can see & manage"
       operationId: "getTasks"
       produces:
       - "application/json"
@@ -338,7 +314,7 @@ paths:
       tags:
       - "Task"
       summary: "Get a task by ID"
-      description: ""
+      description: "Performed by the TA in order to get specific info about a task template"
       operationId: "getTask"
       produces:
       - "application/json"
@@ -353,11 +329,39 @@ paths:
           description: "Task not found"
         405:
           description: "Validation exception"
+    put:
+      tags:
+      - "Task"
+      summary: "Update an existing task"
+      description: "Useful when the teacher wants to modify a specific task template, so the question will be more appropriately prompted in future exams"
+      operationId: "updateTask"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Task object that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Task"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Task"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Task not found"
+        405:
+          description: "Validation exception"
     delete:
       tags:
       - "Task"
       summary: "Delete a task by ID"
-      description: ""
+      description: "Useful when the teacher wants to delete a specific task template, so that cannot be used in future exams"
       operationId: "deleteTask"
       produces:
       - "application/json"
@@ -372,40 +376,12 @@ paths:
           description: "Task not found"
         405:
           description: "Validation exception"
-  /deliver_tasks:
-    put:
-      tags:
-      - "DeliverTasks"
-      summary: "Update an existing DeliverTasks"
-      description: ""
-      operationId: "updateDeliverTasks"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "DeliverTasks object that needs to be updated"
-        required: true
-        schema:
-          $ref: "#/definitions/DeliverTasks"
-      responses:
-        200:
-          description: "Successful operation"
-          schema:
-            $ref: "#/definitions/DeliverTasks"
-        400:
-          description: "Invalid ID"
-        404:
-          description: "DeliverTasks not found"
-        405:
-          description: "Validation exception"
+  /deliverTasks:
     get:
       tags:
       - "DeliverTasks"
       summary: "Get all the manageable DeliverTasks"
-      description: ""
+      description: "This API will allow to retrieve all the delivered task that the TA or the student has the right to see"
       operationId: "getDeliverTasks"
       produces:
       - "application/json"
@@ -418,7 +394,7 @@ paths:
               $ref: "#/definitions/DeliverTasks"
         400:
           description: "Bad request"
-  /deliver_tasks/{id}:
+  /deliverTasks/{id}:
     parameters:
         - in: path
           name: id
@@ -429,7 +405,7 @@ paths:
       tags:
       - "DeliverTasks"
       summary: "Get a DeliverTasks by ID"
-      description: ""
+      description: "It'll be performed in order to retrieve a specific delivered task"
       operationId: "getDeliverTasks"
       produces:
       - "application/json"
@@ -448,7 +424,7 @@ paths:
       tags:
       - "DeliverTasks"
       summary: "Update a DeliverTasks by ID"
-      description: ""
+      description: "Useful when the student wants to upload his answer, but also when the TA wants to put a mark & comment to the task"
       operationId: "updateDeliverTasks"
       produces:
       - "application/json"
