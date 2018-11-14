@@ -3,14 +3,14 @@ info:
   description: >
     This is the API documentation of a RESTful web service, implemented
     in order to sustain the Software Engineering II exam at University of Trento.
-    
+
     #####Description
-    
+
     This API enables teachers to test the knowledge of their students by assigning
-    them some tasks to do. There will also be some features in order to eventually 
+    them some tasks to do. There will also be some features in order to eventually
     perform a peer review session on some task
   version: "1.0.0"
-  title: "ExamsAPI - Project_SE2_2018"
+  title: "EsAPI"
   termsOfService: "http://swagger.io/terms/"
   contact:
     email: "giovanni.guadagnini@studenti.unitn.it"
@@ -24,10 +24,12 @@ tags:
   description: "Operations delegated to exam management"
 - name: "User"
   description: "Operations delegated to user management"
+- name: "UserGroup"
+  description: "Operations that allow to manage groups of users"
 - name: "Task"
   description: "Define generic tasks that will be assigned in the future tests"
-- name: "DeliverTasks"
-  description: "Define the task and the option related the question that the student must answer"
+- name: "Submission"
+  description: "These are the actual question objects the students must answer; also used for evaluation & peer-review"
 schemes:
 - "https"
 paths:
@@ -60,7 +62,7 @@ paths:
       tags:
       - "Exam"
       summary: "Update an existing exam"
-      description: "Performed by a techer in order to change the exam's specification"
+      description: "Performed by a teacher in order to change the exam's specification"
       operationId: "updateExam"
       consumes:
       - "application/json"
@@ -261,6 +263,20 @@ paths:
           description: "Invalid ID supplied"
         404:
           description: "User not found"
+  /userGroups:
+    get:
+      tags:
+      - "UserGroup"
+      summary: "Return the list of all the different user groups"
+      description: "Could be performed by any user, obtaining just basic info about all the grouping of user"
+      operationId: "getUserGroups"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/UserGroup"
   /tasks:
     post:
       tags:
@@ -376,11 +392,11 @@ paths:
           description: "Task not found"
         405:
           description: "Validation exception"
-  /deliverTasks:
+  /submissions:
     get:
       tags:
-      - "DeliverTasks"
-      summary: "Get all the manageable DeliverTasks"
+      - "Submission"
+      summary: "Get all the manageable Submissions"
       description: "This API will allow to retrieve all the delivered task that the TA or the student has the right to see"
       operationId: "getDeliverTasks"
       produces:
@@ -391,20 +407,20 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/DeliverTasks"
+              $ref: "#/definitions/Submission"
         400:
           description: "Bad request"
-  /deliverTasks/{id}:
+  /submissions/{id}:
     parameters:
         - in: path
           name: id
           required: true
           type: integer
-          description: The DeliverTasks ID
+          description: The Submission ID
     get:
       tags:
-      - "DeliverTasks"
-      summary: "Get a DeliverTasks by ID"
+      - "Submission"
+      summary: "Get a Submission by ID"
       description: "It'll be performed in order to retrieve a specific delivered task"
       operationId: "getDeliverTasks"
       produces:
@@ -413,32 +429,32 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/DeliverTasks"
+            $ref: "#/definitions/Submission"
         400:
           description: "Invalid ID"
         404:
-          description: "DeliverTasks not found"
+          description: "Submission not found"
         405:
           description: "Validation exception"
     put:
       tags:
-      - "DeliverTasks"
-      summary: "Update a DeliverTasks by ID"
+      - "Submission"
+      summary: "Update a Submission by ID"
       description: "Useful when the student wants to upload his answer, but also when the TA wants to put a mark & comment to the task"
-      operationId: "updateDeliverTasks"
+      operationId: "updateSubmission"
       produces:
       - "application/json"
       responses:
         200:
           description: "Successful operation"
           schema:
-            $ref: "#/definitions/DeliverTasks"
+            $ref: "#/definitions/Submission"
         400:
           description: "Invalid ID"
         404:
-          description: "DeliverTasks not found"
+          description: "Submission not found"
         405:
-          description: "Validation exception"        
+          description: "Validation exception"
 
 definitions:
   Exam:
@@ -458,13 +474,15 @@ definitions:
         items:
           $ref: "#/definitions/User"
       students:
-        type: "array"
-        items:
-          $ref: "#/definitions/User"
+        $ref: "#/definitions/UserGroup"
       tasks:
         type: "array"
         items:
           $ref: "#/definitions/Task"
+      submissions:
+        type: "array"
+        items:
+          $ref: "#/definitions/Submission"
       deadline:
         type: "integer"
         format: "int64"
@@ -482,6 +500,8 @@ definitions:
       name:
         type: "string"
         example: "Bob"
+      password:
+        type: "string"
       surname:
         type: "string"
         format: "Strongman"
@@ -492,10 +512,23 @@ definitions:
         $ref: "#/definitions/Datetime"
       enrolment:
         $ref: "#/definitions/Datetime"
-      tasks:
+      submissions:
         type: "array"
         items:
-          $ref: "#/definitions/DeliverTasks"
+          $ref: "#/definitions/Submission"
+  UserGroup:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "1^ ICT students"
+      users:
+        type: "array"
+        items:
+          $ref: "#/definitions/User"
   Task:
     type: "object"
     properties:
@@ -509,7 +542,7 @@ definitions:
         enum: ["open", "single_c", "multiple_c", "submit"]
       question:
         type: "object"
-  DeliverTasks:
+  Submission:
     type: "object"
     properties:
       id:
