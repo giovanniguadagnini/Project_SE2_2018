@@ -45,8 +45,8 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
+      - in: body
+        name: "exam"
         description: "Exam object that needs to be added"
         required: true
         schema:
@@ -66,6 +66,31 @@ paths:
       operationId: "getExams"
       produces:
       - "application/json"
+      parameters:
+      - in: query
+        name: "sortStudBy"
+        type: string
+        enum: ["mark", "alpha", "enrol"]
+        description: "Decide how to sort students in UserGroup: by mark, alphabetical order or enrolment_code"
+        default: "enrol"
+      - in: query
+        name: "minStudByMark"
+        type: integer
+        description: "Decide the minimum grade you want to see in order to filter students in UserGroup"
+        default: -1
+      - in: query
+        name: "maxStudByMark"
+        type: integer
+        description: "Decide the maximum grade you want to see in order to filter students in UserGroup"
+        default: 31
+      - in: query
+        name: "taskType"
+        type: string
+        description: "Decide the category of task & relative submission you want to examine: open question, single choice, multiple choice, submit a doc.
+                      By default you'll see all the category
+                      If you want to examine just open question use 1000, just single choice 0100, just multiple choice 0010 and finally just submit documents 0001
+                      Feel free to use one of the binary options between 0000 and 1111 to obtain combinations of the four"
+        default: "1111"
       responses:
         200:
           description: "OK"
@@ -90,6 +115,31 @@ paths:
       operationId: "getExam"
       produces:
       - "application/json"
+      parameters:
+      - in: query
+        name: "sortStudBy"
+        type: string
+        enum: ["mark", "alpha", "enrol"]
+        description: "Decide how to sort students in UserGroup by mark, alphabetical order or enrolment_code"
+        default: "enrol"
+      - in: query
+        name: "minStudByMark"
+        type: integer
+        description: "Decide the minimum grade you want to see in order to filter students in UserGroup"
+        default: -1
+      - in: query
+        name: "maxStudByMark"
+        type: integer
+        description: "Decide the maximum grade you want to see in order to filter students in UserGroup"
+        default: 31      
+      - in: query
+        name: "taskType"
+        type: string
+        description: "Decide the category of task & relative submission you want to examine: open question, single choice, multiple choice, submit a doc.
+                      By default you'll see all the category
+                      If you want to examine just open question use 1000, just single choice 0100, just multiple choice 0010 and finally just submit documents 0001
+                      Feel free to use one of the binary options between 0000 and 1111 to obtain combinations of the four"
+        default: "1111"
       responses:
         200:
           description: "OK"
@@ -181,6 +231,16 @@ paths:
       operationId: "getUsers"
       produces:
       - "application/json"
+      parameters:
+      - in: query
+        name: "enrolledAfter"
+        type: integer
+        description: "Filter students enrolled after a certain year"
+        default: 1990
+      - in: query
+        name: "enrolledBefore"
+        type: integer
+        description: "Filter students enrolled before a certain year (default current year)"
       responses:
         200:
             description: "Successful operation"
@@ -296,6 +356,13 @@ paths:
       operationId: "getUserGroups"
       produces:
       - "application/json"
+      parameters:
+      - in: query
+        name: "sortUsrBy"
+        type: string
+        enum: ["alpha", "enrol"]
+        description: "Decide how to sort students inside single UserGroup: alphabetical order or enrolment_code"
+        default: "enrol"
       responses:
         200:
           description: "Successful operation"
@@ -311,8 +378,14 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "id"
-        in: "path"
+      - in: query
+        name: "sortUsrBy"
+        type: string
+        enum: ["alpha", "enrol"]
+        description: "Decide how to sort students inside single UserGroup: alphabetical order or enrolment_code"
+        default: "enrol"
+      - in: path
+        name: "id"
         description: "ID of user group to return"
         required: true
         type: "integer"
