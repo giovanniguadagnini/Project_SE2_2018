@@ -635,122 +635,161 @@ definitions:
       id:
         type: "integer"
         format: "int64"
+        description: "Unique identifier for the exam"
       name:
         type: "string"
+        description: "Name assigned to the exam"
         example: "Git & collab - midterm test"
       owner:
         type: "integer"
         format: "int64"
+        description: "ID of the user which created the exam in the first place"
       teachers:
         type: "array"
         items:
           $ref: "#/definitions/User"
+        description: "Users that are able to modify, submit & evaluate the exam's submissions (owner implicitly added here)"
       students:
         $ref: "#/definitions/UserGroup"
+        description: "Students that are requested to do the exam's submission and delivered them"
       tasks:
         type: "array"
         items:
           $ref: "#/definitions/Task"
+        description: "Task tamplates that compose the exam"
       submissions:
         type: "array"
         items:
           $ref: "#/definitions/Submission"
+        description: "Actual tasks with question & answer submitted by the users while doing the exam"
       deadline:
         type: "integer"
         format: "int64"
+        description: "Time in second that specifies the period of time which the exam will last"
       reviewable:
         type: "boolean"
+        description: "If the exam is open to peer review this flag will be true"
       num_shuffle:
         type: "integer"
         format: "int64"
+        description: "If this variable equals to the size of the tasks, the question will just be prompt in a random way. Nevertheless, if the number is smaller there will be the same shuffle over a random subset of task"
   User:
     type: "object"
     properties:
       id:
         type: "integer"
         format: "int64"
+        description: "Unique identifier for any user of the system"
       name:
         type: "string"
         example: "Bob"
+        description: "Name of the user"
       password:
         type: "string"
+        description: "Password of the user"
       surname:
         type: "string"
-        format: "Strongman"
+        example: "Strongman"
+        description: "Surname of the user"
       email:
         type: "string"
         format: "bob.strongman@studenti.unitn.it"
+        description: "Email of the user"
+      exam_eval:
+        type: "array"
+        items:
+          $ref: "#/definitions/ExamEval"
+        description: "Array that will expose the final marks of every exam taken by the user"
       born:
         $ref: "#/definitions/Datetime"
+        description: "Birth date of the user"
       enrolment:
         $ref: "#/definitions/Datetime"
+        description: "Year of enrolment"
       submissions:
         type: "array"
         items:
           $ref: "#/definitions/Submission"
+        description: "Array that will expose all the submissions object that has been delivered during any exam"
   UserGroup:
     type: "object"
     properties:
       id:
         type: "integer"
         format: "int64"
+        description: "Unique identifier for the user group"
       creator:
         $ref: "#/definitions/User"
+        description: "User that has istantiated the user group in the first place"
       name:
         type: "string"
         example: "1^ ICT students"
+        description: "Name that helps the users to identify the appropriate user group"
       users:
         type: "array"
         items:
           $ref: "#/definitions/User"
+        description: "Array which describes the composition of the user group"
   Task:
     type: "object"
     properties:
       id:
         type: "integer"
         format: "int64"
+        description: "Unique identifier for a task template stored in the system"
       owner:
         $ref: "#/definitions/User"
+        description: "Creator of the task template"
       task_type:
         type: "string"
         enum: ["open", "single_c", "multiple_c", "submit"]
+        description: "Type of question (open question, single choice, multiple choice, submit a file)"
       question:
         type: "object"
+        description: "Question formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
+      points:
+        type: "integer"
+        format: "int32"
+        description: "Max point that could be assigned for a complete and satisfactory answer for this task (helps to build a final mark for the exam)"
   Submission:
     type: "object"
     properties:
       id:
         type: "integer"
         format: "int64"
+        description: "Unique identifier for a task submission"
       task_type:
         enum: ["open", "single_c", "multiple_c", "submit"]
+        description: "Type of task submission"
       question:
         type: "object"
+        description: "Question formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
       answer:
         type: "string"
+        description: "Answer to a task submission formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
       id_user:
         type: "integer"
         format: "int64"
+        description: "Unique identifier for the user that has performed the submission"
       id_exam:
         type: "integer"
         format: "int64"
+        description: "Unique identifier for the exam in which the submission fit into"
       completed:
         type: "boolean"
+        description: "Mark the submission has finished (it means you can't change the answer anymore)"
       comment_peer:
         type: "array"
         items:
           type: "string"
+        description: "Array of comments delivered during a peer review for a task submission"
       comment:
         type: "string"
+        description: "Teacher comment for a task submission"
       mark:
         type: "integer"
         format: "int32"
-        minimum: 0
-        maximum: 31
-      started:
-        $ref: "#/definitions/Datetime"
-      finished:
-        $ref: "#/definitions/Datetime"
+        description: "Teacher evaluation for a task submission"
   Datetime:
     type: "object"
     properties:
@@ -783,3 +822,16 @@ definitions:
         format: "int32"
         minimum: 0
         maximum: 60
+  ExamEval:
+    type: "object"
+    properties:
+      id_exam:
+        type: "integer"
+        format: "int64"
+        description: "ID of the exam the mark is related to"
+      mark:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        description: "Final mark for a specific exam"
+        maximum: 31
