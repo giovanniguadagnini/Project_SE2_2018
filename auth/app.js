@@ -15,7 +15,15 @@ auth(app);
 
 // health check (public endpoint)
 app.get('/', (req, res) => {
-  res.json({ msg: 'Hello world!' });
+  res.send("<html>
+            <head>
+              <meta name=\"google-site-verification\" content=\"73U9uBeE_GJ1jsrT8nltR24d7rioFL2uwJFmWSN2F5Y\" />
+              <title>EsAPI: SEII - Project</title>
+            </head>
+            <body>
+            page contents
+            </body>
+            </html>");
 });
 
 // private endpoint
