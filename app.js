@@ -13,11 +13,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 auth(app);
 
-app.use(express.static('static'));
-
 // health check (public endpoint)
 app.get('/', (req, res) => {
-  res.send("Hello World");
+  res.json({ msg: 'Hello world!' });
 });
 
 // private endpoint
