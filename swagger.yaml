@@ -370,6 +370,8 @@ paths:
           description: "Successful operation"
           schema:
             $ref: "#/definitions/UserGroup"
+        404:
+          description: "No userGroup found"
   /userGroups/{id}:
     get:
       tags:
