@@ -13,17 +13,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 auth(app);
 
+app.use(express.static('auth/static'));
+
 // health check (public endpoint)
 app.get('/', (req, res) => {
-  res.send("<html>
-            <head>
-              <meta name=\"google-site-verification\" content=\"73U9uBeE_GJ1jsrT8nltR24d7rioFL2uwJFmWSN2F5Y\" />
-              <title>EsAPI: SEII - Project</title>
-            </head>
-            <body>
-            page contents
-            </body>
-            </html>");
+  res.send("Hello World");
 });
 
 // private endpoint
