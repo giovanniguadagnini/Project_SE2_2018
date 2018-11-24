@@ -11,6 +11,5 @@ app.route('/userGroups')
           res.status(404).send("No userGroup found");
   })
   .post(function(req, res){
-      
-  });
 
+  });

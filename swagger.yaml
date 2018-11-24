@@ -1,4 +1,841 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
-  version: '1.0'
-  title: "Project_SE2_2018"
+  description: >
+    This is the API documentation of a RESTful web service, implemented
+    in order to sustain the Software Engineering II exam at University of Trento.
+
+    #####Description
+
+    This API enables teachers to test the knowledge of their students by assigning
+    them some tasks to do. There will also be some features in order to eventually
+    perform a peer review session on some task
+  version: "1.0.0"
+  title: "EsAPI"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "giovanni.guadagnini@studenti.unitn.it"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "teamrocketproject.herokuapp.com"
+basePath: "/"
+tags:
+- name: "Exam"
+  description: "Operations delegated to exam management"
+- name: "User"
+  description: "Operations delegated to user management"
+- name: "UserGroup"
+  description: "Operations that allow to manage groups of users"
+- name: "Task"
+  description: "Define generic tasks that will be assigned in the future tests"
+- name: "Submission"
+  description: "These are the actual question objects the students must answer; also used for evaluation & peer-review"
+schemes:
+- "https"
+paths:
+  /exams:
+    post:
+      tags:
+      - "Exam"
+      summary: "Add a new exam"
+      description: "Performed by a teacher when he wants to create a new exam that will be prompted to the students ( all of them will be specified internally in the resource that will be created to represent the exam )"
+      operationId: "addExam"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: body
+        name: "exam"
+        description: "Exam object that needs to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/Exam"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Exam"
+        405:
+          description: "Invalid input"
+    get:
+      tags:
+      - "Exam"
+      summary: "Get all the manageable exams"
+      description: "Performed by a teacher in order to get all the info about the exams he has requested to do"
+      operationId: "getExams"
+      produces:
+      - "application/json"
+      parameters:
+      - in: query
+        name: "sortStudBy"
+        type: string
+        enum: ["mark", "alpha", "enrol"]
+        description: "Decide how to sort students in UserGroup: by mark, alphabetical order or enrolment_code"
+        default: "enrol"
+      - in: query
+        name: "minStudByMark"
+        type: integer
+        description: "Decide the minimum grade you want to see in order to filter students in UserGroup"
+        default: -1
+      - in: query
+        name: "maxStudByMark"
+        type: integer
+        description: "Decide the maximum grade you want to see in order to filter students in UserGroup"
+        default: 31
+      - in: query
+        name: "taskType"
+        type: string
+        description: "Decide the category of task & relative submission you want to examine: open question, single choice, multiple choice, submit a doc.
+                      By default you'll see all the category
+                      If you want to examine just open question use 1000, just single choice 0100, just multiple choice 0010 and finally just submit documents 0001
+                      Feel free to use one of the binary options between 0000 and 1111 to obtain combinations of the four"
+        default: "1111"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Exam"
+        400:
+          description: "Bad request"
+  /exams/{id}:
+    parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The exam ID
+    get:
+      tags:
+      - "Exam"
+      summary: "Get an exam by ID"
+      description: "Performed by the teacher in order to get specific info about an exam"
+      operationId: "getExam"
+      produces:
+      - "application/json"
+      parameters:
+      - in: query
+        name: "sortStudBy"
+        type: string
+        enum: ["mark", "alpha", "enrol"]
+        description: "Decide how to sort students in UserGroup by mark, alphabetical order or enrolment_code"
+        default: "enrol"
+      - in: query
+        name: "minStudByMark"
+        type: integer
+        description: "Decide the minimum grade you want to see in order to filter students in UserGroup"
+        default: -1
+      - in: query
+        name: "maxStudByMark"
+        type: integer
+        description: "Decide the maximum grade you want to see in order to filter students in UserGroup"
+        default: 31      
+      - in: query
+        name: "taskType"
+        type: string
+        description: "Decide the category of task & relative submission you want to examine: open question, single choice, multiple choice, submit a doc.
+                      By default you'll see all the category
+                      If you want to examine just open question use 1000, just single choice 0100, just multiple choice 0010 and finally just submit documents 0001
+                      Feel free to use one of the binary options between 0000 and 1111 to obtain combinations of the four"
+        default: "1111"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Exam"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Exam not found"
+        405:
+          description: "Validation exception"
+    put:
+      tags:
+      - "Exam"
+      summary: "Update an existing exam"
+      description: "Performed by a teacher in order to change the exam's specification"
+      operationId: "updateExam"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Exam object that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Exam"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Exam"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Exam not found"
+        405:
+          description: "Validation exception"
+    delete:
+      tags:
+      - "Exam"
+      summary: "Delete an exam by ID"
+      description: "Performed by the teacher, when some older or not reliable data about an exam are not necessary anymore"
+      operationId: "deleteExam"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Exam"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Exam not found"
+        405:
+          description: "Validation exception"
+  /users:
+    post:
+      tags:
+      - "User"
+      summary: "Register as a new user"
+      description: "One time thing in order to register itself into the application and use it"
+      operationId: "addUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User object that represents the profile newly registered user"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        405:
+          description: "Invalid input"
+    get:
+      tags:
+      - "User"
+      summary: "Return the list of users"
+      description: "Every user can see a complete list of users that are related to them in some ways (teachers and/or students)"
+      operationId: "getUsers"
+      produces:
+      - "application/json"
+      parameters:
+      - in: query
+        name: "enrolledAfter"
+        type: integer
+        description: "Filter students enrolled after a certain year"
+        default: 1990
+      - in: query
+        name: "enrolledBefore"
+        type: integer
+        description: "Filter students enrolled before a certain year (default current year)"
+      responses:
+        200:
+            description: "Successful operation"
+            schema:
+              type: "array"
+              items:
+                $ref: "#/definitions/User"
+        404:
+          description: "No user found"
+  /users/{id}:
+    get:
+      tags:
+      - "User"
+      summary: "Find user by ID"
+      description: "Could be performed by the user itself which wants to see its own profile, but also from other users that has the right to inspect other profile's data"
+      operationId: "getUserById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of user to return"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "User not found"
+    put:
+      tags:
+      - "User"
+      summary: "Update user informations"
+      description: "Performed by the user itself which wants to update its own profile"
+      operationId: "updateUserByID"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of user to return"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "User not found"
+    delete:
+      tags:
+      - "User"
+      summary: "Delete user with given ID"
+      description: "Performed by the user itself which wants to delete its own profile"
+      operationId: "deleteUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of user to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "User not found"
+  /userGroups:
+    post:
+        tags:
+        - "UserGroup"
+        summary: "Instantiate a new user group"
+        description: "Grouping users in order to make it easier the exam handling process"
+        operationId: "addUserGroup"
+        consumes:
+        - "application/json"
+        produces:
+        - "application/json"
+        parameters:
+        - in: "body"
+          name: "body"
+          description: "User Group object that represents the newly created user group"
+          required: true
+          schema:
+            $ref: "#/definitions/UserGroup"
+        responses:
+          200:
+            description: "Successful operation"
+            schema:
+              $ref: "#/definitions/UserGroup"
+          405:
+            description: "Invalid input"
+    get:
+      tags:
+      - "UserGroup"
+      summary: "Return the list of all the different user groups"
+      description: "Could be performed by any user, obtaining just basic info about all the grouping of user"
+      operationId: "getUserGroups"
+      produces:
+      - "application/json"
+      parameters:
+      - in: query
+        name: "sortUsrBy"
+        type: string
+        enum: ["alpha", "enrol"]
+        description: "Decide how to sort students inside single UserGroup: alphabetical order or enrolment_code"
+        default: "enrol"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/UserGroup"
+        404:
+          description: "No userGroup found"
+  /userGroups/{id}:
+    get:
+      tags:
+      - "UserGroup"
+      summary: "Find user group by ID"
+      description: "Could be performed by any user that wants to inspect a group of other user (he/she will see just the user informations he/she has the right to inspect)"
+      operationId: "getUserGroupById"
+      produces:
+      - "application/json"
+      parameters:
+      - in: query
+        name: "sortUsrBy"
+        type: string
+        enum: ["alpha", "enrol"]
+        description: "Decide how to sort students inside single UserGroup: alphabetical order or enrolment_code"
+        default: "enrol"
+      - in: path
+        name: "id"
+        description: "ID of user group to return"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/UserGroup"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "UserGroup not found"
+    put:
+      tags:
+      - "UserGroup"
+      summary: "Update user group informations"
+      description: "Performed by the user which has istantiated the user group in the first place in order to add/delete some members or change the name of the group"
+      operationId: "updateUserGroupByID"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of user group to update"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/UserGroup"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "User group not found"
+    delete:
+      tags:
+      - "UserGroup"
+      summary: "Delete user group with given ID"
+      description: "Performed by the user which has istantiated the user group in the first place & now wants to delete it"
+      operationId: "deleteUserGroup"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of user group to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/UserGroup"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "User group not found"
+  /tasks:
+    post:
+      tags:
+      - "Task"
+      summary: "Create a new task"
+      description: "Performed by the TA in order to add a new task template, in order to use it in future exams"
+      operationId: "createTask"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Task object that is going to be created"
+        required: true
+        schema:
+          $ref: "#/definitions/Task"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Task"
+        405:
+          description: "Invalid input"
+    get:
+      tags:
+      - "Exam"
+      summary: "Get all the manageable task"
+      description: "Performed by the TA in order to get all the info about the task templates he/she can see & manage"
+      operationId: "getTasks"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Task"
+        400:
+          description: "Bad request"
+  /tasks/{id}:
+    parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The task ID
+    get:
+      tags:
+      - "Task"
+      summary: "Get a task by ID"
+      description: "Performed by the TA in order to get specific info about a task template"
+      operationId: "getTask"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Task"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Task not found"
+        405:
+          description: "Validation exception"
+    put:
+      tags:
+      - "Task"
+      summary: "Update an existing task"
+      description: "Useful when the teacher wants to modify a specific task template, so the question will be more appropriately prompted in future exams"
+      operationId: "updateTask"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Task object that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Task"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Task"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Task not found"
+        405:
+          description: "Validation exception"
+    delete:
+      tags:
+      - "Task"
+      summary: "Delete a task by ID"
+      description: "Useful when the teacher wants to delete a specific task template, so that cannot be used in future exams"
+      operationId: "deleteTask"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Task"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Task not found"
+        405:
+          description: "Validation exception"
+  /submissions:
+    get:
+      tags:
+      - "Submission"
+      summary: "Get all the manageable Submissions"
+      description: "This API will allow to retrieve all the delivered task that the TA or the student has the right to see"
+      operationId: "getDeliverTasks"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Submission"
+        400:
+          description: "Bad request"
+  /submissions/{id}:
+    parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: The Submission ID
+    get:
+      tags:
+      - "Submission"
+      summary: "Get a Submission by ID"
+      description: "It'll be performed in order to retrieve a specific delivered task"
+      operationId: "getDeliverTasks"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Submission"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Submission not found"
+        405:
+          description: "Validation exception"
+    put:
+      tags:
+      - "Submission"
+      summary: "Update a Submission by ID"
+      description: "Useful when the student wants to upload his answer, but also when the TA wants to put a mark & comment to the task"
+      operationId: "updateSubmission"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Submission"
+        400:
+          description: "Invalid ID"
+        404:
+          description: "Submission not found"
+        405:
+          description: "Validation exception"
+
+definitions:
+  Exam:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "Unique identifier for the exam"
+      name:
+        type: "string"
+        description: "Name assigned to the exam"
+        example: "Git & collab - midterm test"
+      owner:
+        type: "integer"
+        format: "int64"
+        description: "ID of the user which created the exam in the first place"
+      teachers:
+        type: "array"
+        items:
+          $ref: "#/definitions/User"
+        description: "Users that are able to modify, submit & evaluate the exam's submissions (owner implicitly added here)"
+      students:
+        $ref: "#/definitions/UserGroup"
+        description: "Students that are requested to do the exam's submission and delivered them"
+      tasks:
+        type: "array"
+        items:
+          $ref: "#/definitions/Task"
+        description: "Task tamplates that compose the exam"
+      submissions:
+        type: "array"
+        items:
+          $ref: "#/definitions/Submission"
+        description: "Actual tasks with question & answer submitted by the users while doing the exam"
+      deadline:
+        type: "integer"
+        format: "int64"
+        description: "Time in second that specifies the period of time which the exam will last"
+      reviewable:
+        type: "boolean"
+        description: "If the exam is open to peer review this flag will be true"
+      num_shuffle:
+        type: "integer"
+        format: "int64"
+        description: "If this variable equals to the size of the tasks, the question will just be prompt in a random way. Nevertheless, if the number is smaller there will be the same shuffle over a random subset of task"
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "Unique identifier for any user of the system"
+      name:
+        type: "string"
+        example: "Bob"
+        description: "Name of the user"
+      password:
+        type: "string"
+        description: "Password of the user"
+      surname:
+        type: "string"
+        example: "Strongman"
+        description: "Surname of the user"
+      email:
+        type: "string"
+        format: "bob.strongman@studenti.unitn.it"
+        description: "Email of the user"
+      exam_eval:
+        type: "array"
+        items:
+          $ref: "#/definitions/ExamEval"
+        description: "Array that will expose the final marks of every exam taken by the user"
+      born:
+        $ref: "#/definitions/Datetime"
+        description: "Birth date of the user"
+      enrolment:
+        $ref: "#/definitions/Datetime"
+        description: "Year of enrolment"
+      submissions:
+        type: "array"
+        items:
+          $ref: "#/definitions/Submission"
+        description: "Array that will expose all the submissions object that has been delivered during any exam"
+  UserGroup:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "Unique identifier for the user group"
+      creator:
+        $ref: "#/definitions/User"
+        description: "User that has istantiated the user group in the first place"
+      name:
+        type: "string"
+        example: "1^ ICT students"
+        description: "Name that helps the users to identify the appropriate user group"
+      users:
+        type: "array"
+        items:
+          $ref: "#/definitions/User"
+        description: "Array which describes the composition of the user group"
+  Task:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "Unique identifier for a task template stored in the system"
+      owner:
+        $ref: "#/definitions/User"
+        description: "Creator of the task template"
+      task_type:
+        type: "string"
+        enum: ["open", "single_c", "multiple_c", "submit"]
+        description: "Type of question (open question, single choice, multiple choice, submit a file)"
+      question:
+        type: "object"
+        description: "Question formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
+      points:
+        type: "integer"
+        format: "int32"
+        description: "Max point that could be assigned for a complete and satisfactory answer for this task (helps to build a final mark for the exam)"
+  Submission:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "Unique identifier for a task submission"
+      task_type:
+        enum: ["open", "single_c", "multiple_c", "submit"]
+        description: "Type of task submission"
+      question:
+        type: "object"
+        description: "Question formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
+      answer:
+        type: "string"
+        description: "Answer to a task submission formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
+      id_user:
+        type: "integer"
+        format: "int64"
+        description: "Unique identifier for the user that has performed the submission"
+      id_exam:
+        type: "integer"
+        format: "int64"
+        description: "Unique identifier for the exam in which the submission fit into"
+      completed:
+        type: "boolean"
+        description: "Mark the submission has finished (it means you can't change the answer anymore)"
+      comment_peer:
+        type: "array"
+        items:
+          type: "string"
+        description: "Array of comments delivered during a peer review for a task submission"
+      comment:
+        type: "string"
+        description: "Teacher comment for a task submission"
+      mark:
+        type: "integer"
+        format: "int32"
+        description: "Teacher evaluation for a task submission"
+  Datetime:
+    type: "object"
+    properties:
+      year:
+        type: "integer"
+        format: "int64"
+        minimum: 1900
+      month:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 12
+      day:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 31
+      hour:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 23
+      minute:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 60
+      second:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 60
+  ExamEval:
+    type: "object"
+    properties:
+      id_exam:
+        type: "integer"
+        format: "int64"
+        description: "ID of the exam the mark is related to"
+      mark:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        description: "Final mark for a specific exam"
+        maximum: 31
