@@ -17,7 +17,7 @@
     "jest": "^23.6.0"
   },
   "scripts": {
-    "start": "node -r dotenv/config ./auth/server.js",
+    "start": "node -r dotenv/config ./server.js",
     "test": "jest"
   },
   "jest": {

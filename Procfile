@@ -1,1 +1,1 @@
-web: node -r dotenv/config ./auth/server.js
+web: node -r dotenv/config ./server.js

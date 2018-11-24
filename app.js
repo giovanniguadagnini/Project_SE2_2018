@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 auth(app);
 
-app.use(express.static('auth/static'));
+app.use(express.static('static'));
 
 // health check (public endpoint)
 app.get('/', (req, res) => {
