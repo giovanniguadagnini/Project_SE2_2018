@@ -225,4 +225,12 @@ function deleteUser(userId) {
     });
 }
 
+<<<<<<< HEAD
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};
+=======
+function deleteExam(id){
+
+}
+
+module.exports = {getAllUsers, createUser, getUser, updateUser,createExam,getAllExams,getExam,updateExam,deleteExam};
+>>>>>>> added deleteExam function in userDao.js
