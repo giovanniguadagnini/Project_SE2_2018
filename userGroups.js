@@ -13,4 +13,3 @@ app.route('/userGroups')
   .post(function(req, res){
       
   });
-
