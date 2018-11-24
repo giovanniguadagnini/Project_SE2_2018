@@ -248,6 +248,8 @@ paths:
               type: "array"
               items:
                 $ref: "#/definitions/User"
+        404:
+          description: "No user found"
   /users/{id}:
     get:
       tags:
