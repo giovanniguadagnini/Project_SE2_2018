@@ -4,17 +4,24 @@
   "description": "Group repository for Exam Platform Project",
   "main": "api.js",
   "dependencies": {
-    "express": "^4.16.4"
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.4",
+    "google-auth-library": "^2.0.1",
+    "node-fetch": "^2.3.0",
+    "passport": "^0.4.0",
+    "passport-google-oauth": "^1.0.0",
+    "passport-http-bearer": "^1.0.1"
   },
   "devDependencies": {
     "jest": "^23.6.0"
   },
   "scripts": {
-    "start": "node api.js",
+    "start": "node -r dotenv/config ./auth/server.js",
     "test": "jest"
   },
-  "jest":{
-    "verbose":true,
+  "jest": {
+    "verbose": true,
     "collectCoverage": true
   },
   "repository": {
