@@ -248,9 +248,13 @@ paths:
               type: "array"
               items:
                 $ref: "#/definitions/User"
-        404:
-          description: "No user found"
   /users/{id}:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: The user ID
     get:
       tags:
       - "User"
@@ -286,12 +290,12 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "id"
-        in: "path"
-        description: "ID of user to return"
+      - in: "body"
+        name: "body"
+        description: "User object that needs to be updated"
         required: true
-        type: "integer"
-        format: "int64"
+        schema:
+          $ref: "#/definitions/User"
       responses:
         200:
           description: "Successful operation"
@@ -370,9 +374,13 @@ paths:
           description: "Successful operation"
           schema:
             $ref: "#/definitions/UserGroup"
-        404:
-          description: "No userGroup found"
   /userGroups/{id}:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: The userGroup ID
     get:
       tags:
       - "UserGroup"
@@ -414,12 +422,12 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "id"
-        in: "path"
-        description: "ID of user group to update"
+      - in: "body"
+        name: "body"
+        description: "UserGroup object that needs to be updated"
         required: true
-        type: "integer"
-        format: "int64"
+        schema:
+          $ref: "#/definitions/UserGroup"
       responses:
         200:
           description: "Successful operation"
@@ -584,8 +592,10 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Submission"
-        400:
-          description: "Bad request"
+        403:
+          description: "Forbidden"
+        404:
+          description: "No submission found"
   /submissions/{id}:
     parameters:
         - in: path
@@ -606,12 +616,10 @@ paths:
           description: "OK"
           schema:
             $ref: "#/definitions/Submission"
-        400:
-          description: "Invalid ID"
+        403:
+          description: "Forbidden"
         404:
           description: "Submission not found"
-        405:
-          description: "Validation exception"
     put:
       tags:
       - "Submission"
@@ -620,17 +628,24 @@ paths:
       operationId: "updateSubmission"
       produces:
       - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Submission object that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Submission"
       responses:
         200:
           description: "Successful operation"
           schema:
             $ref: "#/definitions/Submission"
         400:
-          description: "Invalid ID"
+          description: "Bad request"
+        403:
+          description: "Forbidden"
         404:
           description: "Submission not found"
-        405:
-          description: "Validation exception"
 
 definitions:
   Exam:
@@ -790,10 +805,14 @@ definitions:
       comment:
         type: "string"
         description: "Teacher comment for a task submission"
-      mark:
+      points:
         type: "integer"
         format: "int32"
-        description: "Teacher evaluation for a task submission"
+        description: "Max point that could be assigned for a complete and satisfactory answer for this task (helps to build a final mark for the exam)"
+      earned_points:
+        type: "integer"
+        format: "int32"
+        description: "Teacher evaluation for a task submission (it has be less than the max points)"
   Datetime:
     type: "object"
     properties:
