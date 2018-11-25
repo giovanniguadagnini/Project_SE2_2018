@@ -1,5 +1,6 @@
 const app = require('./app');
 const userDao = require('./userDao');
+
 app.route('/users')
     .get(function(req, res) { //Get all available users
         var enrolledBefore = req.query.enrolledBefore;
@@ -35,7 +36,7 @@ app.route('/users')
 
 app.route('/users/:id')
     .get(function(req, res) { //Get account data
-        var id = req.id;
+        var id = parseInt(req.params.id, 10);
         if(Number.isInteger(id) == true) {
             var user = userDao.getUser(id); //trying to get the user from the system
             if (user != null) {
@@ -48,14 +49,14 @@ app.route('/users/:id')
         }
     })
     .put(function(req, res) {//Update account info
-        var id = req.id;
+        var id = parseInt(req.params.id, 10);
         if(Number.isInteger(id) == true) {
             var user = {
-              name: req.body.name,
-              surname : req.body.surname,
-              password : req.body.password,
-              email : req.body.email,
-              born : req.body.born
+                name: req.body.name,
+                surname : req.body.surname,
+                password : req.body.password,
+                email : req.body.email,
+                born : req.body.born
             };
             user = userDao.updateUser(user);//trying to update the user
             if (user != null) {
@@ -66,5 +67,6 @@ app.route('/users/:id')
         }else{
             res.status(400).send("Invalid ID supplied");
         }
-
     });
+
+module.exports = app;
