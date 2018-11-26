@@ -202,7 +202,6 @@ var dummyExam = {
 function popDB() {
     connection.connect();
 
-
     var born = dummyStud.born.year + '-' + dummyStud.born.month + '-' + dummyStud.born.day + ' ' + dummyStud.born.hour + ':' + dummyStud.born.minute + ':' + dummyStud.born.second;
     var enrolled = dummyStud.enrolment.year + '-' + dummyStud.enrolment.month + '-' + dummyStud.enrolment.day + ' ' + dummyStud.enrolment.hour + ':' + dummyStud.enrolment.minute + ':' + dummyStud.enrolment.second;
     connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',

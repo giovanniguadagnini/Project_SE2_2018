@@ -20,11 +20,9 @@ app.route('/users')
     })
     .post(function(req, res) { //Create user
         var user = {
-          name: req.body.name,
-          surname : req.body.surname,
-          password : req.body.password,
-          email : req.body.email,
-          born : req.body.born
+            id : req.body.id,
+            name: req.body.name,
+            surname : req.body.surname,
         };
         user = userDao.createUser(user);//trying to create the user
         if (user != null) {
@@ -37,7 +35,7 @@ app.route('/users')
 app.route('/users/:id')
     .get(function(req, res) { //Get account data
         var id = parseInt(req.params.id, 10);
-        if(Number.isInteger(id) == true) {
+        if(Number.isInteger(parseInt(id, 10)) == true) {
             var user = userDao.getUser(id); //trying to get the user from the system
             if (user != null) {
                 res.status(200).send(user);
@@ -50,16 +48,30 @@ app.route('/users/:id')
     })
     .put(function(req, res) {//Update account info
         var id = parseInt(req.params.id, 10);
-        if(Number.isInteger(id) == true) {
+        if(Number.isInteger(parseInt(id, 10)) == true) {
             var user = {
                 name: req.body.name,
                 surname : req.body.surname,
                 password : req.body.password,
                 email : req.body.email,
-                born : req.body.born
+                born : req.body.born,
+                enrolled : req.body.enrolled
             };
             user = userDao.updateUser(user);//trying to update the user
             if (user != null) {
+                res.status(200).send(user);
+            } else {
+                res.status(404).send("User not found");
+            }
+        }else{
+            res.status(400).send("Invalid ID supplied");
+        }
+    })
+    .delete(function(req, res) {//Update account info
+        var id = parseInt(req.params.id, 10);
+        if(Number.isInteger(parseInt(id, 10)) == true) {
+            user = userDao.deleteUser(id);//trying to update the user
+            if (retval != null) {
                 res.status(200).send(user);
             } else {
                 res.status(404).send("User not found");
