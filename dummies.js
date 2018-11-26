@@ -14,7 +14,7 @@ var dummyStud = {
     id: 12,
     name: 'John',
     surname: 'Doe',
-    password: 'hashed',
+    token: null,
     email: 'email@email.com',
     born: {
         year: 1997,
@@ -53,7 +53,7 @@ var dummyTeacher = {
     id: 11,
     name: 'Jimmy',
     surname: 'Teacher',
-    password: 'password',
+    token: null,
     email: 'dummy@dummy.com',
     born: {
         year: 1967,

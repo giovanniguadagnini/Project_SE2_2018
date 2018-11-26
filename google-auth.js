@@ -1,10 +1,8 @@
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const passport = require('passport');
-const request = require('request');
-const { OAuth2Client } = require('google-auth-library');
-const { Strategy } = require('passport-http-bearer');
-
-const { User } = require('./db');
+const {OAuth2Client} = require('google-auth-library');
+const {Strategy} = require('passport-http-bearer');
+const userDao = require('./userDao');
 
 /**
  * Function to register google authentication workflow.
@@ -25,7 +23,7 @@ exports.auth = app => {
  * A tiny helper to make an endpoint protected.
  */
 exports.protect = () => {
-  return passport.authenticate('bearer', { session: false });
+    return passport.authenticate('bearer', {session: false});
 };
 
 // for further reference
@@ -51,8 +49,8 @@ const registerGoogleAuth = app => {
                 // here we would store the user information in the db, if the user does not exist.
                 let user = User.findOrCreate(profile);
                 return done(null, {
-                  user,
-                  token
+                    user,
+                    token
                 });
             }
         )
@@ -66,52 +64,51 @@ const registerGoogleAuth = app => {
     );
 
 
-  // Google after successful login call this endpoint. We return
-  // the token that should be used to invoke the rest of the API.
-  app.get(
-    '/auth/google/callback',
-    passport.authenticate('google', {
-      failureRedirect: '/auth/google'
-    }),
-    function(req, res) {
-      res.json({ token: req.user.token , user: req.user});
-    }
-  );
+    // Google after successful login call this endpoint. We return
+    // the token that should be used to invoke the rest of the API.
+    app.get(
+        '/auth/google/callback',
+        passport.authenticate('google', {
+            failureRedirect: '/auth/google'
+        }),
+        function (req, res) {
+
+            var userId = req.user.id;
+            var name = req.user.name.givenName;
+            var surname = req.user.name.familyName;
+            var token = req.user.token;
+
+            if (!userDao.getUser('' + userId)) {//nb getUser is in userDao.js in test_user branch, and getUser wants the id as string
+                //user not registered
+                var user_created = userDao.createUser(userId, name, surname);
+                if(user_created)
+                    user_created.token = req.user.token;
+            }
+
+            res.json({ token: req.user.token});
+        }
+    );
 };
 
 /**
  * Registers the a bearer token strategy that we will use to protect our API.
  */
 const registerBearerAuth = () => {
-  // docs
-  //    https://github.com/googleapis/google-auth-library-nodejs#oauth2
-  //    https://github.com/jaredhanson/passport-http-bearer
-  //    https://github.com/passport/express-4.x-http-bearer-example
-  //    https://developers.google.com/identity/sign-in/web/backend-auth
-  passport.use(
-    new Strategy(async (token, cb) => {
-        try {
-            const client = new OAuth2Client(
-                process.env.CLIENT_ID,
-                process.env.CLIENT_SECRET,
-                ''
-            );
-            const tokenInfo = await client.getTokenInfo(token);
-            const user = User.findOrCreate({ id: tokenInfo.sub });
-            return cb(null, user);
-        } catch (error) {
-            console.error(error);
-            return cb(null, false);
-        }
-    })
-  );
-};
-
-const registerBearerMock = () => {
+    // docs
+    //    https://github.com/googleapis/google-auth-library-nodejs#oauth2
+    //    https://github.com/jaredhanson/passport-http-bearer
+    //    https://github.com/passport/express-4.x-http-bearer-example
+    //    https://developers.google.com/identity/sign-in/web/backend-auth
     passport.use(
         new Strategy(async (token, cb) => {
             try {
-                const user = User.findOrCreate({ id: token });
+                const client = new OAuth2Client(
+                    process.env.CLIENT_ID,
+                    process.env.CLIENT_SECRET,
+                    ''
+                );
+                const tokenInfo = await client.getTokenInfo(token);
+                const user = User.findOrCreate({id: tokenInfo.sub});
                 return cb(null, user);
             } catch (error) {
                 console.error(error);
@@ -121,10 +118,16 @@ const registerBearerMock = () => {
     );
 };
 
-function checkUser(id){
-    if(dbcheck(id) == true){//already registered
-        return true;
-    }else{
-        return false;
-    }
-}
+const registerBearerMock = () => {
+    passport.use(
+        new Strategy(async (token, cb) => {
+            try {
+                const user = User.findOrCreate({id: token});
+                return cb(null, user);
+            } catch (error) {
+                console.error(error);
+                return cb(null, false);
+            }
+        })
+    );
+};
