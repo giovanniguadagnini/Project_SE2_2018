@@ -35,7 +35,7 @@ app.route('/users')
 app.route('/users/:id')
     .get(function(req, res) { //Get account data
         var id = parseInt(req.params.id, 10);
-        if(Number.isInteger(parseInt(id, 10)) == true) {
+        if(Number.isInteger(id) == true) {
             var user = userDao.getUser(id); //trying to get the user from the system
             if (user != null) {
                 res.status(200).send(user);
@@ -48,7 +48,7 @@ app.route('/users/:id')
     })
     .put(function(req, res) {//Update account info
         var id = parseInt(req.params.id, 10);
-        if(Number.isInteger(parseInt(id, 10)) == true) {
+        if(Number.isInteger(id) == true) {
             var user = {
                 name: req.body.name,
                 surname : req.body.surname,
@@ -69,8 +69,8 @@ app.route('/users/:id')
     })
     .delete(function(req, res) {//Update account info
         var id = parseInt(req.params.id, 10);
-        if(Number.isInteger(parseInt(id, 10)) == true) {
-            user = userDao.deleteUser(id);//trying to update the user
+        if(Number.isInteger(id) == true) {
+            user = userDao.deleteUser(''+id);//trying to update the user
             if (retval != null) {
                 res.status(200).send(user);
             } else {
