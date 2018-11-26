@@ -70,7 +70,7 @@ app.route('/users/:id')
     .delete(function(req, res) {//Update account info
         var id = parseInt(req.params.id, 10);
         if(Number.isInteger(id) == true) {
-            user = userDao.deleteUser(''+id);//trying to update the user
+            user = userDao.deleteUser(''+id);//trying to delete the user(the function wants id as a string)
             if (retval != null) {
                 res.status(200).send(user);
             } else {
