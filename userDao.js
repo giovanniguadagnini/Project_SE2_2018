@@ -176,18 +176,20 @@ function deleteUser(user) {
 }
 
 function createUserSyn(user) {
-    createUserSyn(user).then(value => {
+    createUser(user).then(value => {
         return value;
     });
 }
 
-function getAllUsersSyn(enrolledBefore, enrolledAfter) {
+function getAllUsersSyn(loggedUser, enrolledBefore, enrolledAfter) {
+    // [TO DO] NEED TO IMPLEMENT LOGIC TO FILTER PROPER DATA BASED ON loggedUser
     getAllUsers(enrolledBefore, enrolledAfter).then(value => {
         return value;
     });
 }
 
-function getUserSyn(id) {
+function getUserSyn(loggedUser, id) {
+    // [TO DO] NEED TO IMPLEMENT LOGIC TO FILTER PROPER DATA BASED ON loggedUser
     getUser(id).then(value => {
         return value;
     });
