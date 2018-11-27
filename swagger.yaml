@@ -131,7 +131,7 @@ paths:
         name: "maxStudByMark"
         type: integer
         description: "Decide the maximum grade you want to see in order to filter students in UserGroup"
-        default: 31      
+        default: 31
       - in: query
         name: "taskType"
         type: string
@@ -248,13 +248,9 @@ paths:
               type: "array"
               items:
                 $ref: "#/definitions/User"
+        404:
+          description: "No user found"
   /users/{id}:
-    parameters:
-    - in: path
-      name: id
-      required: true
-      type: integer
-      description: The user ID
     get:
       tags:
       - "User"
