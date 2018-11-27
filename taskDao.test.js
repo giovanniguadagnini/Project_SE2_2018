@@ -6,27 +6,26 @@ test('taskDao module should be defined', () => {
 
 test('check createTask()', () => {
     expect(taskDao.createTask({ 'id': '4', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }))
-    .toBeDefined();
+        .toBeDefined();
 });
 test('check createTask() with an empty field', () => {
     expect(taskDao.createTask({ 'id': '4', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' } }))
-    .toEqual(null);
+        .toEqual(null);
 });
 test('check createTask() with empty task', () => {
     expect(taskDao.createTask(null)).toEqual(null);
 });
 test('check createTask()', () => {
-    expect(taskDao.createTask({ 'id': '4', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2'  }))
-    .toEqual({ 'id': '4', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2'  });
+    expect(taskDao.createTask({ 'id': '4', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }))
+        .toEqual({ 'id': '4', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
 });
-
 
 test('check getAllTasks()', () => {
     expect(taskDao.getAllTasks()).toBeDefined();
 });
 test('check getAllTasks()', () => {
     expect(taskDao.getAllTasks())
-    .toEqual([{ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }]);
+        .toEqual([{ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }]);
 });
 
 test('check getTask() by id with numeric id', () => {
@@ -40,20 +39,20 @@ test('check getTask() by id with string as id', () => {
 });
 test('check getTask() by id with numeric id', () => {
     expect(taskDao.getTask(1))
-    .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 + 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
+        .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 + 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
 });
 
 test('check updateTask()', () => {
     expect(taskDao.updateTask({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }))
-    .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
+        .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
 });
 test('check updateTask() with an empty field', () => {
     expect(taskDao.updateTask({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' } }))
-    .toEqual(null);
+        .toEqual(null);
 });
 test('check updateTask()', () => {
     expect(taskDao.updateTask({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }))
-    .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
+        .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 * 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
 });
 test('check updateTask() with empty task', () => {
     expect(taskDao.updateTask(null)).toEqual(null);
@@ -61,7 +60,7 @@ test('check updateTask() with empty task', () => {
 
 test('check deleteTask()', () => {
     expect(taskDao.deleteTask('1'))
-    .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 + 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
+        .toEqual({ 'id': '1', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What do you get if you perform 1 + 1 ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
 });
 test('check deleteTask() with not existing id', () => {
     expect(taskDao.deleteTask(9)).toEqual(null);

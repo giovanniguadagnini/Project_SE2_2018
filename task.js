@@ -11,7 +11,9 @@ app.route('/tasks')
         }
     })
     .post(function (req, res) { //Create a task
+        //var task = req.body;
         var task = {
+            id: req.body.id,
             owner: req.body.owner,
             task_type: req.body.task_type,
             question: req.body.question,
@@ -42,7 +44,9 @@ app.route('/tasks/:id')
     .put(function (req, res) { //Update an existing task
         var id = parseInt(req.id, 10);
         if (Number.isInteger(id) == true) {
+            //var task = req.body;
             var task = {
+                id: req.body.id,
                 owner: req.body.owner,
                 task_type: req.body.task_type,
                 question: req.body.question,

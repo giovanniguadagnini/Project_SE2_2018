@@ -1,15 +1,14 @@
 const request = require('supertest');
-const app = require('./task')
+const app = require('./app')
 
 test('task module should be defined', () => {
-    expect(task).toBeDefined();
+    expect(app).toBeDefined();
 });
 
 test('GET / should return 200', async () => {
-    const response = await request(task).get('/');
+    const response = await request(app).get('/');
     expect(response.statusCode).toBe(200);
 });
-
 
 test('GET /tasks without parameter; should return 200 + all tasks in the system', async () => {
     const response = await request(app).get('/tasks');
@@ -22,7 +21,6 @@ test('POST /tasks without parameter; should return 405', async () => {
     expect(response.statusCode).toBe(405);
     expect(response.body).toEqual({});
 });
-//TODO: CHECK
 test('POST /task with all the parameters; should return 200 + created task', async () => {
     const response = await request(app).post('/task').json({ 'id': '4', 'owner': '11', 'task_type': 'open', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' });
     expect(response.statusCode).toBe(200);
