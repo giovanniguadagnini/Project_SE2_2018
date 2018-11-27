@@ -14,18 +14,7 @@ const exam={
 dummies.popDB();
 
 test('Add an exam with exist teachers,students(userGroup),tasks, num_shuffle<=tasks.size() and id passed', () => {
-  expect(examsDao.createExam(id_user,exam)).toBe({
-    id : ,//Da controllare se è un intero
-    name :'Esame di prova',
-    owner : id_user,
-    teachers :[dummies.dummyTeacher],
-    students : dummies.dummyUserGroup,
-    tasks : [],
-    submissions: [],
-    deadline :3600,
-    reviewable : true,
-    num_shuffle :2
-  });
+  expect(examsDao.createExam(id_user,exam)).toBeDefined;
 });
 
 test('No id passed', () => {
@@ -35,5 +24,14 @@ test('No id passed', () => {
 test('Invalid JSON object exam', () => {
   expect(examsDao.createExam(id_user,{name:'Esame'})).toBe(null);
 });
+
+test('check getAllExams() with default filters', () => {
+  expect(examsDao.getAllExams(id,"enrol",-1,31,1111)).toBeDefined();
+});
+
+test('check getAllUsers() with wrong type in filters parameters', () => {
+  expect(examsDao.getAllExams(id,"enrol","13000","31","1111")).toBe(null);
+});
+
 
 dummies.cleanDB();

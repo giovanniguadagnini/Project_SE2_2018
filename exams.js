@@ -16,9 +16,9 @@ app.route('/exams')
         }
         var taskType = req.query.taskType;
         if(taskType == null) {
-            taskType = 1111;
+            taskType = "1111";
         }
-        var exams = userDao.getAllExams(sortStudBy, minStudByMark,maxStudByMark,taskType);
+        var exams = userDao.getAllExams(id_user,sortStudBy, minStudByMark,maxStudByMark,taskType);
         if(exams != null) {
             res.status(200).send(exams);
         } else {
@@ -66,7 +66,7 @@ app.route('/exams/:id')
             if(taskType == null) {
                 taskType = 1111;
             }
-            var exam = userDao.getExam(id,sortStudBy, minStudByMark,maxStudByMark,taskType);
+            var exam = userDao.getExam(id_user,id,sortStudBy, minStudByMark,maxStudByMark,taskType);
             if (exam != null) {
                 res.status(200).send(exam);
             } else {
