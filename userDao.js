@@ -7,24 +7,31 @@ const connection = mysql.createConnection({
 });
 
 function findOrCreate(data) {
-    getUser(data.id).then(value => {
-        console.log("Finding user " + data.id);
-        let userFromDB = value;
-        if (userFromDB == null) { // user doesn't exist in db
-            console.log("User not found! Creating a new account");
-            let userToDB;
-            if (data.name != undefined) {
-                userToDB = {
-                    id: data.id,
-                    name: data.name.familyName,
-                    surname: data.name.givenName
-                };
-            } else {
-                userToDB = {id: data.id};
+    return new Promise(resolve => {
+        console.log("findOrCreate");
+        getUser({}, data.id).then(value => {
+            console.log("Finding user " + data.id);
+            let userFromDB = value;
+            if (userFromDB == null) { // user doesn't exist in db
+                console.log("User not found! Creating a new account");
+                let userToDB;
+                if (data.name != undefined) {
+                    userToDB = {
+                        id: data.id,
+                        name: data.name.familyName,
+                        surname: data.name.givenName
+                    };
+                } else {
+                    userToDB = {id: data.id};
+                }
+                createUser(userToDB).then(value => {
+                    resolve (value);
+                });
+            }else{
+                console.log("User found!");
+                resolve (userFromDB);
             }
-            userFromDB = createUserSyn(userToDB);
-        }
-        return userFromDB;
+        });
     });
 }
 
@@ -48,13 +55,13 @@ function createUser(user) {
 
 }
 
-function getAllUsers(enrolledBefore, enrolledAfter) {
+function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
     return new Promise(resolve => {
         let born = null;
         let enrolled = null;
         let retval = [];
 
-        connection.query('SELECT * FROM user WHERE user.enrolled >= ? AND user.enrolled =< ?', [enrolledBefore, enrolledAfter], function (error, results, fields) {
+        connection.query('SELECT * FROM user WHERE (user.enrolled >= ? AND user.enrolled <= ?) OR user.enrolled IS NULL', [enrolledBefore, enrolledAfter], function (error, results, fields) {
             if (error) {
                 throw error;
                 resolve(null);
@@ -81,15 +88,15 @@ function getAllUsers(enrolledBefore, enrolledAfter) {
                     })
                 }
                 resolve(retval);
-            }
+            }else
+                resolve (null);
 
         });
 
-        resolve(null);
     });
 }
 
-function getUser(id) {
+function getUser(loggedUser, id) {
     return new Promise(resolve => {
         connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
             if (error) {
@@ -116,7 +123,8 @@ function getUser(id) {
                     'enrolled': '' + enrolled,
                     'born': '' + born
                 });
-            }
+            }else
+                resolve(null);
 
         });
 
@@ -178,6 +186,7 @@ function deleteUser(user) {
     });
 }
 
+/*
 function createUserSyn(user) {
     createUser(user).then(value => {
         return value;
@@ -209,5 +218,6 @@ function deleteUserSyn(user) {
         return value;
     });
 }
+*/
 
-module.exports = {findOrCreate, getAllUsersSyn, createUserSyn, getUserSyn, updateUserSyn, deleteUserSyn};
+module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};

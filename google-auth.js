@@ -49,13 +49,15 @@ const registerGoogleAuth = app => {
             },
             (token, refreshToken, profile, done) => {
                 // here we would store the user information in the db, if the user does not exist.
-                console.log("New Google Strategy profile data: " + profile);
-                console.log(JSON.stringify(profile, null, 2));
-                let user = userDao.findOrCreate(profile);
-                return done(null, {
-                    user,
-                    token
+                console.log("New Google Strategy profile data: " + profile.id);
+                //console.log(JSON.stringify(profile, null, 2));
+                userDao.findOrCreate(profile).then(user => {
+                    return done(null, {
+                        user,
+                        token
+                    });
                 });
+
             }
         )
     );
@@ -100,9 +102,11 @@ const registerBearerAuth = () => {
                 );
                 const tokenInfo = await client.getTokenInfo(token);
                 console.log("Bearer Auth data: " + tokenInfo.sub);
-                console.log(JSON.stringify(tokenInfo.sub, null, 2));
-                const user = userDao.findOrCreate({ id: tokenInfo.sub });
-                return cb(null, user);
+                //console.log(JSON.stringify(tokenInfo.sub, null, 2));
+                userDao.findOrCreate({ id: tokenInfo.sub }).then(user => {
+                    return cb(null, user);
+                });
+
             } catch (error) {
                 console.error(error);
                 return cb(null, false);
@@ -115,8 +119,10 @@ const registerBearerMock = () => {
     passport.use(
         new Strategy(async (token, cb) => {
             try {
-                const user = userDao.findOrCreate({ id: token });
-                return cb(null, user);
+                userDao.findOrCreate({ id: token }).then(user => {
+                    return cb(null, user);
+                });
+
             } catch (error) {
                 console.error(error);
                 return cb(null, false);

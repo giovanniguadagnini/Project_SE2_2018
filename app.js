@@ -37,23 +37,27 @@ app.get('/users', protect(), (req, res) => { //Get all available users
         enrolledAfter = 1900; //default is year 1900
     }
 
-    let users = userDao.getAllUsersSyn(req.user, enrolledBefore, enrolledAfter);
-    if (users != null) {
-        res.status(200).json(users);
-    } else {
-        res.status(404).send("No user found");
-    }
+    userDao.getAllUsers(req.user, enrolledBefore, enrolledAfter).then(users => {
+        if (users != null) {
+            res.status(200).json(users);
+        } else {
+            res.status(404).send("No user found");
+        }
+    });
+
 });
 
 app.get('/users/:id', protect(), (req, res) => { //Get user with id
     let id = req.params.id;
-    if(id == user.id) {
-        let user = userDao.getUserSyn(req.user, id); //trying to get the user from the system
-        if (user != null) {
-            res.status(200).json(user);
-        } else {
-            res.status(404).send("User not found");
-        }
+    if(id == req.user.id) {
+        userDao.getUser(req.user, id).then(user => {
+            if (user != null) {
+                res.status(200).json(user);
+            } else {
+                res.status(404).send("User not found");
+            }
+        });
+
     }else {
         res.status(400).send("Bad request");
     }
@@ -74,12 +78,15 @@ app.put('/users/:id', protect(), (req, res) => { //Update user
     // in put I check that the user is update its own account
     // (update /users/:id can only be called on profile we're logged with)
     if(id == user.id && req.user.id == id) {
-        user = userDao.updateUserSyn(user);//trying to update the user
-        if (user != null) {
-            res.status(200).json(user);
-        } else {
-            res.status(404).send("User not found");
-        }
+        //user = userDao.updateUserSyn(user);//trying to update the user
+        userDao.updateUser(user).then(user => {
+            if (user != null) {
+                res.status(200).json(user);
+            } else {
+                res.status(404).send("User not found");
+            }
+        });
+
     }else if (id == user.id){
         res.status(400).send("Bad request");
     }else{
@@ -102,12 +109,14 @@ app.delete('/users/:id', protect(), (req, res) => { //Delete user
     // in delete I check that the user is deleting its own account
     // (delete /users/:id can only be called on profile we're logged with)
     if(id == user.id && req.user.id == id) {
-        user = userDao.deleteUserSyn(user);//trying to update the user
-        if (user != null) {
-            res.status(200).json(user);
-        } else {
-            res.status(404).send("User not found");
-        }
+        //user = userDao.deleteUserSyn(user);//trying to update the user
+        userDao.deleteUser(user).then(user => {
+            if (user != null) {
+                res.status(200).json(user);
+            } else {
+                res.status(404).send("User not found");
+            }
+        });
     }else if (id == user.id){
         res.status(400).send("Bad request");
     }else{
