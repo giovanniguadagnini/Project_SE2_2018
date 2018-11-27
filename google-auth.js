@@ -3,8 +3,6 @@ const passport = require('passport');
 const {OAuth2Client} = require('google-auth-library');
 const {Strategy} = require('passport-http-bearer');
 
-const { User } = require('./db');
-
 const userDao = require('./userDao');
 
 /**
@@ -50,7 +48,7 @@ const registerGoogleAuth = app => {
             },
             (token, refreshToken, profile, done) => {
                 // here we would store the user information in the db, if the user does not exist.
-                let user = User.findOrCreate(profile);
+                let user = userDao.getUser(profile);
                 return done(null, {
                     user,
                     token
@@ -111,7 +109,7 @@ const registerBearerAuth = () => {
                     ''
                 );
                 const tokenInfo = await client.getTokenInfo(token);
-                const user = User.findOrCreate({id: tokenInfo.sub});
+                const user = userDao.getUser(tokenInfo.sub);
                 return cb(null, user);
             } catch (error) {
                 console.error(error);
@@ -126,7 +124,7 @@ const registerBearerMock = () => {
     passport.use(
         new Strategy(async (token, cb) => {
             try {
-                const user = User.findOrCreate({id: token});
+                const user = userDao.getUser(token);
                 return cb(null, user);
             } catch (error) {
                 console.error(error);
