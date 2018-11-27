@@ -3,7 +3,6 @@ const passport = require('passport');
 const { OAuth2Client } = require('google-auth-library');
 const { Strategy } = require('passport-http-bearer');
 
-//const { User } = require('./db');
 const userDao = require('./userDao');
 
 /**
