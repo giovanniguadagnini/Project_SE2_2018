@@ -228,9 +228,21 @@ function deleteUser(userId) {
 <<<<<<< HEAD
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};
 =======
-function deleteExam(id){
+function createExam(exam){
 
 }
 
-module.exports = {getAllUsers, createUser, getUser, updateUser,createExam,getAllExams,getExam,updateExam,deleteExam};
->>>>>>> added deleteExam function in userDao.js
+function getAllExams(sortStudBy, minStudByMark,maxStudByMark,taskType){
+
+}
+
+function getExam(id,sortStudBy, minStudByMark,maxStudByMark,taskType){
+
+}
+
+function updateExam(exam){
+
+}
+
+module.exports = {getAllUsers, createUser, getUser, updateUser,createExam,getAllExams,getExam,updateExam};
+>>>>>>> added /exams and /exams/:id methods with relatives filters
