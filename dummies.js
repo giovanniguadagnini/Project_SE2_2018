@@ -424,6 +424,15 @@ function cleanDB(){
         }
     );
 
+    connection.query('DELETE FROM task WHERE id > 0 AND id < 100',
+        function (error, results, fields) {
+            if (error){
+                connection.end();
+                throw error;
+            }
+        }
+    );
+
     connection.end();
 
 }
@@ -439,5 +448,6 @@ module.exports = {
     dummySubmission2,
     dummySubmission3,
     dummyExam,
-    popDB
+    popDB,
+    cleanDB
 };

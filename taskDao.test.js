@@ -1,5 +1,13 @@
 const taskDao = require('./taskDao');
 
+var dummies = require('./dummies');
+beforeEach(() => {
+    dummies.popDB();
+});
+afterEach(() => {
+    dummies.cleanDB();
+});
+
 test('taskDao module should be defined', () => {
     expect(taskDao).toBeDefined();
 });
