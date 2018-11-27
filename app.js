@@ -5,7 +5,6 @@ const passport = require('passport');
 
 const {auth, protect} = require('./google-auth');
 
-const API_BASE_URL = '/api/v1';
 const app = express();
 
 app.use(bodyParser.json());
@@ -18,10 +17,7 @@ app.get('/', (req, res) => {
     res.json({msg: 'Hello world!'});
 });
 
-// private endpoint
-app.get(`${API_BASE_URL}/me`, protect(), (req, res) => {
-    res.json({...req.user});
-});
+// private endpoints
 
 //USER MODULE
 const userModule = require('./user');

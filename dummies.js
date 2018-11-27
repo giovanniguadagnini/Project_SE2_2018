@@ -85,11 +85,11 @@ var dummyUserGroup = {
 var dummyTask1 = {
     id: 1,
     owner: dummyTeacher,
-    task_type: "open",
+    task_type: 'open',
     question: {
-        text: "What do you get if you perform 1 + 1 ? ",
+        text: 'What do you get if you perform 1 + 1 ? ',
         possibilities: [],
-        base_upload_url: "http://uploadhere.com/dummy/v1/"
+        base_upload_url: 'http://uploadhere.com/dummy/v1/'
     },
     points: 2
 };
@@ -97,16 +97,16 @@ var dummyTask1 = {
 var dummyTask2 = {
     id: 2,
     owner: dummyTeacher,
-    task_type: "single_c",
+    task_type: 'single_c',
     question: {
-        text: "What do you get if you perform 1 + 1 ?\nSelect the right answer",
+        text: 'What do you get if you perform 1 + 1 ?\nSelect the right answer',
         possibilities: [
-            {value: "0"},
-            {value: "1"},
-            {value: "2"},
-            {value: "Infinite"}
+            {value: '0'},
+            {value: '1'},
+            {value: '2'},
+            {value: 'Infinite'}
         ],
-        base_upload_url: "http://uploadhere.com/dummy/v1/"
+        base_upload_url: 'http://uploadhere.com/dummy/v1/'
     },
     points: 1
 };
@@ -114,51 +114,51 @@ var dummyTask2 = {
 var dummyTask3 = {
     id: 3,
     owner: dummyTeacher,
-    task_type: "submit",
+    task_type: 'submit',
     question: {
-        text: "What do you get if you perform 1 + 1 ?\nPut the answer in a file (out.txt) that has to be uploaded",
+        text: 'What do you get if you perform 1 + 1 ?\nPut the answer in a file (out.txt) that has to be uploaded',
         possibilities: [],
-        base_upload_url: "http://uploadhere.com/dummy/v1/"
+        base_upload_url: 'http://uploadhere.com/dummy/v1/'
     },
     points: 3
 };
 
 var dummySubmission1 = {
     id: 1,
-    task_type: "open",
+    task_type: 'open',
     question: {
-        text: "What do you get if you perform 1 + 1 ?",
+        text: 'What do you get if you perform 1 + 1 ?',
         possibilities: [],
-        base_upload_url: "http://uploadhere.com/dummy/v1/"
+        base_upload_url: 'http://uploadhere.com/dummy/v1/'
     },
-    answer: "25 I think",
+    answer: '25 I think',
     id_user: 12,
     id_exam: 1,
     completed: true,
     comment_peer: [
-        "You did a great job dude",
-        "You better go study philosophy",
-        "Hi! My name's Peter"
+        'You did a great job dude',
+        'You better go study philosophy',
+        'Hi! My name\'s Peter'
     ],
-    comment: "Almost... that's a shame: you were so close to the solution!",
+    comment: 'Almost... that\'s a shame: you were so close to the solution!',
     points: 2,
     earned_points: 0
 };
 
 var dummySubmission2 = {
     id: 2,
-    task_type: "single_c",
+    task_type: 'single_c',
     question: {
-        text: "What do you get if you perform 1 + 1 ?\nSelect the right answer",
+        text: 'What do you get if you perform 1 + 1 ?\nSelect the right answer',
         possibilities: [
-            {value: "0"},
-            {value: "1"},
-            {value: "2"},
-            {value: "Infinite"}
+            {value: '0'},
+            {value: '1'},
+            {value: '2'},
+            {value: 'Infinite'}
         ],
-        base_upload_url: "http://uploadhere.com/dummy/v1/"
+        base_upload_url: 'http://uploadhere.com/dummy/v1/'
     },
-    answer: "0",
+    answer: '0',
     id_user: 12,
     id_exam: 1,
     completed: true,
@@ -170,13 +170,13 @@ var dummySubmission2 = {
 
 var dummySubmission3 = {
     id: 3,
-    task_type: "submit",
+    task_type: 'submit',
     question: {
-        text: "What do you get if you perform 1 + 1 ?\nPut the answer in a file (out.txt) that has to be uploaded",
+        text: 'What do you get if you perform 1 + 1 ?\nPut the answer in a file (out.txt) that has to be uploaded',
         possibilities: [],
-        base_upload_url: "http://uploadhere.com/dummy/v1/"
+        base_upload_url: 'http://uploadhere.com/dummy/v1/'
     },
-    answer: "http://uploadhere.com/dummy/v1/solutions12_1_3",
+    answer: 'http://uploadhere.com/dummy/v1/solutions12_1_3',
     id_user: 12,
     id_exam: 1,
     completed: true,
@@ -188,7 +188,7 @@ var dummySubmission3 = {
 
 var dummyExam = {
     id: 1,
-    name: "NP complete problems",
+    name: 'NP complete problems',
     owner: dummyTeacher,
     teachers: [dummyTeacher],
     students: dummyUserGroup,
@@ -427,6 +427,10 @@ function cleanDB(){
 
 }
 
+function deleteDB(){
+
+}
+
 module.exports = {
     dummyStud,
     dummyTeacher,
@@ -438,5 +442,6 @@ module.exports = {
     dummySubmission2,
     dummySubmission3,
     dummyExam,
-    popDB
+    popDB,
+    deleteDB
 };
