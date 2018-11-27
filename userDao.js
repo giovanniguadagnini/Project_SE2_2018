@@ -37,7 +37,7 @@ function findOrCreate(data) {
 
 function createUser(user) {
     return new Promise(resolve => {
-        if (user != null && user.id != null && user.name != null && user.surname != null) {
+        if (user != null && user.id != null) {
             connection.query('INSERT INTO user (id, name, surname) VALUES (?,?,?)',
                 [user.id, user.name, user.surname],
                 function (error, results, fields) {

@@ -11,24 +11,6 @@ test('GET / should return 200', async () => {
 });
 
 /*
-test('POST /users without parameter; should return 405', async () => {
-    const response = await request(app).post('/users');
-    expect(response.statusCode).toBe(405);
-    expect(response.body).toEqual({});
-});
-
-test('POST /users with all the parameters; should return 200', async () => {
-    const response = await request(app).post('/users').send({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini'});
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toBeDefined();
-});
-
-test('POST /users with all the parameters except one; should return 405', async () => {
-    const response = await request(app).post('/users').send({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000'});
-    expect(response.statusCode).toBe(405);
-    expect(response.body).toEqual({});
-});
-
 test('GET /users/110228221053954638301; should return 200 + users obj', async () => {
     const response = await request(app).get('/users/110228221053954638301');
     expect(response.statusCode).toBe(200);
