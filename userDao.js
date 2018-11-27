@@ -7,22 +7,25 @@ const connection = mysql.createConnection({
 });
 
 function findOrCreate(data) {
-    let userFromDB = getUserSyn(data.id);
-    if (userFromDB == null) { // user doesn't exist in db
-        let userToDB;
-        if (data.name != undefined) {
-            userToDB = {
-                id: data.id,
-                name: data.name.familyName,
-                surname: data.name.givenName
-            };
-        } else {
-            userToDB = {id: data.id};
+    getUser(data.id).then(value => {
+        console.log("Finding user " + data.id);
+        let userFromDB = value;
+        if (userFromDB == null) { // user doesn't exist in db
+            console.log("User not found! Creating a new account");
+            let userToDB;
+            if (data.name != undefined) {
+                userToDB = {
+                    id: data.id,
+                    name: data.name.familyName,
+                    surname: data.name.givenName
+                };
+            } else {
+                userToDB = {id: data.id};
+            }
+            userFromDB = createUserSyn(userToDB);
         }
-        userFromDB = createUserSyn(userToDB);
-    }
-    return userFromDB;
-
+        return userFromDB;
+    });
 }
 
 function createUser(user) {
