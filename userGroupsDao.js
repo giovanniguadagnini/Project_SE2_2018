@@ -32,7 +32,7 @@ function createUserGroup(userGroup) {
                     }
                 );
             }
-        )};
+        });
 
         return userGroup;
     }
@@ -114,7 +114,7 @@ function getAllUserGroups(sortingMethod){
 
                 //resetting users for next group iteration
                 users=null;
-            )};
+            });
         } else {
             //if there are no user groups
             return null;

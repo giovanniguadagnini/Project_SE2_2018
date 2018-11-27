@@ -18,10 +18,10 @@ app.route('/userGroups')
   //create a new userGroup
   .post(function(req, res){
       var userGroup = {
-          id : req.body.id;
-          creator : req.body.creator;
-          name : req.body.name;
-          users : req.body.users;
+          id : req.body.id,
+          creator : req.body.creator,
+          name : req.body.name,
+          users : req.body.users
       };
       userGroup = userGroupsDao.createUserGroup(userGroup);
       if(userGroup != null)
@@ -53,10 +53,10 @@ app.route('/userGroups/:id')
       var id = req.id;
       if(Number.isInteger(id) == true) {
           var userGroup = {
-              id : req.body.id;
-              creator : req.body.creator;
-              name : req.body.name;
-              users : req.body.users;
+              id : req.body.id,
+              creator : req.body.creator,
+              name : req.body.name,
+              users : req.body.users
           };
           userGroup = userGroupsDao.updateUserGroup(userGroup);
           if(userGroup!=null)
