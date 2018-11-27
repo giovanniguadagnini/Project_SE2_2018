@@ -8,19 +8,26 @@ var connection = mysql.createConnection({
 
 
 function createExam(id_user,exam){
-  connection.query('INSERT INTO exam (id, owner, name, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?)',
-      [, id_user, exam.name, exam.deadline, exam.reviewable, exam.num_shuffle],
+
+  //Da fare i controlli iniziali
+  connection.connect();
+
+  var id_exam;
+  //Inserisco il nuovo esame
+  connection.query('INSERT INTO exam (owner, name, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?)',
+      [id_user, exam.name, exam.deadline, exam.reviewable, exam.num_shuffle],
       function (error, results, fields) {
           if (error){
               connection.end();
               throw error;
           }
+          id_exam=results.insertId;
       }
   );
 
-  exam.teachers.forEach(function(element) {//Inserisco i teachers
+  exam.teachers.forEach(function(teacher) {//Inserisco i teachers
     connection.query('INSERT INTO user_exam (id_exam, id_user, teacher) VALUES (?,?,?)',
-        [exam.id, element.id, true],
+        [exam.id, teacher.id, true],
         function (error, results, fields) {
             if (error){
                 connection.end();
@@ -30,17 +37,36 @@ function createExam(id_user,exam){
     );
   });
 
-  //Query per ricavare da user_group_members tutti i membri del gruppo passato per poi aggiungerli a user_exam come students
+  exam.students.users.forEach(function(group_member) {//Inserisco gli students
+    connection.query('INSERT INTO user_exam (id_exam, id_user, teacher) VALUES (?,?,?)',
+        [exam.id, group_member.id, false],
+        function (error, results, fields) {
+            if (error){
+                connection.end();
+                throw error;
+            }
+        }
+    );
+  }
 
-  connection.query('INSERT INTO user_exam (id_exam, id_user, teacher) VALUES (?,?,?)',//Inserisco gli students
-      [exam.id, , false],
-      function (error, results, fields) {
-          if (error){
-              connection.end();
-              throw error;
-          }
-      }
-  );
+  //Costruisco il JSON da ritornare
+  var to_return={
+    id : id_exam
+    name :exam.name,
+    owner : id_user,
+    teachers :[exam.teachers],
+    students : exam.students,
+    tasks : [],
+    submissions: [],
+    deadline :exam.deadline,
+    reviewable : exam.reviewable,
+    num_shuffle :exam.num_shuffle
+  };
+
+  return to_return;
+
+  connection.end();
+
 }
 
 function getAllExams(sortStudBy, minStudByMark,maxStudByMark,taskType){
