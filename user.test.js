@@ -1,4 +1,4 @@
-const app = require('./user')
+const app = require('./app');
 const request = require('supertest');
 
 test('app module should be defined', () => {
