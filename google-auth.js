@@ -1,10 +1,9 @@
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const passport = require('passport');
-const {OAuth2Client} = require('google-auth-library');
-const {Strategy} = require('passport-http-bearer');
+const { OAuth2Client } = require('google-auth-library');
+const { Strategy } = require('passport-http-bearer');
 
-const { User } = require('./db');
-
+//const { User } = require('./db');
 const userDao = require('./userDao');
 
 /**
@@ -14,10 +13,11 @@ const userDao = require('./userDao');
  */
 exports.auth = app => {
     app.use(passport.initialize());
-    if (process.env.NODE_ENV !== 'test') {//real case
+
+    if (process.env.NODE_ENV !== 'test') {
         registerGoogleAuth(app);
         registerBearerAuth();
-    } else {//test case
+    } else {
         registerBearerMock();
     }
 };
@@ -26,7 +26,7 @@ exports.auth = app => {
  * A tiny helper to make an endpoint protected.
  */
 exports.protect = () => {
-    return passport.authenticate('bearer', {session: false});
+    return passport.authenticate('bearer', { session: false });
 };
 
 // for further reference
@@ -50,7 +50,9 @@ const registerGoogleAuth = app => {
             },
             (token, refreshToken, profile, done) => {
                 // here we would store the user information in the db, if the user does not exist.
-                let user = User.findOrCreate(profile);
+                console.log("New Google Strategy profile data: " + profile);
+                console.log(JSON.stringify(profile, null, 2));
+                let user = userDao.findOrCreate(profile);
                 return done(null, {
                     user,
                     token
@@ -60,12 +62,12 @@ const registerGoogleAuth = app => {
     );
 
     // This is the endpoint for authentication using google
-    app.get('/auth/google',
+    app.get(
+        '/auth/google',
         passport.authenticate('google', {
             scope: ['https://www.googleapis.com/auth/userinfo.profile']
         })
     );
-
 
     // Google after successful login call this endpoint. We return
     // the token that should be used to invoke the rest of the API.
@@ -74,21 +76,8 @@ const registerGoogleAuth = app => {
         passport.authenticate('google', {
             failureRedirect: '/auth/google'
         }),
-        function (req, res) {
-
-            var userId = req.user.id;
-            var name = req.user.name.givenName;
-            var surname = req.user.name.familyName;
-            var token = req.user.token;
-
-            if (!userDao.getUser('' + userId)) {//nb getUser is in userDao.js in test_user branch, and getUser wants the id as string
-                //user not registered
-                var user_created = userDao.createUser(userId, name, surname);
-                if(user_created)
-                    user_created.token = req.user.token;
-            }
-
-            res.json({ token: req.user.token});
+        function(req, res) {
+            res.json({ token: req.user.token });
         }
     );
 };
@@ -111,7 +100,9 @@ const registerBearerAuth = () => {
                     ''
                 );
                 const tokenInfo = await client.getTokenInfo(token);
-                const user = User.findOrCreate({id: tokenInfo.sub});
+                console.log("Bearer Auth data: " + tokenInfo.sub);
+                console.log(JSON.stringify(tokenInfo.sub, null, 2));
+                const user = userDao.findOrCreate({ id: tokenInfo.sub });
                 return cb(null, user);
             } catch (error) {
                 console.error(error);
@@ -122,11 +113,10 @@ const registerBearerAuth = () => {
 };
 
 const registerBearerMock = () => {
-
     passport.use(
         new Strategy(async (token, cb) => {
             try {
-                const user = User.findOrCreate({id: token});
+                const user = userDao.findOrCreate({ id: token });
                 return cb(null, user);
             } catch (error) {
                 console.error(error);

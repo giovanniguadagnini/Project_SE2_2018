@@ -1,5 +1,5 @@
-var mysql = require('mysql');
-var connection = mysql.createConnection({
+const mysql = require('mysql');
+const connection = mysql.createConnection({
     host: 'sql7.freesqldatabase.com',
     user: 'sql7267085',
     password: 'IlVZ5TF9HT',
@@ -27,9 +27,31 @@ function checkDBConnection() {
 }
 */
 
+function findOrCreate(data) {
+    let userFromDB = getUser(data.id);
+    console.log("findOrCreate ");
+    console.log(JSON.stringify(data, null, 2));
+    console.log("findOrCreate data.id" + data.id);
+    if (userFromDB == null) { // user doesn't exist in db
+        let userToDB;
+        if(data.name != undefined) {
+            userToDB = {
+                id: data.id,
+                name: data.name.familyName,
+                surname: data.name.givenName
+            };
+        }else{
+            userToDB = {id : data.id};
+        }
+        userFromDB = createUser(userToDB);
+    }
+    return userFromDB;
+
+}
+
 function createUser(user) {
     if (user != null && user.id != null && user.name != null && user.surname != null) {
-        connection.connect();
+        //connection.connect();
         connection.query('INSERT INTO user (id, name, surname) VALUES (?,?,?)',
             [user.id, user.name, user.surname],
             function (error, results, fields) {
@@ -40,7 +62,7 @@ function createUser(user) {
                 }
             }
         );
-        connection.end();
+        //connection.end();
         return user;
     }
     else return null;
@@ -57,8 +79,8 @@ function getAllUsers(enrolledBefore, enrolledAfter) {
             throw error;
             return null;
         }
-        if (result.lenght > 0) {
-            for (var i = 0; i < results.lenght; i++) {
+        if (results.length > 0) {
+            for (var i = 0; i < results.length; i++) {
                 if (results[i].born != null)
                     born = results[i].born.year + '-' + results[i].born.month + '-' + results[i].born.day + ' ' + results[i].born.hour + ':' + results[i].born.minute + ':' + results[i].born.second;
                 else
@@ -88,33 +110,61 @@ function getAllUsers(enrolledBefore, enrolledAfter) {
 }
 
 function getUser(id) {
-    if (Number.isInteger(parseInt(id, 10))) {
+    var retval;
+    //connection.connect();
+
+    connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
+        if (error) {
+            throw error;
+            return null;
+        }
+        if (results.length > 0) {
+            var born = null;
+            if (results[0].born != null)
+                born = results[0].born.year + '-' + results[0].born.month + '-' + results[0].born.day + ' ' + results[0].born.hour + ':' + results[0].born.minute + ':' + results[0].born.second;
+
+            var enrolled = null;
+
+            if (results[0].enrolment != null)
+                enrolled = results[0].enrolment.year + '-' + results[0].enrolment.month + '-' + results[0].enrolment.day + ' ' + results[0].enrolment.hour + ':' + results[0].enrolment.minute + ':' + results[0].enrolment.second;
+
+            retval = {
+                'id': '' + results[0].id,
+                'name': '' + results[0].name,
+                'surname': '' + results[0].surname,
+                'mail': '' + results[0].mail,
+                'enrolled': '' + enrolled,
+                'born': '' + born
+            };
+        } else {
+            retval = null;
+        }
+        return retval;
+    });
+
+    //connection.end();
+}
+
+function updateUser(user) {
+    if (user != null && user.id != null) {
         var retval;
         connection.connect();
 
-        connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
+        var born = null;
+        if (user.born != null)
+            born = user.born.year + '-' + user.born.month + '-' + user.born.day + ' ' + user.born.hour + ':' + user.born.minute + ':' + user.born.second;
+
+        var enrolled = null;
+        if (user.enrolment != null)
+            enrolled = user.enrolment.year + '-' + user.enrolment.month + '-' + user.enrolment.day + ' ' + user.enrolment.hour + ':' + user.enrolment.minute + ':' + user.enrolment.second;
+
+        connection.query('UPDATE user SET name = ?, surname = ?, email = ?, enrolled = ?, born = ? WHERE id = ?', [user.name, user.surname, user.email, enrolled, born, user.id], function (error, results, fields) {
             if (error) {
                 throw error;
                 return null;
             }
-            if (result.lenght > 0) {
-                var born = null;
-                if (results[0].born != null)
-                    born = results[0].born.year + '-' + results[0].born.month + '-' + results[0].born.day + ' ' + results[0].born.hour + ':' + results[0].born.minute + ':' + results[0].born.second;
-
-                var enrolled = null;
-
-                if (results[0].enrolment != null)
-                    enrolled = results[0].enrolment.year + '-' + results[0].enrolment.month + '-' + results[0].enrolment.day + ' ' + results[0].enrolment.hour + ':' + results[0].enrolment.minute + ':' + results[0].enrolment.second;
-
-                retval = {
-                    'id': '' + results[0].id,
-                    'name': '' + results[0].name,
-                    'surname': '' + results[0].surname,
-                    'mail': '' + results[0].mail,
-                    'enrolled': '' + enrolled,
-                    'born': '' + born
-                };
+            if (results.affectedRows > 0) {
+                retval = user;
             } else {
                 retval = null;
             }
@@ -126,21 +176,14 @@ function getUser(id) {
     else return null;
 }
 
-function updateUser(user) {
-    if (user != null) {
-        if (user.id != null) {
+function deleteUser(id) {
+    if (id != null) {
+        var user = userDao.getUser(id);
+        if (user != null) {
             var retval;
             connection.connect();
 
-            var born = null;
-            if (user.born != null)
-                born = user.born.year + '-' + user.born.month + '-' + user.born.day + ' ' + user.born.hour + ':' + user.born.minute + ':' + user.born.second;
-
-            var enrolled = null;
-            if (user.enrolment != null)
-                enrolled = user.enrolment.year + '-' + user.enrolment.month + '-' + user.enrolment.day + ' ' + user.enrolment.hour + ':' + user.enrolment.minute + ':' + user.enrolment.second;
-
-            connection.query('UPDATE user SET name = ?, surname = ?, email = ?, enrolled = ?, born = ? WHERE id = ?', [user.name, user.surname, user.email, enrolled, born, user.id], function (error, results, fields) {
+            connection.query('DELETE FROM user WHERE id = ?', [user.id], function (error, results, fields) {
                 if (error) {
                     throw error;
                     return null;
@@ -155,38 +198,9 @@ function updateUser(user) {
 
             connection.end();
         }
-        else return null;
     }
+
     else return null;
 }
 
-function deleteUser(id) {
-    if (id != null) {
-        if (Number.isInteger(parseInt(id, 10))) {
-            var user = userDao.getUser(parseInt(id, 10));
-            if (user != null) {
-                var retval;
-                connection.connect();
-
-                connection.query('DELETE FROM user WHERE id = ?', [user.id], function (error, results, fields) {
-                    if (error) {
-                        throw error;
-                        return null;
-                    }
-                    if (results.affectedRows > 0) {
-                        retval = user;
-                    } else {
-                        retval = null;
-                    }
-                    return retval;
-                });
-
-                connection.end();
-            }
-        }
-        else return null;
-    }
-    else return null;
-}
-
-module.exports = {getAllUsers, createUser, getUser, updateUser, deleteUser};
+module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};

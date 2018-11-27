@@ -9,6 +9,7 @@ const User = {
             return user;
         }
         return userFromDB[0];
+
     }
 };
 
