@@ -11,10 +11,9 @@ let connection = mysql.createConnection({
 });
 
 let dummyStud = {
-    id: 12,
+    id: '12',
     name: 'John',
     surname: 'Doe',
-    password: 'hashed',
     email: 'email@email.com',
     born: {
         year: 1997,
@@ -24,7 +23,7 @@ let dummyStud = {
         minute: 0,
         second: 0
     },
-    enrolment: {
+    enrolled: {
         year: 2016,
         month: 9,
         day: 8,
@@ -32,28 +31,14 @@ let dummyStud = {
         minute: 16,
         second: 25
     },
-    exam_eval: [
-        {
-            id_exam: 1,
-            mark: 30
-        },
-        {
-            id_exam: 2,
-            mark: 26
-        },
-        {
-            id_exam: 3,
-            mark: 29
-        }
-    ],
+    exam_eval: [],
     submissions: []
 };
 
 let dummyTeacher = {
-    id: 11,
+    id: '11',
     name: 'Jimmy',
     surname: 'Teacher',
-    password: 'password',
     email: 'dummy@dummy.com',
     born: {
         year: 1967,
@@ -63,7 +48,7 @@ let dummyTeacher = {
         minute: 0,
         second: 0
     },
-    enrolment: {
+    enrolled: {
         year: 2011,
         month: 8,
         day: 31,
@@ -202,7 +187,7 @@ let dummyExam = {
 function insertUser() {
     return new Promise(resolve => {
         let born = dummyStud.born.year + '-' + dummyStud.born.month + '-' + dummyStud.born.day + ' ' + dummyStud.born.hour + ':' + dummyStud.born.minute + ':' + dummyStud.born.second;
-        let enrolled = dummyStud.enrolment.year + '-' + dummyStud.enrolment.month + '-' + dummyStud.enrolment.day + ' ' + dummyStud.enrolment.hour + ':' + dummyStud.enrolment.minute + ':' + dummyStud.enrolment.second;
+        let enrolled = dummyStud.enrolled.year + '-' + dummyStud.enrolled.month + '-' + dummyStud.enrolled.day + ' ' + dummyStud.enrolled.hour + ':' + dummyStud.enrolled.minute + ':' + dummyStud.enrolled.second;
         connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
             [dummyStud.id, dummyStud.name, dummyStud.surname, dummyStud.email, born, enrolled],
             function (error, results, fields) {
@@ -214,7 +199,7 @@ function insertUser() {
         );
 
         born = dummyTeacher.born.year + '-' + dummyTeacher.born.month + '-' + dummyTeacher.born.day + ' ' + dummyTeacher.born.hour + ':' + dummyTeacher.born.minute + ':' + dummyTeacher.born.second;
-        enrolled = dummyTeacher.enrolment.year + '-' + dummyTeacher.enrolment.month + '-' + dummyTeacher.enrolment.day + ' ' + dummyTeacher.enrolment.hour + ':' + dummyTeacher.enrolment.minute + ':' + dummyTeacher.enrolment.second;
+        enrolled = dummyTeacher.enrolled.year + '-' + dummyTeacher.enrolled.month + '-' + dummyTeacher.enrolled.day + ' ' + dummyTeacher.enrolled.hour + ':' + dummyTeacher.enrolled.minute + ':' + dummyTeacher.enrolled.second;
         connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
             [dummyTeacher.id, dummyTeacher.name, dummyTeacher.surname, dummyTeacher.email, born, enrolled],
             function (error, results, fields) {

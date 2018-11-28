@@ -50,7 +50,7 @@ function updateUser(req, res) { //Update user
     //[TO DO] Evaluate with other members if it has more sense [put] /users
     // in put I check that the user is update its own account
     // (update /users/:id can only be called on profile we're logged with)
-    if(id == user.id && req.user.id == id) {
+    if((id != null && user.name != null && user.surname != null) && (id == user.id && req.user.id == id)) {
         //user = userDao.updateUserSyn(user);//trying to update the user
         userDao.updateUser(user).then(user => {
             if (user != null) {
@@ -59,7 +59,6 @@ function updateUser(req, res) { //Update user
                 res.status(404).send("User not found");
             }
         });
-
     }else if (id == user.id){
         res.status(400).send("Bad request");
     }else{
