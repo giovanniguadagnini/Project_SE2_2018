@@ -20,6 +20,7 @@ let dummyStud = {
     id: '12',
     name: 'John',
     surname: 'Doe',
+    password: 'hashed',
     email: 'email@email.com',
     born: {
         year: 1997,
@@ -45,6 +46,7 @@ let dummyTeacher = {
     id: '11',
     name: 'Jimmy',
     surname: 'Teacher',
+    password: 'password',
     email: 'dummy@dummy.com',
     born: {
         year: 1967,

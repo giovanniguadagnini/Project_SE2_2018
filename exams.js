@@ -18,7 +18,7 @@ app.route('/exams')
         if(taskType == null) {
             taskType = "1111";
         }
-        var exams = userDao.getAllExams(id_user,sortStudBy, minStudByMark,maxStudByMark,taskType);
+        var exams = userDao.getAllExams(req.user.id,sortStudBy, minStudByMark,maxStudByMark,taskType);
         if(exams != null) {
             res.status(200).send(exams);
         } else {
@@ -38,7 +38,7 @@ app.route('/exams')
           reviewable : req.body.reviewable,
           num_shuffle : req.body.num_shuffle
         };
-        exam = userDao.createExam(exam);//trying to create the exam
+        exam = userDao.createExam(req.user.id,exam);//trying to create the exam
         if (exam != null) {
             res.status(200).send(exam);
         } else {
@@ -66,7 +66,7 @@ app.route('/exams/:id')
             if(taskType == null) {
                 taskType = 1111;
             }
-            var exam = userDao.getExam(id_user,id,sortStudBy, minStudByMark,maxStudByMark,taskType);
+            var exam = userDao.getExam(req.user.id,id,sortStudBy, minStudByMark,maxStudByMark,taskType);
             if (exam != null) {
                 res.status(200).send(exam);
             } else {
@@ -91,7 +91,7 @@ app.route('/exams/:id')
               reviewable : req.body.reviewable,
               num_shuffle : req.body.num_shuffle
             };
-            exam = userDao.updateExam(exam);
+            exam = userDao.updateExam(req.user.id,exam);
             if (exam != null) {
                 res.status(200).send(exam);
             } else {
@@ -105,7 +105,7 @@ app.route('/exams/:id')
     .delete(function(req, res) {
         var id = req.id;
         if(Number.isInteger(id) == true) {
-            exam = userDao.deleteExam(id);
+            exam = userDao.deleteExam(req.user.id,id);
             if (exam != null) {
                 res.status(200).send(exam);
             } else {

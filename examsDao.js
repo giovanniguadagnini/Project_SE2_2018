@@ -44,7 +44,7 @@ function createExam(id_user,exam){
                   }
               }
           );
-        }
+        });
         //Costruisco il JSON da ritornare
         var to_return={
           id : id_exam
@@ -62,8 +62,6 @@ function createExam(id_user,exam){
     }
     else resolve(null);
   });
-}
-
 }
 
 function getAllExams(id_user,sortStudBy, minStudByMark,maxStudByMark,taskType){
@@ -142,7 +140,7 @@ function getAllExams(id_user,sortStudBy, minStudByMark,maxStudByMark,taskType){
         }
       });
     }
-  }
+  });
 }
 
 function getExam(id_user,id_exam,sortStudBy, minStudByMark,maxStudByMark,taskType){
