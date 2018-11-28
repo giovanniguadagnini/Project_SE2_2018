@@ -1,4 +1,6 @@
 const mysql = require('mysql');
+const myDate = require('./myDate');
+
 const connection = mysql.createConnection({
     host: 'sql7.freesqldatabase.com',
     user: 'sql7267085',
@@ -70,28 +72,32 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
                 for (var i = 0; i < results.length; i++) {
                     let born = null;
                     if (results[i].born != null){
-                        let temp = new Date(results[0].born);
+                        let temp = results[i].born;
+                        let t = (temp + '').split(/[- :]/);
+                        temp = new Date(Date.UTC(t[3], myDate.convertMonth(t[1]), t[2], t[4]-1, t[5], t[6]));
                         born = {
-                            year: +temp.getFullYear(),
-                            month: +temp.getMonth(),
-                            day: +temp.getDay(),
-                            hour: +temp.getHours(),
-                            minute: +temp.getMinutes(),
-                            second: +temp.getSeconds()
+                            year: temp.getFullYear(),
+                            month: temp.getMonth(),
+                            day: temp.getDay(),
+                            hour: temp.getHours(),
+                            minute: temp.getMinutes(),
+                            second: temp.getSeconds()
                         };
                     }
 
                     let enrolled = null;
 
                     if (results[i].enrolled != null){
-                        let temp = new Date(results[0].enrolled);
+                        let temp = results[i].enrolled;
+                        let t = (temp + '').split(/[- :]/);
+                        temp = new Date(Date.UTC(t[3], myDate.convertMonth(t[1]), t[2], t[4]-1, t[5], t[6]));
                         enrolled = {
-                            year: +temp.getFullYear(),
-                            month: +temp.getMonth(),
-                            day: +temp.getDay(),
-                            hour: +temp.getHours(),
-                            minute: +temp.getMinutes(),
-                            second: +temp.getSeconds()
+                            year: temp.getFullYear(),
+                            month: temp.getMonth(),
+                            day: temp.getDay(),
+                            hour: temp.getHours(),
+                            minute: temp.getMinutes(),
+                            second: temp.getSeconds()
                         };
                     }
 
@@ -100,8 +106,8 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
                         'name': '' + results[i].name,
                         'surname': '' + results[i].surname,
                         'mail': '' + results[i].mail,
-                        'enrolled': '' + enrolled,
-                        'born': '' + born
+                        'enrolled': enrolled,
+                        'born': born
                     })
                 }
                 resolve(retval);
@@ -125,28 +131,32 @@ function getUser(loggedUser, id) {
 
                 let born = null;
                 if (results[0].born != null){
-                    let temp = new Date(results[0].born);
+                    let temp = results[0].born;
+                    let t = (temp + '').split(/[- :]/);
+                    temp = new Date(Date.UTC(t[3], myDate.convertMonth(t[1]), t[2], t[4]-1, t[5], t[6]));
                     born = {
-                        year: +temp.getFullYear(),
-                        month: +temp.getMonth(),
-                        day: +temp.getDay(),
-                        hour: +temp.getHours(),
-                        minute: +temp.getMinutes(),
-                        second: +temp.getSeconds()
+                        year: temp.getFullYear(),
+                        month: temp.getMonth(),
+                        day: temp.getDay(),
+                        hour: temp.getHours(),
+                        minute: temp.getMinutes(),
+                        second: temp.getSeconds()
                     };
                 }
 
                 let enrolled = null;
 
                 if (results[0].enrolled != null){
-                    let temp = new Date(results[0].enrolled);
+                    let temp = results[0].enrolled;
+                    let t = (temp + '').split(/[- :]/);
+                    temp = new Date(Date.UTC(t[3], myDate.convertMonth(t[1]), t[2], t[4]-1, t[5], t[6]));
                     enrolled = {
-                        year: +temp.getFullYear(),
-                        month: +temp.getMonth(),
-                        day: +temp.getDay(),
-                        hour: +temp.getHours(),
-                        minute: +temp.getMinutes(),
-                        second: +temp.getSeconds()
+                        year: temp.getFullYear(),
+                        month: temp.getMonth(),
+                        day: temp.getDay(),
+                        hour: temp.getHours(),
+                        minute: temp.getMinutes(),
+                        second: temp.getSeconds()
                     };
                 }
                 resolve({
@@ -154,8 +164,8 @@ function getUser(loggedUser, id) {
                     'name': '' + results[0].name,
                     'surname': '' + results[0].surname,
                     'mail': '' + results[0].mail,
-                    'enrolled': '' + enrolled,
-                    'born': '' + born
+                    'enrolled': enrolled,
+                    'born':  born
                 });
             }else
                 resolve(null);
@@ -220,39 +230,5 @@ function deleteUser(user) {
         else resolve(null);
     });
 }
-
-/*
-function createUserSyn(user) {
-    createUser(user).then(value => {
-        return value;
-    });
-}
-
-function getAllUsersSyn(loggedUser, enrolledBefore, enrolledAfter) {
-    // [TO DO] NEED TO IMPLEMENT LOGIC TO FILTER PROPER DATA BASED ON loggedUser
-    getAllUsers(enrolledBefore, enrolledAfter).then(value => {
-        return value;
-    });
-}
-
-function getUserSyn(loggedUser, id) {
-    // [TO DO] NEED TO IMPLEMENT LOGIC TO FILTER PROPER DATA BASED ON loggedUser
-    getUser(id).then(value => {
-        return value;
-    });
-}
-
-function updateUserSyn(user) {
-    updateUser(user).then(value => {
-        return value;
-    });
-}
-
-function deleteUserSyn(user) {
-    deleteUser(user).then(value => {
-        return value;
-    });
-}
-*/
 
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};
