@@ -68,15 +68,32 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
             }
             if (results.length > 0) {
                 for (var i = 0; i < results.length; i++) {
-                    if (results[i].born != null)
-                        born = results[i].born.year + '-' + results[i].born.month + '-' + results[i].born.day + ' ' + results[i].born.hour + ':' + results[i].born.minute + ':' + results[i].born.second;
-                    else
-                        born = null;
+                    let born = null;
+                    if (results[i].born != null){
+                        let temp = new Date(results[0].born);
+                        born = {
+                            year: +temp.getFullYear(),
+                            month: +temp.getMonth(),
+                            day: +temp.getDay(),
+                            hour: +temp.getHours(),
+                            minute: +temp.getMinutes(),
+                            second: +temp.getSeconds()
+                        };
+                    }
 
-                    if (results[i].enrolment != null)
-                        enrolled = results[i].enrolment.year + '-' + results[i].enrolment.month + '-' + results[i].enrolment.day + ' ' + results[i].enrolment.hour + ':' + results[i].enrolment.minute + ':' + results[i].enrolment.second;
-                    else
-                        enrolled = null;
+                    let enrolled = null;
+
+                    if (results[i].enrolled != null){
+                        let temp = new Date(results[0].enrolled);
+                        enrolled = {
+                            year: +temp.getFullYear(),
+                            month: +temp.getMonth(),
+                            day: +temp.getDay(),
+                            hour: +temp.getHours(),
+                            minute: +temp.getMinutes(),
+                            second: +temp.getSeconds()
+                        };
+                    }
 
                     retval.push({
                         'id': '' + results[i].id,
@@ -107,14 +124,31 @@ function getUser(loggedUser, id) {
             if (results.length > 0) {
 
                 let born = null;
-                if (results[0].born != null)
-                    born = results[0].born.year + '-' + results[0].born.month + '-' + results[0].born.day + ' ' + results[0].born.hour + ':' + results[0].born.minute + ':' + results[0].born.second;
+                if (results[0].born != null){
+                    let temp = new Date(results[0].born);
+                    born = {
+                        year: +temp.getFullYear(),
+                        month: +temp.getMonth(),
+                        day: +temp.getDay(),
+                        hour: +temp.getHours(),
+                        minute: +temp.getMinutes(),
+                        second: +temp.getSeconds()
+                    };
+                }
 
                 let enrolled = null;
 
-                if (results[0].enrolment != null)
-                    enrolled = results[0].enrolment.year + '-' + results[0].enrolment.month + '-' + results[0].enrolment.day + ' ' + results[0].enrolment.hour + ':' + results[0].enrolment.minute + ':' + results[0].enrolment.second;
-
+                if (results[0].enrolled != null){
+                    let temp = new Date(results[0].enrolled);
+                    enrolled = {
+                        year: +temp.getFullYear(),
+                        month: +temp.getMonth(),
+                        day: +temp.getDay(),
+                        hour: +temp.getHours(),
+                        minute: +temp.getMinutes(),
+                        second: +temp.getSeconds()
+                    };
+                }
                 resolve({
                     'id': '' + results[0].id,
                     'name': '' + results[0].name,
@@ -134,15 +168,14 @@ function getUser(loggedUser, id) {
 function updateUser(user) {
     return new Promise(resolve => {
         if (user != null && user.id != null) {
-            let retval;
 
             let born = null;
             if (user.born != null)
                 born = user.born.year + '-' + user.born.month + '-' + user.born.day + ' ' + user.born.hour + ':' + user.born.minute + ':' + user.born.second;
 
             let enrolled = null;
-            if (user.enrolment != null)
-                enrolled = user.enrolment.year + '-' + user.enrolment.month + '-' + user.enrolment.day + ' ' + user.enrolment.hour + ':' + user.enrolment.minute + ':' + user.enrolment.second;
+            if (user.enrolled != null)
+                enrolled = user.enrolled.year + '-' + user.enrolled.month + '-' + user.enrolled.day + ' ' + user.enrolled.hour + ':' + user.enrolled.minute + ':' + user.enrolled.second;
 
             connection.query('UPDATE user SET name = ?, surname = ?, email = ?, enrolled = ?, born = ? WHERE id = ?', [user.name, user.surname, user.email, enrolled, born, user.id], function (error, results, fields) {
                 if (error) {
@@ -150,11 +183,13 @@ function updateUser(user) {
                     resolve(null);
                 }
                 if (results.affectedRows > 0) {
-                    retval = user;
+                    getUser(user, user.id).then(value => {
+                        resolve(value);
+                    });
                 } else {
-                    retval = null;
+                    resolve(null);
                 }
-                resolve(retval);
+
             });
 
         }

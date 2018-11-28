@@ -1,6 +1,8 @@
 const userDao = require('./userDao');
 
-var bornTemp = {
+let new_user = {id: '110228', name: 'Johnny', surname: 'Guadagnini'};
+
+let bornTemp = {
     year: 1997,
     month: 10,
     day: 17,
@@ -8,7 +10,7 @@ var bornTemp = {
     minute: 0,
     second: 0
 };
-var enrolledTemp = {
+let enrolledTemp = {
     year: 2016,
     month: 9,
     day: 5,
@@ -18,70 +20,144 @@ var enrolledTemp = {
 };
 
 test('userDao module should be defined', () => {
-  expect(userDao).toBeDefined();
+    expect(userDao).toBeDefined();
 });
 
 test('check createUser()', () => {
-  if(userDao.getUser({},'110228') != null)
-    userDao.deleteUser({id: '110228'});
-  expect(userDao.createUser({id:'110228', name: 'Johnny', surname : 'Guadagnini'})).toBeDefined();
+    expect.assertions(1);
+    return userDao.getUser({}, '110228').then(valueG => {
+        if (valueG != null) {
+            return userDao.deleteUser(valueG).then(valueD => {
+                return userDao.createUser(new_user).then(valueC => {
+                    expect(valueC).toEqual(new_user);
+                });
+            });
+        } else {
+            return userDao.createUser(new_user).then(valueC => {
+                expect(valueC).toEqual(new_user);
+            });
+        }
+    });
 });
 
 test('check createUser() with empty user', () => {
-  expect(userDao.createUser(null)).toEqual(null);
+    expect.assertions(1);
+    return userDao.createUser(null).then(valueC => {
+        expect(valueC).toEqual(null);
+    });
 });
 
-test('check getAllUser() with enrolledBefore and enrolledAfter', () => {
-  expect(userDao.getAllUsers({}, '1900', '2018')).toBeDefined();
+test('check getAllUsers() with enrolledBefore and enrolledAfter', () => {
+    expect.assertions(1);
+    return userDao.getAllUsers({}, '1900', '2018').then(value => {
+        expect(value).toBeDefined();
+    });
 });
 
 test('check getAllUsers() with enrolledAfter', () => {
-  expect(userDao.getAllUsers({}, null, '2018')).toBeDefined();
+    expect.assertions(1);
+    return userDao.getAllUsers({}, null, '2018').then(value => {
+        expect(value).toBeDefined();
+    });
 });
 
 test('check getAllUsers() with enrolledBefore', () => {
-  expect(userDao.getAllUsers({}, '1900', null)).toBeDefined();
+    expect.assertions(1);
+    return userDao.getAllUsers({}, '1900', null).then(value => {
+        expect(value).toBeDefined();
+    });
 });
 
 test('check getAllUsers()', () => {
-  expect(userDao.getAllUsers({}, null, null)).toBeDefined();
+    expect.assertions(1);
+    return userDao.getAllUsers({}, null, null).then(value => {
+        expect(value).toBeDefined();
+    });
 });
 
-test('check getUser() by id with numeric id', () => {
-  expect(userDao.getUser('110228')).toBeDefined();
+test('check getUser() by id with pure numeric id (after incomplete insertion)', () => {
+    expect.assertions(1);
+    return userDao.getUser({}, '110228').then(value => {
+        expect(value).not.toEqual(new_user); //born, enrolled, email are not present in new_user, while are undefined in value
+    });
 });
 
 test('check getUser() by id with numeric id, unknown user', () => {
-  expect(userDao.getUser('9999999999999999999999999999999999999999999999999999999999999')).toEqual(null);
+    expect.assertions(1);
+    return (userDao.getUser({}, '9999999999999999999999999999999999999999999999999999999999999')).then(value => {
+        expect(value).toEqual(null);
+    });
 });
 
 test('check getUser() by id with pure string as id', () => {
-  expect(userDao.getUser('aaaaaaaaaaaaaaaaaaa')).toEqual(null);
+    expect.assertions(1);
+    return (userDao.getUser({}, 'aaaaaaaaaaaaaaaaaaa')).then(value => {
+        expect(value).toEqual(null);
+    });
 });
 
 test('check updateUser()', () => {
-  let upd_user = {id:'110228', name: Giovanna,  surname : 'Dissegna', email : 'giovanna.dissegna@gmail.com', enrolled: enrolledTemp , born : bornTemp};
-  expect(userDao.updateUser(upd_user)).toEqual(upd_user);
+    expect.assertions(1);
+    let upd_user = {
+        id: '110228',
+        name: 'Giovanna',
+        surname: 'Dissegna',
+        email: 'giovanna.dissegna@gmail.com',
+        enrolled: enrolledTemp,
+        born: bornTemp
+    };
+    return (userDao.updateUser(upd_user)).then(value => {
+        expect(value).toEqual(upd_user);
+    });
 });
 
 test('check updateUser() with an empty field after an update with all fields', () => {
-    let upd_user = {id:'110228', name: 'Giovannina',  surname : 'BOFFO', email : 'giovanna.dissBOFFO@gmail.com', born : bornTemp};
-    expect(userDao.updateUser(upd_user)).not.toEqual(upd_user);
+    expect.assertions(1);
+    let upd_user = {
+        id: '110228',
+        name: 'Giovannina',
+        surname: 'BOFFO',
+        email: 'giovanna.dissBOFFO@gmail.com',
+        born: bornTemp
+    };
+    return (userDao.updateUser(upd_user)).then(value => {
+        expect(value).not.toEqual(upd_user);
+    });
 });
 
 test('check updateUser() with empty user', () => {
-  expect(userDao.updateUser(null)).toEqual(null);
+    expect.assertions(1);
+    return (userDao.updateUser(null)).then(value => {
+        expect(value).toEqual(null);
+    });
 });
 
+
 test('check deleteUser()', () => {
-    let del_user = {id:'110228', name: 'Giovannina',  surname : 'BOFFO', email : 'giovanna.dissBOFFO@gmail.com', enrolled: enrolledTemp , born : bornTemp};
-    expect(userDao.deleteUser(del_user)).toEqual(del_user);
+    expect.assertions(1);
+    let del_user = {
+        id: '110228',
+        name: 'Giovannina',
+        surname: 'BOFFO',
+        email: 'giovanna.dissBOFFO@gmail.com',
+        enrolled: enrolledTemp,
+        born: bornTemp
+    };
+    return (userDao.deleteUser(del_user)).then(value => {
+        expect(value).toEqual(del_user);
+    });
 });
 
 test('check deleteUser() with not exist id', () => {
-  expect(userDao.deleteUser('9999999999999999999999999999999999999999999')).toEqual(null);
+    expect.assertions(1);
+    return (userDao.deleteUser('9999999999999999999999999999999999999999999')).then(value => {
+        expect(value).toEqual(null);
+    });
 });
 
 test('check deleteUser() with pure string as id', () => {
-  expect(userDao.deleteUser('aaaaaaaaaaaaaaaaaaa')).toEqual(null);
+    expect.assertions(1);
+    return (userDao.deleteUser('aaaaaaaaaaaaaaaaaaa')).then(value => {
+        expect(value).toEqual(null);
+    });
 });

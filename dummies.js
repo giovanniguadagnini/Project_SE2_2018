@@ -24,7 +24,7 @@ var dummyStud = {
         minute: 0,
         second: 0
     },
-    enrolment: {
+    enrolled: {
         year: 2016,
         month: 9,
         day: 8,
@@ -63,7 +63,7 @@ var dummyTeacher = {
         minute: 0,
         second: 0
     },
-    enrolment: {
+    enrolled: {
         year: 2011,
         month: 8,
         day: 31,
@@ -203,7 +203,7 @@ function popDB() {
     connection.connect();
 
     var born = dummyStud.born.year + '-' + dummyStud.born.month + '-' + dummyStud.born.day + ' ' + dummyStud.born.hour + ':' + dummyStud.born.minute + ':' + dummyStud.born.second;
-    var enrolled = dummyStud.enrolment.year + '-' + dummyStud.enrolment.month + '-' + dummyStud.enrolment.day + ' ' + dummyStud.enrolment.hour + ':' + dummyStud.enrolment.minute + ':' + dummyStud.enrolment.second;
+    var enrolled = dummyStud.enrolled.year + '-' + dummyStud.enrolled.month + '-' + dummyStud.enrolled.day + ' ' + dummyStud.enrolled.hour + ':' + dummyStud.enrolled.minute + ':' + dummyStud.enrolled.second;
     connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
         [dummyStud.id, dummyStud.name, dummyStud.surname, dummyStud.email, born, enrolled],
         function (error, results, fields) {
@@ -215,7 +215,7 @@ function popDB() {
     );
 
     var born = dummyTeacher.born.year + '-' + dummyTeacher.born.month + '-' + dummyTeacher.born.day + ' ' + dummyTeacher.born.hour + ':' + dummyTeacher.born.minute + ':' + dummyTeacher.born.second;
-    var enrolled = dummyTeacher.enrolment.year + '-' + dummyTeacher.enrolment.month + '-' + dummyTeacher.enrolment.day + ' ' + dummyTeacher.enrolment.hour + ':' + dummyTeacher.enrolment.minute + ':' + dummyTeacher.enrolment.second;
+    var enrolled = dummyTeacher.enrolled.year + '-' + dummyTeacher.enrolled.month + '-' + dummyTeacher.enrolled.day + ' ' + dummyTeacher.enrolled.hour + ':' + dummyTeacher.enrolled.minute + ':' + dummyTeacher.enrolled.second;
     connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
         [dummyTeacher.id, dummyTeacher.name, dummyTeacher.surname, dummyTeacher.email, born, enrolled],
         function (error, results, fields) {
