@@ -77,7 +77,7 @@ function deleteUser(req, res) { //Delete user
     // (delete /users/:id can only be called on profile we're logged with)
     if (id == user.id && req.user.id == id) {
         //user = userDao.deleteUserSyn(user);//trying to update the user
-        userDao.deleteUser(user).then(user => {
+        userDao.deleteUser(user.id).then(user => {
             if (user != null) {
                 res.status(200).json(user);
             } else {

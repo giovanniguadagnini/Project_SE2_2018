@@ -55,8 +55,6 @@ function createUser(user) {
 
 function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
     return new Promise(resolve => {
-        let born = null;
-        let enrolled = null;
         let retval = [];
 
         connection.query('SELECT * FROM user WHERE (user.enrolled >= ? AND user.enrolled <= ?) OR user.enrolled IS NULL', [enrolledBefore, enrolledAfter], function (error, results, fields) {
@@ -203,12 +201,12 @@ function updateUser(user) {
     });
 }
 
-function deleteUser(user) {
+function deleteUser(userId) {
     return new Promise(resolve => {
-        if (user != null && user.id != null) {
+        if (userId != null) {
             let retval;
 
-            connection.query('DELETE FROM user WHERE id = ?', [user.id], function (error, results, fields) {
+            connection.query('DELETE FROM user WHERE id = ?', [userId], function (error, results, fields) {
                 if (error) {
                     throw error;
                     return null;
