@@ -1,5 +1,12 @@
 const app = require('./app');
 const request = require('supertest');
+//const fetch = require('node-fetch');
+const dummyStud = require('./dummies').dummyStud;
+//const link = 'https://teamrocketproject-test.herokuapp.com';
+
+const validId = dummyStud.id;
+const invalidId = '999999999999999999999999';
+const pureStringId = 'aaaaaaaaaaaaaaaaaaaaaa';
 
 test('app module should be defined', () => {
     expect(app).toBeDefined();
@@ -10,106 +17,116 @@ test('GET / should return 200', async () => {
     expect(response.statusCode).toBe(200);
 });
 
-/*
-test('GET /users/110228221053954638301; should return 200 + users obj', async () => {
-    const response = await request(app).get('/users/110228221053954638301');
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000' , 'born' : '877046400000'});
-});
-
-test('GET /users/999999999999999999999 with 999999999999999999999 unknown user as id in the uri; should return 404', async () => {
-    const response = await request(app).get('/users/999999999999999999999');
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toEqual({});
-});
-
-test('GET /users/aaaaaaaaaaaaaaaaaaaaa with string as id in the uri; should return 400', async () => {
-    const response = await request(app).get('/users/aa');
-    expect(response.statusCode).toBe(400);
-    expect(response.body).toEqual({});
-});
-
-test('GET /users without parameter; should return 200 + all users in the system', async () => {
-    const response = await request(app).get('/users');
+test('GET /users/validId?access_token=validId; should return 200 + users obj', async () => {
+    const response = await request(app).get('/users/' + validId + '?access_token=' + validId);
     expect(response.statusCode).toBe(200);
     expect(response.body).toBeDefined();
 });
 
-test('GET /users with only enrolledBefore param; should return 200 + all users in the system', async () => {
-    const response = await request(app).get('/users').query({ enrolledBefore: '1543190400000' }); //26/11/2018 -->1543190400000, 28/11/2018 --> 1543190400000
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toBeDefined();
-});
-
-test('GET /users with only enrolledBefore param; should return 200 + all users in the system', async () => {
-    const response = await request(app).get('/users').query({  enrolledAfter: '1543363200000' });
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toBeDefined();
-});
-
-test('GET /users with the two parameters; should return 200 + all users in the system', async () => {
-    const response = await request(app).get('/users').query({ enrolledBefore: '1543190400000', enrolledAfter: '1543190400000' });
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toBeDefined();
-});
-
-test('PUT /users/110228221053954638301; should return 200 + users obj', async () => {
-    const response = await request(app).put('/users/110228221053954638301').send({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000' , 'born' : '877046400000'});
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000' , 'born' : '877046400000'});
-});
-
-test('PUT /users/999999999999999999999 with 999999999999999999999 unknown user as id in the uri; should return 404', async () => {
-    const response = await request(app).put('/users/999999999999999999999').send({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000' , 'born' : '877046400000'});
-    expect(response.statusCode).toBe(404);
+test('GET /users/invalidId?access_token=validId should return 403', async () => {
+    const response = await request(app).get('/users/' + invalidId + '?access_token=' + validId);
+    expect(response.statusCode).toBe(403);
     expect(response.body).toEqual({});
 });
 
-test('PUT /users/110228221053954638301 with invalid data; should return 404', async () => {
-    const response = await request(app).put('/users/110228221053954638301').send({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000' });
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toEqual({});
-});
-
-test('PUT /users/999999999999999999999 with 999999999999999999999 unknown user as id in the uri with invalid data; should return 404', async () => {
-    const response = await request(app).put('/users/999999999999999999999').send({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000' });
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toEqual({});
-});
-
-test('PUT /users/aaaaaaaaaaaaaaaaaaaaa with string as id in the uri; should return 400', async () => {
-    const response = await request(app).put('/users/aaaaaaaaaaaaaaaaaaaaa').send({'name': 'Giovanni', 'password' : 'aaaa', 'email' : 'giovanni.guadagnini@gmail.com', 'born' : '17/10/1997'});
+test('GET /users/purestringid?access_token=validId with string as id in the uri; should return 400', async () => {
+    const response = await request(app).get('/users/' + pureStringId + '?access_token=' + validId);
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({});
 });
 
-test('PUT /users/999999999999999999999 with 999999999999999999999 unknown user as id and withou parameter; should return 404', async () => {
-    const response = await request(app).put('/users/999999999999999999999');
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toEqual({});
-});
-
-test('PUT /users/aaaaaaaaaaaaaaaaaaaaa with string as id in the uri and withou parameter; should return 400', async () => {
-    const response = await request(app).put('/users/aaaaaaaaaaaaaaaaaaaaa');
-    expect(response.statusCode).toBe(400);
-    expect(response.body).toEqual({});
-});
-
-test('DELETE /users/110228221053954638301; should return 200 + users obj', async () => {
-    const response = await request(app).put('/users/110228221053954638301');
+test('GET /users?access_token=validId without parameter; should return 200 + all users in the system', async () => {
+    const response = await request(app).get('/users?access_token=' + validId);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual({'id':'110228221053954638301', 'name': 'Giovanni',  'surname' : 'Guadagnini', 'email' : 'giovanni.guadagnini@gmail.com', 'enrolled': '877046400000' , 'born' : '877046400000'});
+    expect(response.body).toBeDefined();
 });
 
-test('DELETE /users/999999999999999999999 with 999999999999999999999 unknown user as id in the uri; should return 404', async () => {
-    const response = await request(app).put('/users/999999999999999999999');
-    expect(response.statusCode).toBe(404);
+test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system', async () => {
+    const response = await request(app).get('/users?access_token=' + validId).query({enrolledBefore: '2019'});
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system', async () => {
+    const response = await request(app).get('/users?access_token=' + validId).query({enrolledAfter: '1900'});
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('GET /users?access_token=validId with the two parameters; should return 200 + all users in the system', async () => {
+    const response = await request(app).get('/users?access_token=' + validId).query({
+        enrolledBefore: '1900',
+        enrolledAfter: '2019'
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('PUT /users/validId; should return 200 + users obj', async () => {
+    const response = await request(app).put('/users/' + validId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('PUT /users/invalidId; should return 403', async () => {
+    const response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
+    expect(response.statusCode).toBe(403);
     expect(response.body).toEqual({});
 });
 
-test('DELETE /users/aaaaaaaaaaaaaaaaaaaaa with string as id in the uri; should return 400', async () => {
-    const response = await request(app).put('/users/aaaaaaaaaaaaaaaaaaaaa');
+test('PUT /users/validId with invalid data in body; should return 400', async () => {
+    const response = await request(app).put('/users/' + validId).set('Authorization', 'Bearer ' + validId).send({
+        id: validId,
+        name: 'John',
+        surname: null
+    });
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({});
 });
-*/
+
+test('PUT /users/invalidId with right access_token; should return 403', async () => {
+    const response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({
+        'name': 'Giovanni',
+        'surname': 'Guadagnini',
+        'email': 'giovanni.guadagnini@gmail.com',
+        'enrolled': '2012'
+    });
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /users/pureStringId with string as id in the uri; should return 403', async () => {
+    const response = await request(app).put('/users/' + pureStringId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /users/invalidId without parameter; should return 403', async () => {
+    const response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send(null);
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /users/pureStringId with string as id in the uri and withou parameter; should return 403', async () => {
+    const response = await request(app).put('/users/' + pureStringId).set('Authorization', 'Bearer ' + validId).send(null);
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
+
+test('DELETE /users/validId; should return 200 + users obj', async () => {
+    const response = await request(app).delete('/users/' + validId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('DELETE /users/invalidId in the uri; should return 403', async () => {
+    const response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId);
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
+
+test('DELETE /users/pureStringId with string as id in the uri; should return 403', async () => {
+    const response = await request(app).delete('/users/' + pureStringId).set('Authorization', 'Bearer ' + validId);
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
