@@ -10,12 +10,9 @@ const connection = mysql.createConnection({
 
 function findOrCreate(data) {
     return new Promise(resolve => {
-        console.log("findOrCreate");
         getUser({}, data.id).then(value => {
-            console.log("Finding user " + data.id);
             let userFromDB = value;
             if (userFromDB == null) { // user doesn't exist in db
-                console.log("User not found! Creating a new account");
                 let userToDB;
                 if (data.name != undefined) {
                     userToDB = {
@@ -30,7 +27,6 @@ function findOrCreate(data) {
                     resolve (value);
                 });
             }else{
-                console.log("User found!");
                 resolve (userFromDB);
             }
         });
