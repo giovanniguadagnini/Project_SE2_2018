@@ -12,7 +12,7 @@ app.route('/userGroups')
       if(userGroups != null)
           res.status(200).json(JSON.stringify(userGroups));
       else
-          res.status(404).json('No userGroup found');
+          res.status(404).send('No userGroup found');
   })
 
   //create a new userGroup
@@ -27,7 +27,7 @@ app.route('/userGroups')
       if(userGroup != null)
           res.status(200).json(userGroup);
       else
-          res.status(405).json('Invalid input');
+          res.status(405).send('Invalid input');
   });
 
 app.route('/userGroups/:id')
@@ -42,9 +42,9 @@ app.route('/userGroups/:id')
           if(userGroup!=null)
               res.status(200).json(userGroup);
           else
-              res.status(404).json('userGroup not found' );
+              res.status(404).send('userGroup not found' );
       } else {
-          res.status(400).json('Invalid ID supplied');
+          res.status(400).send('Invalid ID supplied');
       }
   })
 
@@ -62,9 +62,9 @@ app.route('/userGroups/:id')
           if(userGroup!=null)
               res.status(200).json(userGroup);
           else
-              res.status(404).json('userGroup not found');
+              res.status(404).send('userGroup not found');
       } else {
-          res.status(400).json('Invalid ID supplied');
+          res.status(400).send('Invalid ID supplied');
       }
   })
 
@@ -76,8 +76,8 @@ app.route('/userGroups/:id')
           if(userGroup!=null)
               res.status(200).json(userGroup);
           else
-              res.status(404).json('userGroup not found');
+              res.status(404).send('userGroup not found');
       } else {
-          res.status(400).json('Invalid ID supplied');
+          res.status(400).send('Invalid ID supplied');
       }
   });
