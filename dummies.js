@@ -10,6 +10,12 @@ let connection = mysql.createConnection({
     database: 'sql7267085'
 });
 
+function checkDBConnection() {
+    if (connection.state === 'disconnected') {
+        connection.connect();
+    }
+}
+
 let dummyStud = {
     id: '12',
     name: 'John',
@@ -192,7 +198,7 @@ function insertUser() {
             [dummyStud.id, dummyStud.name, dummyStud.surname, dummyStud.email, born, enrolled],
             function (error, results, fields) {
                 if (error) {
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
             }
@@ -204,7 +210,7 @@ function insertUser() {
             [dummyTeacher.id, dummyTeacher.name, dummyTeacher.surname, dummyTeacher.email, born, enrolled],
             function (error, results, fields) {
                 if (error) {
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 resolve(null);
@@ -219,7 +225,7 @@ function inserUserGroup() {
             [dummyUserGroup.creator.id, dummyUserGroup.name],
             function (error, results, fields) {
                 if (error) {
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummyUserGroup.id = results.insertId;
@@ -236,7 +242,7 @@ function inserUserGroupMembers() {
             [dummyStud.id, dummyUserGroup.id],
             function (error, results, fields) {
                 if (error) {
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
             }
@@ -251,7 +257,7 @@ function insertExams() {
             [dummyExam.owner.id, dummyExam.name, dummyExam.deadline, dummyExam.reviewable, dummyExam.num_shuffle],
             function (error, results, fields) {
                 if (error) {
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummyExam.id = results.insertId;
@@ -268,7 +274,7 @@ function insertUserExam() {
         [dummyExam.id, dummyExam.teachers[0].id, true],
         function (error, results, fields) {
             if (error) {
-                connection.end();
+                //connection.end();
                 throw error;
             }
         }
@@ -278,23 +284,11 @@ function insertUserExam() {
         [dummyExam.id, dummyExam.students.users[0].id, false],
         function (error, results, fields) {
             if (error) {
-                connection.end();
+                //connection.end();
                 throw error;
             }
         }
     );
-}
-
-function insertTasks(){
-    return new Promise( resolve => {
-        task1().then( resolve1 => {
-            task2().then( resolve2 => {
-                task3().then( resolve3 => {
-                    resolve(null);
-                });
-            });
-        });
-    });
 }
 
 function task1(){
@@ -303,7 +297,7 @@ function task1(){
             [dummyExam.id, dummyTask1.owner.id, dummyTask1.task_type, dummyTask1.question.text, dummyTask1.question.base_upload_url, dummyTask1.points],
             function (error, results, fields) {
                 if (error){
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummyTask1.id = results.insertId;
@@ -319,7 +313,7 @@ function task2(){
             [dummyExam.id, dummyTask2.owner.id, dummyTask2.task_type, dummyTask2.question.text, dummyTask2.question.base_upload_url, dummyTask2.points],
             function (error, results, fields) {
                 if (error){
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummyTask2.id = results.insertId;
@@ -335,7 +329,7 @@ function task3(){
             [dummyTask3.id, dummyExam.id, dummyTask3.owner.id, dummyTask3.task_type, dummyTask3.question.text, dummyTask3.question.base_upload_url, dummyTask3.points],
             function (error, results, fields) {
                 if (error){
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummyTask3.id = results.insertId;
@@ -350,7 +344,7 @@ function insertTaskPoss(){
         [dummyTask2.id, 0, dummyTask2.question.possibilities[0].value],
         function (error, results, fields) {
             if (error){
-                connection.end();
+                //connection.end();
                 throw error;
             }
         }
@@ -360,7 +354,7 @@ function insertTaskPoss(){
         [dummyTask2.id, 1, dummyTask2.question.possibilities[1].value],
         function (error, results, fields) {
             if (error){
-                connection.end();
+                //connection.end();
                 throw error;
             }
         }
@@ -370,7 +364,7 @@ function insertTaskPoss(){
         [dummyTask2.id, 2, dummyTask2.question.possibilities[2].value],
         function (error, results, fields) {
             if (error){
-                connection.end();
+                //connection.end();
                 throw error;
             }
         }
@@ -380,7 +374,7 @@ function insertTaskPoss(){
         [dummyTask2.id, 3, dummyTask2.question.possibilities[3].value],
         function (error, results, fields) {
             if (error){
-                connection.end();
+                //connection.end();
                 throw error;
             }
         }
@@ -393,7 +387,7 @@ function insertSubmissions(){
             [dummyTask1.id, dummySubmission1.id_user, dummyExam.id, dummySubmission1.answer, dummySubmission1.completed, dummySubmission1.comment, dummySubmission1.earned_points],
             function (error, results, fields) {
                 if (error){
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummySubmission1.id = results.insertId;
@@ -406,7 +400,7 @@ function insertSubmissions(){
             [dummyTask2.id, dummySubmission2.id_user, dummyExam.id, dummySubmission2.answer, dummySubmission2.completed, dummySubmission2.comment, dummySubmission2.earned_points],
             function (error, results, fields) {
                 if (error){
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummySubmission2.id = results.insertId;
@@ -417,7 +411,7 @@ function insertSubmissions(){
             [dummyTask3.id, dummySubmission3.id_user, dummyExam.id, dummySubmission3.answer, dummySubmission3.completed, dummySubmission3.comment, dummySubmission3.earned_points],
             function (error, results, fields) {
                 if (error){
-                    connection.end();
+                    //connection.end();
                     throw error;
                 }
                 dummySubmission3.id = results.insertId;
@@ -426,36 +420,49 @@ function insertSubmissions(){
     });
 }
 
-function insertPeerComments(){
-    connection.query('INSERT INTO comment_peer (id_submission, id_comment, comment) VALUES (?,?,?)',
-        [dummySubmission1.id, 0, dummySubmission1.comment_peer[0]],
-        function (error, results, fields) {
-            if (error){
-                connection.end();
-                throw error;
+function peerComment1(){
+    return new Promise( resolve => {
+        connection.query('INSERT INTO comment_peer (id_submission, id_comment, comment) VALUES (?,?,?)',
+            [dummySubmission1.id, 0, dummySubmission1.comment_peer[0]],
+            function (error, results, fields) {
+                if (error){
+                    //connection.end();
+                    throw error;
+                }
+                resolve(null);
             }
-        }
-    );
+        );
+    });
+}
 
-    connection.query('INSERT INTO comment_peer (id_submission, id_comment, comment) VALUES (?,?,?)',
-        [dummySubmission1.id, 1, dummySubmission1.comment_peer[1]],
-        function (error, results, fields) {
-            if (error){
-                connection.end();
-                throw error;
+function peerComment2(){
+    return new Promise( resolve => {
+        connection.query('INSERT INTO comment_peer (id_submission, id_comment, comment) VALUES (?,?,?)',
+            [dummySubmission1.id, 1, dummySubmission1.comment_peer[1]],
+            function (error, results, fields) {
+                if (error){
+                    //connection.end();
+                    throw error;
+                }
+                resolve(null);
             }
-        }
-    );
+        );
+    });
+}
 
-    connection.query('INSERT INTO comment_peer (id_submission, id_comment, comment) VALUES (?,?,?)',
-        [dummySubmission1.id, 2, dummySubmission1.comment_peer[2]],
-        function (error, results, fields) {
-            if (error){
-                connection.end();
-                throw error;
+function peerComment3(){
+    return new Promise( resolve => {
+        connection.query('INSERT INTO comment_peer (id_submission, id_comment, comment) VALUES (?,?,?)',
+            [dummySubmission1.id, 2, dummySubmission1.comment_peer[2]],
+            function (error, results, fields) {
+                if (error){
+                    //connection.end();
+                    throw error;
+                }
+                resolve(null);
             }
-        }
-    );
+        );
+    });
 }
 
 function popDB() {
@@ -471,7 +478,13 @@ function popDB() {
                    task3().then( () => {
                        insertTaskPoss();
                        insertSubmissions().then( () => {
-                           insertPeerComments();
+                           peerComment1().then( () => {
+                               peerComment2().then( () => {
+                                   peerComment3().then( () => {
+                                        connection.end();
+                                   });
+                               });
+                           });
                        });
                    });
                });
@@ -487,10 +500,11 @@ function popDB() {
 //cleanDB();
 
 function cleanDB() {
+    //connection.connect();
     connection.query('DELETE FROM user WHERE id > 0 AND id < 100',
         function (error, results, fields) {
             if (error) {
-                connection.end();
+                //connection.end();
                 throw error;
             }
         }

@@ -1,6 +1,6 @@
 const userDao = require('./userDao');
 
-function getUsers(req, res){
+function getUsers(req, res) {
     let enrolledBefore = req.query.enrolledBefore;
     if (enrolledBefore == null) {
         enrolledBefore = new Date().getUTCFullYear();//default is current year
@@ -15,25 +15,20 @@ function getUsers(req, res){
         if (users != null) {
             res.status(200).json(users);
         } else {
-            res.status(404).send("No user found");
+            res.status(404).send('No user found');
         }
     });
 }
 
 function getUserById(req, res) { //Get user with id
-    let id = req.params.id;
-    if (id == req.user.id) {
-        userDao.getUser(req.user, id).then(user => {
-            if (user != null) {
-                res.status(200).json(user);
-            } else {
-                res.status(404).send("User not found");
-            }
-        });
-
-    } else {
-        res.status(400).send("Bad request");
-    }
+    let id = req.params.id;//if the user we want to fetch the data of
+    userDao.getUser(req.user, id).then(user => {// req.user contains id of the logged user
+        if (user != null) {
+            res.status(200).json(user);
+        } else {
+            res.status(404).send('User not found');
+        }
+    });
 }
 
 function updateUser(req, res) { //Update user
@@ -50,19 +45,19 @@ function updateUser(req, res) { //Update user
     //[TO DO] Evaluate with other members if it has more sense [put] /users
     // in put I check that the user is update its own account
     // (update /users/:id can only be called on profile we're logged with)
-    if((id != null && user.name != null && user.surname != null) && (id == user.id && req.user.id == id)) {
+    if (id == user.id && req.user.id == id) {
         //user = userDao.updateUserSyn(user);//trying to update the user
         userDao.updateUser(user).then(user => {
             if (user != null) {
                 res.status(200).json(user);
             } else {
-                res.status(404).send("User not found");
+                res.status(404).send('User not found');
             }
         });
-    }else if (id == user.id){
-        res.status(400).send("Bad request");
-    }else{
-        res.status(403).send("Forbidden");
+    } else if (id == user.id) {
+        res.status(400).send('Bad request');
+    } else {
+        res.status(403).send('Forbidden');
     }
 }
 
@@ -82,17 +77,17 @@ function deleteUser(req, res) { //Delete user
     // (delete /users/:id can only be called on profile we're logged with)
     if (id == user.id && req.user.id == id) {
         //user = userDao.deleteUserSyn(user);//trying to update the user
-        userDao.deleteUser(user).then(user => {
+        userDao.deleteUser(user.id).then(user => {
             if (user != null) {
                 res.status(200).json(user);
             } else {
-                res.status(404).send("User not found");
+                res.status(404).send('User not found');
             }
         });
     } else if (id == user.id) {
-        res.status(400).send("Bad request");
+        res.status(400).send('Bad request');
     } else {
-        res.status(403).send("Forbidden");
+        res.status(403).send('Forbidden');
     }
 }
 

@@ -10,12 +10,9 @@ const connection = mysql.createConnection({
 
 function findOrCreate(data) {
     return new Promise(resolve => {
-        console.log("findOrCreate");
         getUser({}, data.id).then(value => {
-            console.log("Finding user " + data.id);
             let userFromDB = value;
             if (userFromDB == null) { // user doesn't exist in db
-                console.log("User not found! Creating a new account");
                 let userToDB;
                 if (data.name != undefined) {
                     userToDB = {
@@ -30,7 +27,6 @@ function findOrCreate(data) {
                     resolve (value);
                 });
             }else{
-                console.log("User found!");
                 resolve (userFromDB);
             }
         });
@@ -59,8 +55,6 @@ function createUser(user) {
 
 function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
     return new Promise(resolve => {
-        let born = null;
-        let enrolled = null;
         let retval = [];
 
         connection.query('SELECT * FROM user WHERE (user.enrolled >= ? AND user.enrolled <= ?) OR user.enrolled IS NULL', [enrolledBefore, enrolledAfter], function (error, results, fields) {
@@ -207,12 +201,12 @@ function updateUser(user) {
     });
 }
 
-function deleteUser(user) {
+function deleteUser(userId) {
     return new Promise(resolve => {
-        if (user != null && user.id != null) {
+        if (userId != null) {
             let retval;
 
-            connection.query('DELETE FROM user WHERE id = ?', [user.id], function (error, results, fields) {
+            connection.query('DELETE FROM user WHERE id = ?', [userId], function (error, results, fields) {
                 if (error) {
                     throw error;
                     return null;
