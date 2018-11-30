@@ -123,3 +123,5 @@ function getAllUserGroups(sortingMethod){
 
     return userGroups;
 }
+
+module.export = {createUserGroup, getAllUserGroups};
