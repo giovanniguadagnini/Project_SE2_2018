@@ -113,7 +113,17 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
     });
 }
 
-function getUser(loggedUser, id) {
+function getUser(loggedUser, id){
+    return new Promise(resolve => {
+        getUser1(loggedUser, id).then( user => {
+            loadCommentPeer(user, 0).then( user2 => {
+                resolve(user2);
+            });
+        });
+    });
+}
+
+function getUser1(loggedUser, id) {
     return new Promise(resolve => {
         connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
             if (error) {
@@ -122,7 +132,6 @@ function getUser(loggedUser, id) {
             }
 
             if (results.length > 0) {
-
                 let born = null;
                 if (results[0].born != null){
                     let temp = results[0].born;
@@ -153,19 +162,81 @@ function getUser(loggedUser, id) {
                         second: temp.getSeconds()
                     };
                 }
-                resolve({
+                let user = {
                     'id': '' + results[0].id,
                     'name': '' + results[0].name,
                     'surname': '' + results[0].surname,
                     'mail': '' + results[0].mail,
                     'enrolled': enrolled,
-                    'born':  born
-                });
-            }else
+                    'born':  born,
+                    'submissions': [],
+                    'exam_eval': []
+                };
+                connection.query('SELECT * FROM ' +
+                    '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
+                    'T.id AS id_t, T.owner, T.points, T.q_text, T.q_url, T.task_type ' +
+                    'FROM user U, submission S, task T ' +
+                    'WHERE S.id_user = ? AND S.id_task = T.id ' +
+                    'ORDER BY S.id_exam, id_s ASC) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
+                    'ON TEMP.id_t = TP.id_task;', [id],
+                    function (error, results, fields) {
+                        if (error) {
+                            throw error;
+                            resolve(null);
+                        } else {
+                            for (let i = 0; i < results.length; i++){
+                                let submission = {
+                                    id: results[i].id_s,
+                                    task_type: results[i].task_type,
+                                    question: {
+                                        text: results[i].q_text,
+                                        possibilities: [],
+                                        base_upload_url: results[i].q_url
+                                    },
+                                    answer: results[i].answer,
+                                    id_user: id,
+                                    id_exam: results[i].id_exam,
+                                    completed: results[i].completed,
+                                    comment_peer: [],
+                                    comment: results[i].comment,
+                                    points: results[i].points,
+                                    earned_points: results[i].earned_points
+                                }
+                                for(let x = i; x < results.length && submission.id == results[x].id_s; x++){
+                                    submission.possibilities.push({value: results[x].q_possibility});
+                                }
+                                i = x;
+                                user.submissions.push(submission);
+                            }
+                            resolve(user);
+                        }
+                    }
+                );
+            }else{
                 resolve(null);
-
+            }
         });
+    });
+}
 
+function loadCommentPeer(user, index){
+    return new Promise(resolve => {
+        if(index == user.submissions.length){
+            resolve(user);
+        }else{
+            connection.query('SELECT comment FROM comment_peer WHERE id_submission = ?', [user.submission.id],
+                function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                    } else {
+                        for(let y = 0; y < results.length; y++){
+                            user.submission.comment_peer.push(results[y].comment);
+                        }
+                        loadCommentPeer(user, index+1);
+                    }
+                }
+            );
+        }
     });
 }
 
@@ -224,5 +295,7 @@ function deleteUser(userId) {
         else resolve(null);
     });
 }
-
+getUser({id:'123'}, 123).then( value =>{
+    console.log(JSON.stringify(value));
+});
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};
