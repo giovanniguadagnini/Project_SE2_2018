@@ -116,9 +116,20 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
 function getUser(loggedUser, id){
     return new Promise(resolve => {
         getUser1(loggedUser, id).then( user => {
+            var vettPromise = [];
+            for(let i = 0; i < user.submissions.length; i++){
+                vettPromise[i] = new Promise(a => {
+                    loadCommentPeer(user.submissions[i]);
+                });
+            }
+            Promise.all(vettPromise).then(b => {
+                resolve(user);
+            });
+            /*OLD
             loadCommentPeer(user, 0).then( user2 => {
                 resolve(user2);
             });
+            */
         });
     });
 }
@@ -174,7 +185,7 @@ function getUser1(loggedUser, id) {
                 };
                 connection.query('SELECT * FROM ' +
                     '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
-                    'T.id AS id_t, T.owner, T.points, T.q_text, T.q_url, T.task_type ' +
+                    'T.id AS id_t, T.id_owner, T.points, T.q_text, T.q_url, T.task_type ' +
                     'FROM user U, submission S, task T ' +
                     'WHERE S.id_user = ? AND S.id_task = T.id ' +
                     'ORDER BY S.id_exam, id_s ASC) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
@@ -219,6 +230,24 @@ function getUser1(loggedUser, id) {
     });
 }
 
+function loadCommentPeer(submission){
+    return new Promise(resolve => {
+        connection.query('SELECT comment FROM comment_peer WHERE id_submission = ?', [submission.id],
+            function (error, results, fields) {
+                if (error) {
+                    throw error;
+                } else {
+                    for(let y = 0; y < results.length; y++){
+                        submission.comment_peer.push(results[y].comment);
+                    }
+                    loadCommentPeer(user, index+1);
+                }
+            }
+        )
+    });
+}
+
+/*
 function loadCommentPeer(user, index){
     return new Promise(resolve => {
         if(index == user.submissions.length){
@@ -239,7 +268,7 @@ function loadCommentPeer(user, index){
         }
     });
 }
-
+*/
 function updateUser(user) {
     return new Promise(resolve => {
         if (user != null && user.id != null) {
