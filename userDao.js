@@ -46,7 +46,6 @@ function createUser(user) {
                         resolve(user);
                 }
             );
-
         }
         else resolve(null);
     });
@@ -118,18 +117,11 @@ function getUser(loggedUser, id){
         getUser1(loggedUser, id).then( user => {
             var vettPromise = [];
             for(let i = 0; i < user.submissions.length; i++){
-                vettPromise[i] = new Promise(a => {
-                    loadCommentPeer(user.submissions[i]);
-                });
+                vettPromise.push(loadCommentPeer(user.submissions[i]));
             }
             Promise.all(vettPromise).then(b => {
                 resolve(user);
             });
-            /*OLD
-            loadCommentPeer(user, 0).then( user2 => {
-                resolve(user2);
-            });
-            */
         });
     });
 }
@@ -186,16 +178,22 @@ function getUser1(loggedUser, id) {
                 connection.query('SELECT * FROM ' +
                     '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
                     'T.id AS id_t, T.id_owner, T.points, T.q_text, T.q_url, T.task_type ' +
-                    'FROM user U, submission S, task T ' +
+                    'FROM submission S, task T ' +
                     'WHERE S.id_user = ? AND S.id_task = T.id ' +
                     'ORDER BY S.id_exam, id_s ASC) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
-                    'ON TEMP.id_t = TP.id_task;', [id],
+                    'ON TEMP.id_t = TP.id_task', [id],
                     function (error, results, fields) {
                         if (error) {
                             throw error;
                             resolve(null);
                         } else {
+                            let id_ex;
+                            if(results.length > 0)
+                                id_ex = results[0].id_exam;
+                            let tot_earned = 0;
+                            let tot_points = 0;
                             for (let i = 0; i < results.length; i++){
+
                                 let submission = {
                                     id: results[i].id_s,
                                     task_type: results[i].task_type,
@@ -212,11 +210,22 @@ function getUser1(loggedUser, id) {
                                     comment: results[i].comment,
                                     points: results[i].points,
                                     earned_points: results[i].earned_points
+                                };
+                                id_ex = submission.id_exam;
+                                tot_earned += submission.earned_points;
+                                tot_points += submission.points;
+                                if(i+1 == results.length || results[i+1].id_exam != submission.id_exam){
+                                    user.exam_eval.push({id_exam: id_ex, mark: ((tot_earned/tot_points)*30)});
+                                    tot_points = 0;
+                                    tot_earned = 0;
                                 }
-                                for(let x = i; x < results.length && submission.id == results[x].id_s; x++){
-                                    submission.possibilities.push({value: results[x].q_possibility});
+                                let x;
+                                for(x = i; x < results.length && submission.id == results[x].id_s; x++){
+                                    if(results[x].q_possibility != null) {
+                                        submission.question.possibilities.push({value: results[x].q_possibility});
+                                    }
                                 }
-                                i = x;
+                                i = x-1;
                                 user.submissions.push(submission);
                             }
                             resolve(user);
@@ -236,39 +245,18 @@ function loadCommentPeer(submission){
             function (error, results, fields) {
                 if (error) {
                     throw error;
+                    resolve(null);
                 } else {
                     for(let y = 0; y < results.length; y++){
                         submission.comment_peer.push(results[y].comment);
                     }
-                    loadCommentPeer(user, index+1);
+                    resolve(null);
                 }
             }
         )
     });
 }
 
-/*
-function loadCommentPeer(user, index){
-    return new Promise(resolve => {
-        if(index == user.submissions.length){
-            resolve(user);
-        }else{
-            connection.query('SELECT comment FROM comment_peer WHERE id_submission = ?', [user.submission.id],
-                function (error, results, fields) {
-                    if (error) {
-                        throw error;
-                    } else {
-                        for(let y = 0; y < results.length; y++){
-                            user.submission.comment_peer.push(results[y].comment);
-                        }
-                        loadCommentPeer(user, index+1);
-                    }
-                }
-            );
-        }
-    });
-}
-*/
 function updateUser(user) {
     return new Promise(resolve => {
         if (user != null && user.id != null) {
@@ -324,7 +312,7 @@ function deleteUser(userId) {
         else resolve(null);
     });
 }
-getUser({id:'123'}, 123).then( value =>{
+getUser({id:'12'}, 12).then( value =>{
     console.log(JSON.stringify(value));
 });
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};

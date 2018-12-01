@@ -486,7 +486,7 @@ function popDB() {
     });
 }
 
-//popDB();
+popDB();
 //cleanDB();
 
 function cleanDB() {
