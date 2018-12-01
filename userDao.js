@@ -312,7 +312,9 @@ function deleteUser(userId) {
         else resolve(null);
     });
 }
+/*
 getUser({id:'12'}, 12).then( value =>{
     console.log(JSON.stringify(value));
 });
+*/
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};
