@@ -225,24 +225,4 @@ function deleteUser(userId) {
     });
 }
 
-<<<<<<< HEAD
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};
-=======
-function createExam(exam){
-
-}
-
-function getAllExams(sortStudBy, minStudByMark,maxStudByMark,taskType){
-
-}
-
-function getExam(id,sortStudBy, minStudByMark,maxStudByMark,taskType){
-
-}
-
-function updateExam(exam){
-
-}
-
-module.exports = {getAllUsers, createUser, getUser, updateUser,createExam,getAllExams,getExam,updateExam};
->>>>>>> added /exams and /exams/:id methods with relatives filters

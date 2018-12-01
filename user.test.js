@@ -125,15 +125,8 @@ test('PUT /users/invalidId without parameter; should return 403', async () => {
     expect(response.body).toEqual({});
 });
 
-<<<<<<< HEAD
-
 test('PUT /users/pureStringId with string as id in the uri and without parameter; should return 403', async () => {
     const response = await request(app).put('/users/' + pureStringId).set('Authorization', 'Bearer ' + validId).send(null);
-=======
-test('PUT /users/pureStringId with string as id in the uri and withou parameter; should return 403', async () => {
-    expect.assertions(2);
-    let response = await request(app).put('/users/' + pureStringId).set('Authorization', 'Bearer ' + validId).send(null);
->>>>>>> aaeec0b... Small fixing in userDao test e user test
     expect(response.statusCode).toBe(403);
     expect(response.body).toEqual({});
 });

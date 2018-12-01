@@ -1,5 +1,23 @@
-const app = require('./app');
-const userDao = require('./userDao');
+const examDao = require('./examsDao');
+
+function createExam(req, res) { //Create an exam
+    let id=req.user.id;
+    var exam = {
+      name : req.body.name,
+      teachers : req.body.teachers,
+      students : req.body.students,
+      deadline : req.body.deadline,
+      reviewable : req.body.reviewable,
+      num_shuffle : req.body.num_shuffle
+    };
+    exam = examDao.createExam(id,exam);//trying to create the exam
+    if (exam != null) {
+        res.status(201).json(exam);
+    } else {
+        res.status(400).send("Bad Request");
+    }
+};
+/*
 app.route('/exams')
     .get(function(req, res) { //Get all managable exams
         var sortStudBy = req.query.sortStudBy;
@@ -18,7 +36,7 @@ app.route('/exams')
         if(taskType == null) {
             taskType = "1111";
         }
-        var exams = userDao.getAllExams(req.user.id,sortStudBy, minStudByMark,maxStudByMark,taskType);
+        var exams = examDao.getAllExams(req.user.id,sortStudBy, minStudByMark,maxStudByMark,taskType);
         if(exams != null) {
             res.status(200).send(exams);
         } else {
@@ -26,23 +44,20 @@ app.route('/exams')
         }
     })
     .post(function(req, res) { //Create an exam
+        let id = req.params.id;
         var exam = {
-          id: req.body.id,
           name : req.body.name,
-          owner : req.body.owner,
           teachers : req.body.teachers,
           students : req.body.students,
-          tasks : req.body.tasks,
-          submissions : req.body.submissions,
           deadline : req.body.deadline,
           reviewable : req.body.reviewable,
           num_shuffle : req.body.num_shuffle
         };
-        exam = userDao.createExam(req.user.id,exam);//trying to create the exam
+        exam = examDao.createExam(id,exam);//trying to create the exam
         if (exam != null) {
-            res.status(200).send(exam);
+            res.status(201).json(exam);
         } else {
-            res.status(405).send("Invalid input");
+            res.status(400).send("Bad Request");
         }
     });
 
@@ -66,7 +81,7 @@ app.route('/exams/:id')
             if(taskType == null) {
                 taskType = 1111;
             }
-            var exam = userDao.getExam(req.user.id,id,sortStudBy, minStudByMark,maxStudByMark,taskType);
+            var exam = examDao.getExam(req.user.id,id,sortStudBy, minStudByMark,maxStudByMark,taskType);
             if (exam != null) {
                 res.status(200).send(exam);
             } else {
@@ -91,7 +106,7 @@ app.route('/exams/:id')
               reviewable : req.body.reviewable,
               num_shuffle : req.body.num_shuffle
             };
-            exam = userDao.updateExam(req.user.id,exam);
+            exam = examDao.updateExam(req.user.id,exam);
             if (exam != null) {
                 res.status(200).send(exam);
             } else {
@@ -105,7 +120,7 @@ app.route('/exams/:id')
     .delete(function(req, res) {
         var id = req.id;
         if(Number.isInteger(id) == true) {
-            exam = userDao.deleteExam(req.user.id,id);
+            exam = examDao.deleteExam(req.user.id,id);
             if (exam != null) {
                 res.status(200).send(exam);
             } else {
@@ -116,3 +131,6 @@ app.route('/exams/:id')
         }
 
     });;
+*/
+
+module.exports = {createExam};
