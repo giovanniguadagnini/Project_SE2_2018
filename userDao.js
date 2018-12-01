@@ -55,58 +55,28 @@ function createUser(user) {
 function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
     return new Promise(resolve => {
         let retval = [];
-
-        connection.query('SELECT * FROM user WHERE (user.enrolled >= ? AND user.enrolled <= ?) OR user.enrolled IS NULL', [enrolledBefore, enrolledAfter], function (error, results, fields) {
+        let promises_users = [];
+        connection.query(   'SELECT id FROM user ' +
+                            'WHERE (user.enrolled >= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\') '+
+                            'AND '+
+                            'user.enrolled <= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\')) ' +
+                            'OR user.enrolled IS NULL', [enrolledBefore, enrolledAfter], function (error, results, fields) {
             if (error) {
                 throw error;
                 resolve(null);
             }
-            if (results.length > 0) {
-                for (var i = 0; i < results.length; i++) {
-                    let born = null;
-                    if (results[i].born != null){
-                        let temp = results[i].born;
-                        let t = (temp + '').split(/[- :]/);
-                        temp = new Date(Date.UTC(t[3], myDate.convertMonth(t[1]), t[2], t[4]-1, t[5], t[6]));
-                        born = {
-                            year: temp.getFullYear(),
-                            month: temp.getMonth(),
-                            day: temp.getDay(),
-                            hour: temp.getHours(),
-                            minute: temp.getMinutes(),
-                            second: temp.getSeconds()
-                        };
-                    }
+            let promise_tmp;
+            for (let i = 0; i < results.length; i++) {
+                promise_tmp = getUser(loggedUser, results[i].id);
+                promises_users.push(promise_tmp);
+                promise_tmp.then( userToAdd => {
+                    retval.push(userToAdd);
+                });
+            }
 
-                    let enrolled = null;
-
-                    if (results[i].enrolled != null){
-                        let temp = results[i].enrolled;
-                        let t = (temp + '').split(/[- :]/);
-                        temp = new Date(Date.UTC(t[3], myDate.convertMonth(t[1]), t[2], t[4]-1, t[5], t[6]));
-                        enrolled = {
-                            year: temp.getFullYear(),
-                            month: temp.getMonth(),
-                            day: temp.getDay(),
-                            hour: temp.getHours(),
-                            minute: temp.getMinutes(),
-                            second: temp.getSeconds()
-                        };
-                    }
-
-                    retval.push({
-                        'id': '' + results[i].id,
-                        'name': '' + results[i].name,
-                        'surname': '' + results[i].surname,
-                        'mail': '' + results[i].mail,
-                        'enrolled': enrolled,
-                        'born': born
-                    })
-                }
+            Promise.all(promises_users).then(b => {
                 resolve(retval);
-            }else
-                resolve (null);
-
+            });
         });
 
     });
@@ -115,11 +85,11 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
 function getUser(loggedUser, id){
     return new Promise(resolve => {
         getUser1(loggedUser, id).then( user => {
-            var vettPromise = [];
+            let promises_pcomments = [];
             for(let i = 0; i < user.submissions.length; i++){
-                vettPromise.push(loadCommentPeer(user.submissions[i]));
+                promises_pcomments.push(loadCommentPeer(user.submissions[i]));
             }
-            Promise.all(vettPromise).then(b => {
+            Promise.all(promises_pcomments).then(b => {
                 resolve(user);
             });
         });
@@ -169,19 +139,29 @@ function getUser1(loggedUser, id) {
                     'id': '' + results[0].id,
                     'name': '' + results[0].name,
                     'surname': '' + results[0].surname,
-                    'mail': '' + results[0].mail,
+                    'email': '' + results[0].email,
                     'enrolled': enrolled,
                     'born':  born,
                     'submissions': [],
                     'exam_eval': []
                 };
-                connection.query('SELECT * FROM ' +
-                    '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
-                    'T.id AS id_t, T.id_owner, T.points, T.q_text, T.q_url, T.task_type ' +
-                    'FROM submission S, task T ' +
-                    'WHERE S.id_user = ? AND S.id_task = T.id ' +
-                    'ORDER BY S.id_exam, id_s ASC) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
-                    'ON TEMP.id_t = TP.id_task', [id],
+
+                let fetch_sub_query =   'SELECT * FROM ' +
+                                            '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
+                                            'T.id AS id_t, T.id_owner, T.points, T.q_text, T.q_url, T.task_type ' +
+                                            'FROM submission S, task T ' +
+                                            'WHERE (S.id_user = ? AND S.id_task = T.id ' +
+                                            'AND ' +
+                                                 //logged user is asking for data of other users so he/she can only see data of exams he/she was teacher of
+                                                '( S.id_exam IN (SELECT id_exam FROM teacher_exam WHERE id_teacher = ?) ' +
+                                                    'OR ' +
+                                                    '? = ? ' + // logged user is asking his/her own data
+                                                ') ' +
+                                            ') ' +
+                                        'ORDER BY S.id_exam, id_s ASC) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
+                                        'ON TEMP.id_t = TP.id_task';
+
+                connection.query(fetch_sub_query, [id,loggedUser.id,id,loggedUser.id],
                     function (error, results, fields) {
                         if (error) {
                             throw error;
@@ -312,9 +292,13 @@ function deleteUser(userId) {
         else resolve(null);
     });
 }
-/*
-getUser({id:'12'}, 12).then( value =>{
+
+/*getUser({id:'10'}, 12).then( value =>{
     console.log(JSON.stringify(value));
-});
-*/
+});*/
+
+/*getAllUsers({id:'12'}, 1990, 2018).then( value =>{
+    console.log(JSON.stringify(value));
+});*/
+
 module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser};
