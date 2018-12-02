@@ -471,7 +471,7 @@ function popDB() {
                                 peerComment1().then(() => {
                                     peerComment2().then(() => {
                                         peerComment3().then(() => {
-                                            
+
                                             connection.end();
                                         });
                                     });
@@ -486,8 +486,8 @@ function popDB() {
     });
 }
 
-popDB();
 //cleanDB();
+popDB();
 
 function cleanDB() {
     //connection.connect();

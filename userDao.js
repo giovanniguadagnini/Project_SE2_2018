@@ -8,13 +8,13 @@ const connection = mysql.createConnection({
     database: 'sql7267085'
 });
 
-function findOrCreate(data) {
+function findOrCreate(data) { //this function search the user in the db, and if the user ins't already inserted, the function create a new user
     return new Promise(resolve => {
         getUser({}, data.id).then(value => {
             let userFromDB = value;
             if (userFromDB == null) { // user doesn't exist in db
                 let userToDB;
-                if (data.name != undefined) {
+                if (data.name != undefined) {//retrive data from google JSON
                     userToDB = {
                         id: data.id,
                         name: data.name.familyName,
@@ -24,18 +24,18 @@ function findOrCreate(data) {
                     userToDB = {id: data.id};
                 }
                 createUser(userToDB).then(value => {
-                    resolve (value);
+                    resolve (value);//return the new user inserted into the db
                 });
             }else{
-                resolve (userFromDB);
+                resolve (userFromDB);//return the user retrievied from the db
             }
         });
     });
 }
 
-function createUser(user) {
+function createUser(user) { //function that create a new user
     return new Promise(resolve => {
-        if (user != null && user.id != null) {
+        if (user != null && user.id != null) {//if the JSON exists and has inside the id, the function create a new user
             connection.query('INSERT INTO user (id, name, surname) VALUES (?,?,?)',
                 [user.id, user.name, user.surname],
                 function (error, results, fields) {
@@ -52,10 +52,10 @@ function createUser(user) {
 
 }
 
-function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
+function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) { //this function retrieve from the db all the user that has been created between the time limit
     return new Promise(resolve => {
         let retval = [];
-        let promises_users = [];
+        let promises_users = []; //get from the database all the user between the time limit inserted
         connection.query(   'SELECT id FROM user ' +
                             'WHERE (user.enrolled >= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\') '+
                             'AND '+
@@ -66,7 +66,7 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
                 resolve(null);
             }
             let promise_tmp;
-            for (let i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) { //for every user retrivied, the function getUser retrieve the user JSON, and it will insert exam data only if the logged user has the privileges to see it
                 promise_tmp = getUser(loggedUser, results[i].id);
                 promises_users.push(promise_tmp);
                 promise_tmp.then( userToAdd => {
@@ -82,11 +82,11 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
     });
 }
 
-function getUser(loggedUser, id){
+function getUser(loggedUser, id){//the function try to retrieve the user JSON related to the id passed as parameter, and it will insert exam data only if the logged user has the privileges to see it
     return new Promise(resolve => {
         getUser1(loggedUser, id).then( user => {
             let promises_pcomments = [];
-            for(let i = 0; i < user.submissions.length; i++){
+            for(let i = 0; i < user.submissions.length; i++){//load all the comment_peer for every submission
                 promises_pcomments.push(loadCommentPeer(user.submissions[i]));
             }
             Promise.all(promises_pcomments).then(b => {
@@ -98,13 +98,13 @@ function getUser(loggedUser, id){
 
 function getUser1(loggedUser, id) {
     return new Promise(resolve => {
-        connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
+        connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {//the function retrieve the user from the id
             if (error) {
                 throw error;
                 return null;
             }
 
-            if (results.length > 0) {
+            if (results.length > 0) {//if the db return at least a row, the function build the JSON
                 let born = null;
                 if (results[0].born != null){
                     let temp = results[0].born;
@@ -146,6 +146,7 @@ function getUser1(loggedUser, id) {
                     'exam_eval': []
                 };
 
+                //the function try to retrieve the data related to the exams,
                 let fetch_sub_query =   'SELECT * FROM ' +
                                             '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
                                             'T.id AS id_t, T.id_owner, T.points, T.q_text, T.q_url, T.task_type ' +
@@ -167,6 +168,7 @@ function getUser1(loggedUser, id) {
                             throw error;
                             resolve(null);
                         } else {
+                            //if the db return exam data, the function will build one object per exam
                             let id_ex;
                             if(results.length > 0)
                                 id_ex = results[0].id_exam;
@@ -195,12 +197,12 @@ function getUser1(loggedUser, id) {
                                 tot_earned += submission.earned_points;
                                 tot_points += submission.points;
                                 if(i+1 == results.length || results[i+1].id_exam != submission.id_exam){
-                                    user.exam_eval.push({id_exam: id_ex, mark: ((tot_earned/tot_points)*30)});
+                                    user.exam_eval.push({id_exam: id_ex, mark: ((tot_earned/tot_points)*30)});//the function computes the evalutation of the exam
                                     tot_points = 0;
                                     tot_earned = 0;
                                 }
                                 let x;
-                                for(x = i; x < results.length && submission.id == results[x].id_s; x++){
+                                for(x = i; x < results.length && submission.id == results[x].id_s; x++){//the function load the submissio possibilities
                                     if(results[x].q_possibility != null) {
                                         submission.question.possibilities.push({value: results[x].q_possibility});
                                     }
@@ -208,7 +210,7 @@ function getUser1(loggedUser, id) {
                                 i = x-1;
                                 user.submissions.push(submission);
                             }
-                            resolve(user);
+                            resolve(user);//the function return the user data
                         }
                     }
                 );
@@ -219,7 +221,7 @@ function getUser1(loggedUser, id) {
     });
 }
 
-function loadCommentPeer(submission){
+function loadCommentPeer(submission){//for every submission this function load all the related comment peer
     return new Promise(resolve => {
         connection.query('SELECT comment FROM comment_peer WHERE id_submission = ?', [submission.id],
             function (error, results, fields) {
@@ -237,7 +239,7 @@ function loadCommentPeer(submission){
     });
 }
 
-function updateUser(user) {
+function updateUser(user) {//based on the JSON value the function update the user in the db
     return new Promise(resolve => {
         if (user != null && user.id != null) {
 
@@ -269,7 +271,7 @@ function updateUser(user) {
     });
 }
 
-function deleteUser(userId) {
+function deleteUser(userId) { //the function delete the user from the db
     return new Promise(resolve => {
         if (userId != null) {
             let retval;

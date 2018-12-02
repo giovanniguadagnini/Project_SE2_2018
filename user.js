@@ -11,7 +11,7 @@ function getUsers(req, res) {
         enrolledAfter = 1900; //default is year 1900
     }
 
-    userDao.getAllUsers(req.user, enrolledBefore, enrolledAfter).then(users => {
+    userDao.getAllUsers(req.user, enrolledBefore, enrolledAfter).then(users => {//retrieve all users that the logged user can see 
         if (users != null) {
             res.status(200).json(users);
         } else {
