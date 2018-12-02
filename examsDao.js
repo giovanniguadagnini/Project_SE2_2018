@@ -9,29 +9,54 @@ var connection = mysql.createConnection({
 
 function createExam(id_user,exam){
 
-  console.log('1');
-  var promise = new Promise(resolve => {
+  //console.log('1');
+  var promise = new Promise(function(resolve, reject) {
 
-    console.log('2');
-    console.log(id_user);
-    console.log(exam);
     //Controllo sul tipo e sul passaggio o meno dei parametri
+    //[TODO controllo struttura di teachers e students]
     if (id_user!=null && exam != null && exam.name!=null && exam.teachers!=null && exam.students!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null
-    && typeof reviewable == typeof true && id_user == parseInt(id_user, 10) && exam.students == parseInt(exam.students, 10) && exam.deadline == parseInt(exam.deadline, 10) && exam.num_shuffle == parseInt(exam.num_shuffle, 10)) {
-      console.log('3');
-      //Controllo se lo user group passato esiste
-      connection.query('SELECT * FROM user_group WHERE id = ?', [exam.students], function (error, results, fields) {
+    && typeof exam.reviewable == typeof true && id_user == parseInt(id_user, 10) && exam.deadline == parseInt(exam.deadline, 10) && exam.num_shuffle == parseInt(exam.num_shuffle, 10)){
+      //Controllo se lo user group passato esiste ---[TODO]Manca controllo sugli user passati
+      connection.query('SELECT * FROM user_group WHERE id = ? AND id_creator = ? AND name = ?', [exam.students.id,exam.students.creator,exam.students.name], function (error, results, fields) {
         if (error) {
             throw error;
             resolve(null);
         }
         if (results.length == 0) {
           resolve(null);//User_group inesistente
+        }else{
+          resolve(true);//Controllo passato
         }
       });
-      console.log('A');
-      //Controllo intersezione di user group con i teacher
-      connection.query('SELECT id_user FROM user_group_members WHERE id_group = ?', [exam.students], function (error, results, fields) {
+    }
+    else{
+      resolve(null);//Non ha passato il controllo sul tipo o sul passaggio dei parametri
+    }
+  });
+
+  promise.then(function(result) {
+    if(result){//Se ha passato il controllo precedente
+      //Controllo se i teacher passati sono user
+      exam.teachers.forEach(function(teacher) {
+        connection.query('SELECT id FROM user WHERE id = ?', [teacher.id],function (error, results, fields) {
+          if (error) {
+              throw error;
+              return null;
+          }
+          if (results.length == 0) {
+            return null;//teacher passato non è uno user
+          }
+        });
+      });
+      //Se tutti i teacher sono users continuo
+      return(true);
+    }else{//Altrimenti
+      return null;
+    }
+  }).then(function(result) {
+    if(result){//Se ha passato il controllo precedente
+      //[TODO]Controllo intersezione di user group con i teacher
+      /*connection.query('SELECT id_user FROM user_group_members WHERE id_group = ?', [exam.students.id], function (error, results, fields) {
         if (error) {
             throw error;
             resolve(null);
@@ -39,115 +64,97 @@ function createExam(id_user,exam){
         if (results.length > 0) {
           results.forEach(function(student) {
             exam.teachers.forEach(function(teacher) {
-              if(student.id_user==teacher){
+              if(student.id_user==teacher.id){
                 resolve(null);//Non ci possono essere teacher che sono anche student nello stesso esame
               }
             });
           });
         }
-      });
-      console.log('B');
-      //[TODO]Controllo se gli id dei teacher passati esistono in user
-      connection.query('SELECT id FROM user', function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-        if (results.length > 0) {
-          var id_users=[];
-          results.forEach(function(user) {
-            id_users.push(user.id);
-          });
-          exam.teacher.forEach(function(teacher) {
-            if(!id_users.includes(teacher)){
-              resolve(null);//Non ci possono essere teacher che non sono user nel DataBase
-            }
-          });
-        }
-      });
+      });*/
       //Fine controlli dal DataBase
-      console.log('C');
       //Inserisco il nuovo esame
       var id_exam;
       connection.query('INSERT INTO exam (id_group, id_owner, name, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?)',
-          [exam.students,id_user, exam.name,exam.deadline, exam.reviewable, exam.num_shuffle],
+          [exam.students.id,id_user, exam.name,exam.deadline, exam.reviewable, exam.num_shuffle],
           function (error, results, fields) {
+              //console.log('Entrato');
               if (error) {
+                  //console.log('Entrato in errore');
                   throw error;
-                  resolve(null);
+                  return null;
               }
+              //console.log(results.insertId);
+              //console.log('EPre stamp');
+              //console.log('Id exam obteined 1:'+results.insertId);
               id_exam=results.insertId;
+              //console.log(id_exam);
+              return id_exam;
           }
       );
-      console.log('A');
-      exam.teachers.forEach(function(teacher) {//Inserisco i teachers
+    }else{//Altrimenti
+      return null;
+    }
+  }).then(function(result) {
+    if(result!=null){//Se ha passato l'inserimento precedente
+      var id_exam=result;
+      //Inserisco i teachers
+      exam.teachers.forEach(function(teacher) {
         connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',
-            [id_exam, teacher],
+            [id_exam, teacher.id],
             function (error, results, fields) {
                 if (error){
                     throw error;
-                    resolve(null);
+                    return null;
                 }
             }
         );
       });
-      console.log('D');
-      //Recupero i teacher associati a quell'esame
-      var teachers=[];
-      connection.query('SELECT * FROM teacher_exam WHERE id_exam = ?', [id_exam], function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-        if (results.length > 0) {
-          results.forEach(function(teacher) {
-            teachers.push(teacher.id_teacher);
-          });
-        }else{
-          resolve(null);//Non ha inserito nessun teacher
-        }
-      });
-
-      var id_user_group;
-      console.log('E');
-      //Recupero lo user group associato a quell'esame
-      connection.query('SELECT * FROM user_group WHERE id = ?', [exam.students], function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-        if (results.length > 0) {
-          id_user_group=results[0].id
-        }else{
-          resolve(null);
-        }
-      });
-      console.log('F');
-      //Recupero l'esame inserito e lo ritorno
-      connection.query('SELECT * FROM exam WHERE id_exam = ?', [id_exam], function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-        if (results.length > 0) {
-          resolve({id : results[0].id,
-          name :results[0].id,
-          owner : results[0].id_owner,
-          teachers : teachers,
-          students : id_user_group,
-          tasks : [],
-          submissions: [],
-          deadline :results[0].deadline,
-          reviewable : results[0].reviewable,
-          num_shuffle :results[0].num_shuffle});
-        }else{
-          resolve(null);//Non ha inserito niente
-        }
-      });
+      return id_exam;
+    }else{//Altrimenti
+      return null;
     }
-    else resolve(null);//Non ha passato il controllo sul tipo o sul passaggio dei parametri
-  });
-  promise.then(result => {return result;});
+
+  }).then(function(result) {
+    if(result!=null){//Se ha passato l'inserimento precedente
+    //Recupero i teacher associati a quell'esame
+    var id_exam=result;
+    return getExam({id: id_exam});
+    /*var teachers=[];
+    connection.query('SELECT * FROM teacher_exam WHERE id_exam = ?', [id_exam], function (error, results, fields) {
+      if (error) {
+          throw error;
+          return null;
+      }
+      if (results.length > 0) {
+        results.forEach(function(teacher) {
+          //[TODO]Costruire il JSON dello user relativo
+          teachers.push(teacher.id_teacher);
+        });
+      }else{
+        return null;//Non ha inserito nessun teacher
+      }
+    });
+
+    let id_user_group;
+    //Recupero lo user group associato a quell'esame
+    connection.query('SELECT * FROM user_group WHERE id = ?', [exam.students.id], function (error, results, fields) {
+      if (error) {
+          throw error;
+          return null;
+      }
+      if (results.length > 0) {
+        //[TODO]Costruire il JSON dello user_group
+        id_user_group=results[0].id
+      }else{
+        return null;
+      }
+    });
+
+    return teachers;*/
+    }else{//Altrimenti
+      return null;
+    }
+  };
 }
 
 function getAllExams(id_user,sortStudBy, minStudByMark,maxStudByMark,taskType){
