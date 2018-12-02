@@ -20,6 +20,8 @@ info:
 host: "teamrocketproject.herokuapp.com"
 basePath: "/"
 tags:
+- name: "Auth"
+  description: "Operations needed in order to create a profile and auth yourself in the application"
 - name: "Exam"
   description: "Operations delegated to exam management"
 - name: "User"
@@ -33,6 +35,20 @@ tags:
 schemes:
 - "https"
 paths:
+  /auth/google:
+    get:
+      tags:
+        - "Auth"
+      summary: "Authenticate yourself with oauth google"
+      description: "You just need to call this endpoint in order to authenticate yourself (or register if you don't exist as a user of the platform). See details to discover how to use the auth token that it will be generated to mantain the session valid"
+      operationId: "auth"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Logged in"
+          schema:
+            $ref: "#/definitions/Token"
   /exams:
     post:
       tags:
@@ -131,7 +147,7 @@ paths:
         name: "maxStudByMark"
         type: integer
         description: "Decide the maximum grade you want to see in order to filter students in UserGroup"
-        default: 31      
+        default: 31
       - in: query
         name: "taskType"
         type: string
@@ -208,15 +224,20 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: query
-        name: "enrolledAfter"
-        type: integer
-        description: "Filter students enrolled after a certain year"
-        default: 1900
-      - in: query
-        name: "enrolledBefore"
-        type: integer
-        description: "Filter students enrolled before a certain year (default current year)"
+        - in: query
+          name: "access_token"
+          required: true
+          type: string
+          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"
+        - in: query
+          name: "enrolledAfter"
+          type: integer
+          description: "Filter students enrolled after a certain year"
+          default: 1900
+        - in: query
+          name: "enrolledBefore"
+          type: integer
+          description: "Filter students enrolled before a certain year (default current year)"
       responses:
         200:
             description: "Successful operation"
@@ -224,13 +245,16 @@ paths:
               type: "array"
               items:
                 $ref: "#/definitions/User"
+        500:
+            description: "Internal Server Error"
+
   /users/{id}:
     parameters:
-    - in: path
-      name: id
-      required: true
-      type: integer
-      description: The user ID
+      - in: path
+        name: id
+        required: true
+        type: integer
+        description: The user ID
     get:
       tags:
       - "User"
@@ -240,19 +264,22 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "id"
-        in: "path"
-        description: "ID of user to return"
-        required: true
-        type: "integer"
-        format: "int64"
+        - in: query
+          name: "access_token"
+          required: true
+          type: string
+          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"    
+        - name: "id"
+          in: "path"
+          description: "ID of user to return"
+          required: true
+          type: "integer"
+          format: "int64"
       responses:
         200:
           description: "Successful operation"
           schema:
             $ref: "#/definitions/User"
-        400:
-          description: "Invalid ID supplied"
         404:
           description: "User not found"
     put:
@@ -266,8 +293,13 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
+      - in: header
+        name: "Authorization"
+        required: true
+        type: string
+        description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"
+      - in: body
+        name: "user"
         description: "User object that needs to be updated"
         required: true
         schema:
@@ -279,8 +311,8 @@ paths:
             $ref: "#/definitions/User"
         400:
           description: "Bad request"
-        404:
-          description: "User not found"
+        403:
+          description: "Forbidden"
     delete:
       tags:
       - "User"
@@ -290,12 +322,17 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "User object that needs to be deleted"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
+        - in: header
+          name: "Authorization"
+          required: true
+          type: string
+          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"
+        - in: "body"
+          name: "user"
+          description: "User object that needs to be deleted"
+          required: true
+          schema:
+            $ref: "#/definitions/User"
       responses:
         200:
           description: "Successful operation"
@@ -303,8 +340,8 @@ paths:
             $ref: "#/definitions/User"
         400:
           description: "Bad request"
-        404:
-          description: "User not found"
+        403:
+          description: "Forbidden"
   /userGroups:
     post:
         tags:
@@ -706,6 +743,12 @@ definitions:
         items:
           $ref: "#/definitions/Submission"
         description: "Array that will expose all the submissions object that has been delivered during any exam"
+  Token:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+        description: "This has to be used in the header (Authorization: Bearer <token>) or in the url as usr?access_token=<token>"
   UserGroup:
     type: "object"
     properties:
@@ -741,7 +784,7 @@ definitions:
         description: "Type of question (open question, single choice, multiple choice, submit a file)"
       question:
         type: "object"
-        description: "Question formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
+        description: "Question formatted in a proper way: this is defined based on the task_type"
       points:
         type: "integer"
         format: "int32"
@@ -757,8 +800,8 @@ definitions:
         enum: ["open", "single_c", "multiple_c", "submit"]
         description: "Type of task submission"
       question:
-        type: "object"
-        description: "Question formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
+        $ref: "#/definitions/Question"
+        description: "Question formatted in a proper way: this is defined based on the task_type"
       answer:
         type: "string"
         description: "Answer to a task submission formatted in a proper way: this is defined based on the task_type (update on this topic very soon)"
@@ -789,6 +832,19 @@ definitions:
         type: "integer"
         format: "int32"
         description: "Teacher evaluation for a task submission (it has be less than the max points)"
+  Question:
+    type: "object"
+    properties:
+      text:
+        type: "string"
+      possibilities:
+        type: "array"
+        items:
+          type: "string"
+          description: "possibility in case of single / multiple choice task type"
+      base_upload_url:
+        type: "string"
+        description: "contains url of the document in case of file submission task type"
   Datetime:
     type: "object"
     properties:
