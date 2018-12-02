@@ -1,8 +1,6 @@
 const app = require('./app');
 const request = require('supertest');
-//const fetch = require('node-fetch');
 const dummyStud = require('./dummies').dummyStud;
-//const link = 'https://teamrocketproject-test.herokuapp.com';
 
 const validId = dummyStud.id;
 const invalidId = '999999999999999999999999';

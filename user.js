@@ -1,21 +1,27 @@
 const userDao = require('./userDao');
 
+/*function which handle GET /users */
 function getUsers(req, res) {
+    //enrolled before (<=) a specific year
     let enrolledBefore = req.query.enrolledBefore;
     if (enrolledBefore == null) {
         enrolledBefore = new Date().getUTCFullYear();//default is current year
     }
 
+    //enrolled after (>=) a specific year
     let enrolledAfter = req.query.enrolledAfter;
     if (enrolledAfter == null) {
         enrolledAfter = 1900; //default is year 1900
     }
 
+    /* [TO DO] Consider implementing sorting options (see implementation in UserGroup)
+    * */
+
     userDao.getAllUsers(req.user, enrolledBefore, enrolledAfter).then(users => {
         if (users != null) {
             res.status(200).json(users);
         } else {
-            res.status(404).send('No user found');
+            res.status(500).send('Internal Server Error');//something went wrong
         }
     });
 }
@@ -51,7 +57,7 @@ function updateUser(req, res) { //Update user
             if (user != null) {
                 res.status(200).json(user);
             } else {
-                res.status(404).send('User not found');
+                res.status(400).send('Bad request');
             }
         });
     } else if (id == user.id) {
@@ -63,14 +69,7 @@ function updateUser(req, res) { //Update user
 
 function deleteUser(req, res) { //Delete user
     let id = req.params.id;
-    let user = {
-        id: req.body.id,
-        name: req.body.name,
-        surname: req.body.surname,
-        email: req.body.email,
-        born: req.body.born,
-        enrolled: req.body.enrolled
-    };
+    let user = {id: req.body.id};
 
     //[TO DO] Evaluate with other members if it has more sense [delete] /users
     // in delete I check that the user is deleting its own account
@@ -81,7 +80,7 @@ function deleteUser(req, res) { //Delete user
             if (user != null) {
                 res.status(200).json(user);
             } else {
-                res.status(404).send('User not found');
+                res.status(400).send('Forbidden');
             }
         });
     } else if (id == user.id) {

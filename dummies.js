@@ -91,12 +91,7 @@ let dummyTask2 = {
     task_type: "single_c",
     question: {
         text: "What do you get if you perform 1 + 1 ?\nSelect the right answer",
-        possibilities: [
-            { value: "0" },
-            { value: "1" },
-            { value: "2" },
-            { value: "Infinite" }
-        ],
+        possibilities: ["0", "1", "2" ,"Infinite"],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
     points: 1
@@ -141,12 +136,7 @@ let dummySubmission2 = {
     task_type: "single_c",
     question: {
         text: "What do you get if you perform 1 + 1 ?\nSelect the right answer",
-        possibilities: [
-            { value: "0" },
-            { value: "1" },
-            { value: "2" },
-            { value: "Infinite" }
-        ],
+        possibilities: ["0", "1", "2" ,"Infinite"],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
     answer: "0",
@@ -327,7 +317,7 @@ function task3() {
 
 function insertTaskPoss() {
     connection.query('INSERT INTO task_possibility (id_task, id_poss, q_possibility) VALUES (?,?,?)',
-        [dummyTask2.id, 0, dummyTask2.question.possibilities[0].value],
+        [dummyTask2.id, 0, dummyTask2.question.possibilities[0]],
         function (error, results, fields) {
             if (error) {
                 //connection.end();
@@ -337,7 +327,7 @@ function insertTaskPoss() {
     );
 
     connection.query('INSERT INTO task_possibility (id_task, id_poss, q_possibility) VALUES (?,?,?)',
-        [dummyTask2.id, 1, dummyTask2.question.possibilities[1].value],
+        [dummyTask2.id, 1, dummyTask2.question.possibilities[1]],
         function (error, results, fields) {
             if (error) {
                 //connection.end();
@@ -347,7 +337,7 @@ function insertTaskPoss() {
     );
 
     connection.query('INSERT INTO task_possibility (id_task, id_poss, q_possibility) VALUES (?,?,?)',
-        [dummyTask2.id, 2, dummyTask2.question.possibilities[2].value],
+        [dummyTask2.id, 2, dummyTask2.question.possibilities[2]],
         function (error, results, fields) {
             if (error) {
                 //connection.end();
@@ -357,7 +347,7 @@ function insertTaskPoss() {
     );
 
     connection.query('INSERT INTO task_possibility (id_task, id_poss, q_possibility) VALUES (?,?,?)',
-        [dummyTask2.id, 3, dummyTask2.question.possibilities[3].value],
+        [dummyTask2.id, 3, dummyTask2.question.possibilities[3]],
         function (error, results, fields) {
             if (error) {
                 //connection.end();
@@ -486,7 +476,7 @@ function popDB() {
     });
 }
 
-popDB();
+//popDB();
 //cleanDB();
 
 function cleanDB() {

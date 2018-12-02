@@ -1,41 +1,45 @@
-const mysql = require('mysql');
 const myDate = require('./myDate');
+const utilities = require('./utilities');
+const connection = utilities.connection;
 
-const connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7267085',
-    password: 'IlVZ5TF9HT',
-    database: 'sql7267085'
-});
-
+/*  See if the user is already in the db, if not register it
+    data is supposed to be what the google identity providers supplies
+*/
 function findOrCreate(data) {
     return new Promise(resolve => {
-        getUser({}, data.id).then(value => {
+        //use an invalid id just to see if the user is already in the db
+        getUser({id: 'invalidId'}, data.id).then(value => {
             let userFromDB = value;
-            if (userFromDB == null) { // user doesn't exist in db
+            if (userFromDB == null) { // user doesn't exist in db (registration)
                 let userToDB;
-                if (data.name != undefined) {
+                if (data.id != null && data.name != null) {
                     userToDB = {
                         id: data.id,
-                        name: data.name.familyName,
-                        surname: data.name.givenName
+                        name: data.name.givenName,
+                        surname: data.name.familyName
                     };
-                } else {
-                    userToDB = {id: data.id};
+                    //create user with data got from google identity providers
+                    createUser(userToDB).then(value => {
+                        resolve (value);
+                    });
+                }else{
+                    //return object with invalid id (this is not suppose to happen)
+                    resolve({id: 'invalidId'});
                 }
-                createUser(userToDB).then(value => {
-                    resolve (value);
-                });
-            }else{
+
+            }else{ //log-in
+                //there is already a user with this id in the db (user already registered)
                 resolve (userFromDB);
             }
         });
     });
 }
 
+/*Insert user in the db */
 function createUser(user) {
     return new Promise(resolve => {
-        if (user != null && user.id != null) {
+        //check if user contains the basic data
+        if (utilities.isAUser(user)) {
             connection.query('INSERT INTO user (id, name, surname) VALUES (?,?,?)',
                 [user.id, user.name, user.surname],
                 function (error, results, fields) {
@@ -52,15 +56,19 @@ function createUser(user) {
 
 }
 
-function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
+/*  This function supply all the users in the db (appropriately filtered
+    based also on what the logged user can actually see)
+    enrolledBefore & enrolledAfter are just year values
+*/
+function getAllUsers(loggedUser, enrolledAfter, enrolledBefore) {
     return new Promise(resolve => {
-        let retval = [];
+        let retval = []; //array of users
         let promises_users = [];
         connection.query(   'SELECT id FROM user ' +
                             'WHERE (user.enrolled >= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\') '+
                             'AND '+
                             'user.enrolled <= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\')) ' +
-                            'OR user.enrolled IS NULL', [enrolledBefore, enrolledAfter], function (error, results, fields) {
+                            'OR user.enrolled IS NULL', [enrolledAfter, enrolledBefore], function (error, results, fields) {
             if (error) {
                 throw error;
                 resolve(null);
@@ -70,11 +78,12 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
                 promise_tmp = getUser(loggedUser, results[i].id);
                 promises_users.push(promise_tmp);
                 promise_tmp.then( userToAdd => {
-                    retval.push(userToAdd);
+                    retval.push(userToAdd);//every time a promise is completed it means we've got the proper data of the user to add in the return array
                 });
             }
 
             Promise.all(promises_users).then(b => {
+                // [TO DO]: ADD sorting methods (could be useful)
                 resolve(retval);
             });
         });
@@ -82,6 +91,8 @@ function getAllUsers(loggedUser, enrolledBefore, enrolledAfter) {
     });
 }
 
+/*  get a user by a specific id based also on what the logged user can actually see
+* */
 function getUser(loggedUser, id){
     return new Promise(resolve => {
         getUser1(loggedUser, id).then( user => {
@@ -96,15 +107,17 @@ function getUser(loggedUser, id){
     });
 }
 
+/*  Get all the important information the logged user about the user with given id
+*   (profile info, submission/exams he/she was teacher of, peer reviews loaded in loadCommentPeer) */
 function getUser1(loggedUser, id) {
     return new Promise(resolve => {
         connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
             if (error) {
                 throw error;
-                return null;
+                resolve(null);
             }
 
-            if (results.length > 0) {
+            if (results.length > 0) {// found a user with this given id
                 let born = null;
                 if (results[0].born != null){
                     let temp = results[0].born;
@@ -146,6 +159,7 @@ function getUser1(loggedUser, id) {
                     'exam_eval': []
                 };
 
+                //after we've fetch the basic profile data, we fetch the submission the loggedUser could see about the user with given id
                 let fetch_sub_query =   'SELECT * FROM ' +
                                             '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
                                             'T.id AS id_t, T.id_owner, T.points, T.q_text, T.q_url, T.task_type ' +
@@ -167,11 +181,13 @@ function getUser1(loggedUser, id) {
                             throw error;
                             resolve(null);
                         } else {
+                            //the following variables is necessary to calc on the fly the mark of the exam based on given points/tot points that could have got
                             let id_ex;
                             if(results.length > 0)
                                 id_ex = results[0].id_exam;
-                            let tot_earned = 0;
-                            let tot_points = 0;
+                            let tot_earned = 0;//points earned by the user in the exam with id_ex
+                            let tot_points = 0;//totale points in the exam with id_ex
+
                             for (let i = 0; i < results.length; i++){
 
                                 let submission = {
@@ -191,6 +207,8 @@ function getUser1(loggedUser, id) {
                                     points: results[i].points,
                                     earned_points: results[i].earned_points
                                 };
+
+                                //update data to calc exam mark
                                 id_ex = submission.id_exam;
                                 tot_earned += submission.earned_points;
                                 tot_points += submission.points;
@@ -199,13 +217,17 @@ function getUser1(loggedUser, id) {
                                     tot_points = 0;
                                     tot_earned = 0;
                                 }
-                                let x;
-                                for(x = i; x < results.length && submission.id == results[x].id_s; x++){
-                                    if(results[x].q_possibility != null) {
-                                        submission.question.possibilities.push({value: results[x].q_possibility});
+
+                                //see it the submission is a multiple/single choice type, so push its possibility in question
+                                if(submission.task_type == 'single_c' || submission.task_type == 'multiple_c') {
+                                    let x;
+                                    for (x = i; x < results.length && submission.id == results[x].id_s; x++) {
+                                        if (results[x].q_possibility != null) {
+                                            submission.question.possibilities.push(results[x].q_possibility);
+                                        }
                                     }
+                                    i = x - 1;
                                 }
-                                i = x-1;
                                 user.submissions.push(submission);
                             }
                             resolve(user);
@@ -219,6 +241,10 @@ function getUser1(loggedUser, id) {
     });
 }
 
+/*  See getUser & getUser1 to comprehend deeply the motivation behind thuis function
+    Basically it loads all the comment peer behind a submission
+    [TO DO]: need to transfer this in loadCommentPeer
+* */
 function loadCommentPeer(submission){
     return new Promise(resolve => {
         connection.query('SELECT comment FROM comment_peer WHERE id_submission = ?', [submission.id],
@@ -237,16 +263,20 @@ function loadCommentPeer(submission){
     });
 }
 
+/*  update user data
+    (could be performed just by the loggedUser on its own profile
+    security checks have to be put before this function calling)
+* */
 function updateUser(user) {
     return new Promise(resolve => {
-        if (user != null && user.id != null) {
+        if (utilities.isAUser(user)) {
 
             let born = null;
-            if (user.born != null)
+            if (user.born != null && utilities.isAValidDate(user.born))
                 born = user.born.year + '-' + user.born.month + '-' + user.born.day + ' ' + user.born.hour + ':' + user.born.minute + ':' + user.born.second;
 
             let enrolled = null;
-            if (user.enrolled != null)
+            if (user.enrolled != null && utilities.isAValidDate(user.enrolled))
                 enrolled = user.enrolled.year + '-' + user.enrolled.month + '-' + user.enrolled.day + ' ' + user.enrolled.hour + ':' + user.enrolled.minute + ':' + user.enrolled.second;
 
             connection.query('UPDATE user SET name = ?, surname = ?, email = ?, enrolled = ?, born = ? WHERE id = ?', [user.name, user.surname, user.email, enrolled, born, user.id], function (error, results, fields) {
@@ -255,9 +285,7 @@ function updateUser(user) {
                     resolve(null);
                 }
                 if (results.affectedRows > 0) {
-                    getUser(user, user.id).then(value => {
-                        resolve(value);
-                    });
+                    resolve(user);
                 } else {
                     resolve(null);
                 }
@@ -269,6 +297,10 @@ function updateUser(user) {
     });
 }
 
+/*  delete user data
+    (could be performed just by the loggedUser on its own profile
+    security checks have to be put before this function calling)
+* */
 function deleteUser(userId) {
     return new Promise(resolve => {
         if (userId != null) {
@@ -293,11 +325,13 @@ function deleteUser(userId) {
     });
 }
 
+/* DUMMY TEST TO USE DURING DEVELOPMENT/DEBUGGING/BUG DISCOVERING & FIXING
+* */
 /*getUser({id:'10'}, 12).then( value =>{
     console.log(JSON.stringify(value));
-});*/
+});
 
-/*getAllUsers({id:'12'}, 1990, 2018).then( value =>{
+getAllUsers({id:'12'}, 1990, 2018).then( value =>{
     console.log(JSON.stringify(value));
 });*/
 
