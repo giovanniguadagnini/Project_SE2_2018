@@ -28,4 +28,11 @@ app.get('/users/:id', protect(), userModule.getUserById);
 app.put('/users/:id', protect(), userModule.updateUser);
 app.delete('/users/:id', protect(), userModule.deleteUser);
 
+//USERGROUP MODULE
+const userGroupModule = require('./userGroups');
+
+app.post('/userGroups', protect(), userGroupModule.postUserGroup);
+
+app.get('/userGroups/:id', protect(), userGroupModule.getUserGroup);
+
 module.exports = app;
