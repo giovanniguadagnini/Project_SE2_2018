@@ -96,13 +96,16 @@ function getAllUsers(loggedUser, enrolledAfter, enrolledBefore) {
 function getUser(loggedUser, id){
     return new Promise(resolve => {
         getUser1(loggedUser, id).then( user => {
-            let promises_pcomments = [];
-            for(let i = 0; i < user.submissions.length; i++){//load all the comment_peer for every submission
-                promises_pcomments.push(loadCommentPeer(user.submissions[i]));
-            }
-            Promise.all(promises_pcomments).then(b => {
-                resolve(user);
-            });
+            if(user != null){
+                let promises_pcomments = [];
+                for(let i = 0; i < user.submissions.length; i++){//load all the comment_peer for every submission
+                    promises_pcomments.push(loadCommentPeer(user.submissions[i]));
+                }
+                Promise.all(promises_pcomments).then(b => {
+                    resolve(user);
+                });
+            }else
+                resolve(null);
         });
     });
 }
@@ -327,10 +330,11 @@ function deleteUser(userId) {
 
 /* DUMMY TEST TO USE DURING DEVELOPMENT/DEBUGGING/BUG DISCOVERING & FIXING
 * */
-/*getUser({id:'10'}, 12).then( value =>{
+getUser({id:'invalidId'}, '102214019543444378931').then( value =>{
     console.log(JSON.stringify(value));
 });
 
+/*
 getAllUsers({id:'12'}, 1990, 2018).then( value =>{
     console.log(JSON.stringify(value));
 });*/
