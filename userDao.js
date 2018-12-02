@@ -74,7 +74,7 @@ function getAllUsers(loggedUser, enrolledAfter, enrolledBefore) {
                 resolve(null);
             }
             let promise_tmp;
-            for (let i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) { //for every user retrivied, the function getUser retrieve the user JSON, and it will insert exam data only if the logged user has the privileges to see it
                 promise_tmp = getUser(loggedUser, results[i].id);
                 promises_users.push(promise_tmp);
                 promise_tmp.then( userToAdd => {
@@ -96,13 +96,16 @@ function getAllUsers(loggedUser, enrolledAfter, enrolledBefore) {
 function getUser(loggedUser, id){
     return new Promise(resolve => {
         getUser1(loggedUser, id).then( user => {
-            let promises_pcomments = [];
-            for(let i = 0; i < user.submissions.length; i++){
-                promises_pcomments.push(loadCommentPeer(user.submissions[i]));
-            }
-            Promise.all(promises_pcomments).then(b => {
-                resolve(user);
-            });
+            if(user != null){
+                let promises_pcomments = [];
+                for(let i = 0; i < user.submissions.length; i++){//load all the comment_peer for every submission
+                    promises_pcomments.push(loadCommentPeer(user.submissions[i]));
+                }
+                Promise.all(promises_pcomments).then(b => {
+                    resolve(user);
+                });
+            }else
+                resolve(null);
         });
     });
 }
@@ -111,7 +114,7 @@ function getUser(loggedUser, id){
 *   (profile info, submission/exams he/she was teacher of, peer reviews loaded in loadCommentPeer) */
 function getUser1(loggedUser, id) {
     return new Promise(resolve => {
-        connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
+        connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {//the function retrieve the user from the id
             if (error) {
                 throw error;
                 resolve(null);
@@ -159,7 +162,7 @@ function getUser1(loggedUser, id) {
                     'exam_eval': []
                 };
 
-                //after we've fetch the basic profile data, we fetch the submission the loggedUser could see about the user with given id
+                //after we've fetched the basic profile data, we fetch the submission the loggedUser could see about the user with given id
                 let fetch_sub_query =   'SELECT * FROM ' +
                                             '(SELECT S.id AS id_s, S.id_exam, S.answer, S.comment, S.completed, S.earned_points, ' +
                                             'T.id AS id_t, T.id_owner, T.points, T.q_text, T.q_url, T.task_type ' +
@@ -213,12 +216,12 @@ function getUser1(loggedUser, id) {
                                 tot_earned += submission.earned_points;
                                 tot_points += submission.points;
                                 if(i+1 == results.length || results[i+1].id_exam != submission.id_exam){
-                                    user.exam_eval.push({id_exam: id_ex, mark: ((tot_earned/tot_points)*30)});
+                                    user.exam_eval.push({id_exam: id_ex, mark: ((tot_earned/tot_points)*30)});//the function computes the evalutation of the exam
                                     tot_points = 0;
                                     tot_earned = 0;
                                 }
 
-                                //see it the submission is a multiple/single choice type, so push its possibility in question
+                                //see if the submission is a multiple/single choice type, so push its possibility in question
                                 if(submission.task_type == 'single_c' || submission.task_type == 'multiple_c') {
                                     let x;
                                     for (x = i; x < results.length && submission.id == results[x].id_s; x++) {
@@ -230,7 +233,7 @@ function getUser1(loggedUser, id) {
                                 }
                                 user.submissions.push(submission);
                             }
-                            resolve(user);
+                            resolve(user);//the function return the user data
                         }
                     }
                 );
@@ -327,10 +330,11 @@ function deleteUser(userId) {
 
 /* DUMMY TEST TO USE DURING DEVELOPMENT/DEBUGGING/BUG DISCOVERING & FIXING
 * */
-/*getUser({id:'10'}, 12).then( value =>{
+getUser({id:'invalidId'}, '102214019543444378931').then( value =>{
     console.log(JSON.stringify(value));
 });
 
+/*
 getAllUsers({id:'12'}, 1990, 2018).then( value =>{
     console.log(JSON.stringify(value));
 });*/

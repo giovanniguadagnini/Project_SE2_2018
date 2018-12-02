@@ -461,7 +461,7 @@ function popDB() {
                                 peerComment1().then(() => {
                                     peerComment2().then(() => {
                                         peerComment3().then(() => {
-                                            
+
                                             connection.end();
                                         });
                                     });
