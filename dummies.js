@@ -20,6 +20,7 @@ let dummyStud = {
     id: '12',
     name: 'John',
     surname: 'Doe',
+    password: 'hashed',
     email: 'email@email.com',
     born: {
         year: 1997,
@@ -45,6 +46,33 @@ let dummyTeacher = {
     id: '11',
     name: 'Jimmy',
     surname: 'Teacher',
+    password: 'password',
+    email: 'dummy@dummy.com',
+    born: {
+        year: 1967,
+        month: 11,
+        day: 3,
+        hour: 0,
+        minute: 0,
+        second: 0
+    },
+    enrolled: {
+        year: 2011,
+        month: 8,
+        day: 31,
+        hour: 12,
+        minute: 30,
+        second: 0
+    },
+    exam_eval: [],
+    submissions: []
+};
+
+let dummyTeacher2 = {
+    id: '99',
+    name: 'Marco',
+    surname: 'Boffino',
+    password: 'password2',
     email: 'dummy@dummy.com',
     born: {
         year: 1967,
@@ -198,6 +226,19 @@ function insertUser() {
         enrolled = dummyTeacher.enrolled.year + '-' + dummyTeacher.enrolled.month + '-' + dummyTeacher.enrolled.day + ' ' + dummyTeacher.enrolled.hour + ':' + dummyTeacher.enrolled.minute + ':' + dummyTeacher.enrolled.second;
         connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
             [dummyTeacher.id, dummyTeacher.name, dummyTeacher.surname, dummyTeacher.email, born, enrolled],
+            function (error, results, fields) {
+                if (error) {
+                    //connection.end();
+                    throw error;
+                }
+                resolve(null);
+            }
+        );
+
+        born = dummyTeacher2.born.year + '-' + dummyTeacher2.born.month + '-' + dummyTeacher2.born.day + ' ' + dummyTeacher2.born.hour + ':' + dummyTeacher2.born.minute + ':' + dummyTeacher2.born.second;
+        enrolled = dummyTeacher2.enrolled.year + '-' + dummyTeacher2.enrolled.month + '-' + dummyTeacher2.enrolled.day + ' ' + dummyTeacher2.enrolled.hour + ':' + dummyTeacher2.enrolled.minute + ':' + dummyTeacher2.enrolled.second;
+        connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
+            [dummyTeacher2.id, dummyTeacher2.name, dummyTeacher2.surname, dummyTeacher2.email, born, enrolled],
             function (error, results, fields) {
                 if (error) {
                     //connection.end();
@@ -496,6 +537,7 @@ function cleanDB() {
 module.exports = {
     dummyStud,
     dummyTeacher,
+    dummyTeacher2,
     dummyUserGroup,
     dummyTask1,
     dummyTask2,

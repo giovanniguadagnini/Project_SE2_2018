@@ -22,10 +22,16 @@ app.get('/', (req, res) => {
 //USER MODULE
 const userModule = require('./user');
 
+//EXAM MODULE
+const examsModule = require('./exams');
+
 app.get('/users', protect(), userModule.getUsers);
 
 app.get('/users/:id', protect(), userModule.getUserById);
 app.put('/users/:id', protect(), userModule.updateUser);
 app.delete('/users/:id', protect(), userModule.deleteUser);
+
+
+app.post('/exams/', protect(), examsModule.createExam);
 
 module.exports = app;
