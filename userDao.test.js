@@ -27,6 +27,16 @@ let newUser = {
     exam_eval: []
 };
 
+let newUser2 = {
+    id: '110229',
+    name: 'Danis',
+    surname: 'Ceballos',
+    born: bornTemp,
+    enrolled: enrolledTemp,
+    submissions: [],
+    exam_eval: []
+};
+
 const invalidId = '999999999999999999999999';
 const pureStringId = 'aaaaaaaaaaaaaaaaaaaaaa';
 
@@ -68,28 +78,42 @@ test('check createUser() with empty user', () => {
 
 test('check getAllUsers() with enrolledBefore and enrolledAfter', () => {
     expect.assertions(1);
-    return userDao.getAllUsers(newUser, '1900', '2018').then(value => {
+    return userDao.getAllUsers(newUser, '1900', '2018', null).then(value => {
+        expect(value).toBeDefined();
+    });
+});
+
+test('check getAllUsers() with enrolledBefore, enrolledAfter and sort option alpha', () => {
+    expect.assertions(1);
+    return userDao.getAllUsers(newUser, '1900', '2018', 'alpha').then(value => {
+        expect(value).toBeDefined();
+    });
+});
+
+test('check getAllUsers() with enrolledBefore, enrolledAfter and sort option enrol', () => {
+    expect.assertions(1);
+    return userDao.getAllUsers(newUser, '1900', '2018', 'enrol').then(value => {
         expect(value).toBeDefined();
     });
 });
 
 test('check getAllUsers() with enrolledAfter', () => {
     expect.assertions(1);
-    return userDao.getAllUsers(newUser, null, '2018').then(value => {
+    return userDao.getAllUsers(newUser, null, '2018', null).then(value => {
         expect(value).toBeDefined();
     });
 });
 
 test('check getAllUsers() with enrolledBefore', () => {
     expect.assertions(1);
-    return userDao.getAllUsers(newUser, '1900', null).then(value => {
+    return userDao.getAllUsers(newUser, '1900', null, null).then(value => {
         expect(value).toBeDefined();
     });
 });
 
 test('check getAllUsers()', () => {
     expect.assertions(1);
-    return userDao.getAllUsers(newUser, null, null).then(value => {
+    return userDao.getAllUsers(newUser, null, null, null).then(value => {
         expect(value).toBeDefined();
     });
 });
@@ -140,6 +164,13 @@ test('check updateUser() with empty user', () => {
     });
 });
 
+test('check updateUser() with not existing user', () => {
+    expect.assertions(1);
+    return (userDao.updateUser(newUser2)).then(value => {
+        expect(value).toEqual(null);
+    });
+});
+
 test('check deleteUser()', () => {
     expect.assertions(1);
     return (userDao.deleteUser(newUser, newUser.id)).then(value => {
@@ -157,6 +188,13 @@ test('check deleteUser() with not exist id', () => {
 test('check deleteUser() with pure string as id', () => {
     expect.assertions(1);
     return (userDao.deleteUser({id:pureStringId}, pureStringId)).then(value => {
+        expect(value).toEqual(null);
+    });
+});
+
+test('check deleteUser() with null as id', () => {
+    expect.assertions(1);
+    return (userDao.deleteUser(null, null)).then(value => {
         expect(value).toEqual(null);
     });
 });

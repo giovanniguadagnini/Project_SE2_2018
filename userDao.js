@@ -46,7 +46,6 @@ function createUser(user) {
             let enrolled = null;
             if (user.enrolled != null && utilities.isAValidDate(user.enrolled))
                 enrolled = user.enrolled.year + '-' + user.enrolled.month + '-' + user.enrolled.day + ' ' + user.enrolled.hour + ':' + user.enrolled.minute + ':' + user.enrolled.second;
-            //utilities.openConnection();
             connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
                 [user.id, user.name, user.surname, user.email, born, enrolled],
                 function (error, results, fields) {
@@ -54,7 +53,6 @@ function createUser(user) {
                         throw error;
                         resolve(null);
                     } else {
-                        //utilities.closeConnection();
                         resolve(user);
                     }
                 }
@@ -75,7 +73,6 @@ function getAllUsers(loggedUser, enrolledAfter, enrolledBefore, sortUsrBy) {
     return new Promise(resolve => {
         let retval = []; //array of users
         let promises_users = [];
-        //utilities.openConnection();
         connection.query(   'SELECT id FROM user ' +
                             'WHERE (user.enrolled >= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\') '+
                             'AND '+
@@ -117,11 +114,9 @@ function getUser(loggedUser, id){
                     promises_pcomments.push(loadCommentPeer(user.submissions[i]));
                 }
                 Promise.all(promises_pcomments).then(b => {
-                    //utilities.closeConnection();
                     resolve(user);
                 });
             }else {
-                //utilities.closeConnection();
                 resolve(null);
             }
         });
@@ -132,7 +127,6 @@ function getUser(loggedUser, id){
 *   (profile info, submission/exams he/she was teacher of, peer reviews loaded in loadCommentPeer) */
 function getUser1(loggedUser, id) {
     return new Promise(resolve => {
-        //utilities.openConnection();
         connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {//the function retrieve the user from the id
             if (error) {
                 throw error;
@@ -267,7 +261,6 @@ function getUser1(loggedUser, id) {
 * */
 function loadCommentPeer(submission){
     return new Promise(resolve => {
-        //utilities.openConnection();
         connection.query('SELECT comment FROM comment_peer WHERE id_submission = ?', [submission.id],
             function (error, results, fields) {
                 if (error) {
@@ -306,10 +299,8 @@ function updateUser(user) {
                     resolve(null);
                 }
                 if (results.affectedRows > 0) {
-                    //utilities.closeConnection();
                     resolve(user);
                 } else {
-                    //utilities.closeConnection();
                     resolve(null);
                 }
 
@@ -317,7 +308,6 @@ function updateUser(user) {
 
         }
         else {
-            //utilities.closeConnection();
             resolve(null);
         }
     });
@@ -335,20 +325,18 @@ function deleteUser(loggedUser, userId) {
                 connection.query('DELETE FROM user WHERE id = ?', [userId], function (error, results, fields) {
                     if (error) {
                         throw error;
-                        return null;
+                        resolve(null);
                     }
                     if (results.affectedRows > 0) {
                         retval = user;
                     } else {
                         retval = null;
                     }
-                    //utilities.closeConnection();
                     resolve(retval);
                 });
             });
         }
         else {
-            //utilities.closeConnection();
             resolve(null);
         }
     });
