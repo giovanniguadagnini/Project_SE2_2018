@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const passport = require('passport');
-
+const utilities = require('./utilities');
 const {auth, protect} = require('./google-auth');
 
 const app = express();
@@ -35,3 +35,8 @@ app.delete('/users/:id', protect(), userModule.deleteUser);
 app.post('/exams/', protect(), examsModule.createExam);
 
 module.exports = app;
+
+app.on('exit', function (){
+    utilities.closeConnection();
+    console.log('Goodbye!');
+});
