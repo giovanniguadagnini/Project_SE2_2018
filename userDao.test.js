@@ -157,7 +157,21 @@ test('check createUser() with empty user', () => {
 
 test('check getAllUsers() with enrolledBefore, enrolledAfter and alphabetical sorting', () => {
     expect.assertions(1);
+    return userDao.getAllUsers(newUser, '1900', '2018', null).then(value => {
+        expect(value).toBeDefined();
+    });
+});
+
+test('check getAllUsers() with enrolledBefore, enrolledAfter and sort option alpha', () => {
+    expect.assertions(1);
     return userDao.getAllUsers(newUser, '1900', '2018', 'alpha').then(value => {
+        expect(value).toBeDefined();
+    });
+});
+
+test('check getAllUsers() with enrolledBefore, enrolledAfter and sort option enrol', () => {
+    expect.assertions(1);
+    return userDao.getAllUsers(newUser, '1900', '2018', 'enrol').then(value => {
         expect(value).toBeDefined();
     });
 });
@@ -276,6 +290,13 @@ test('check deleteUser() with pure string as id', () => {
 test('check deleteUser() with null as id', () => {
     expect.assertions(1);
     return (userDao.deleteUser({id:invalidId}, null)).then(value => {
+        expect(value).toEqual(null);
+    });
+});
+
+test('check deleteUser() with null as id', () => {
+    expect.assertions(1);
+    return (userDao.deleteUser(null, null)).then(value => {
         expect(value).toEqual(null);
     });
 });
