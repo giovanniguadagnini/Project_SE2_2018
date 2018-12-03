@@ -51,7 +51,6 @@ function updateUser(req, res) { //Update user
         enrolled: req.body.enrolled
     };
 
-    //[TO DO] Evaluate with other members if it has more sense [put] /users
     // in put I check that the user is update its own account
     // (update /users/:id can only be called on profile we're logged with)
     if (id == user.id && req.user.id == id) {
@@ -74,7 +73,6 @@ function deleteUser(req, res) { //Delete user
     let id = req.params.id;
     let user = {id: req.body.id};
 
-    //[TO DO] Evaluate with other members if it has more sense [delete] /users
     // in delete I check that the user is deleting its own account
     // (delete /users/:id can only be called on profile we're logged with)
     if (id == user.id && req.user.id == id) {
@@ -83,7 +81,7 @@ function deleteUser(req, res) { //Delete user
             if (user != null) {
                 res.status(200).json(user);
             } else {
-                res.status(400).send('Forbidden');
+                res.status(400).send('Bad Request');
             }
         });
     } else if (id == user.id) {

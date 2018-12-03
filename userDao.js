@@ -8,7 +8,7 @@ function findOrCreate(data) {
     return new Promise(resolve => {
         if (data == null || data.id == null || data.name == null) {
             //return object with invalid id (this is not suppose to happen)
-            resolve({id: 'invalidId'});
+            resolve(data);
         } else {
             //use an invalid id just to see if the user is already in the db
             getUser({id: 'invalidId'}, data.id).then(value => {
@@ -73,6 +73,7 @@ function getAllUsers(loggedUser, enrolledAfter, enrolledBefore, sortUsrBy) {
     return new Promise(resolve => {
         if(!enrolledAfter || !enrolledBefore || !sortUsrBy || !Number.isInteger(+enrolledAfter) || !Number.isInteger(+enrolledBefore))
             resolve([]);
+
         let retval = []; //array of users
         let promises_users = [];
         connection.query(   'SELECT id FROM user ' +
@@ -86,7 +87,7 @@ function getAllUsers(loggedUser, enrolledAfter, enrolledBefore, sortUsrBy) {
             }
             let promise_tmp;
             for (let i = 0; i < results.length; i++) { //for every user retrivied, the function getUser retrieve the user JSON, and it will insert exam data only if the logged user has the privileges to see it
-                promise_tmp = getUser(loggedUser, results[i].id, false);
+                promise_tmp = getUser(loggedUser, results[i].id);
                 promises_users.push(promise_tmp);
                 promise_tmp.then(userToAdd => {
                     retval.push(userToAdd);//every time a promise is completed it means we've got the proper data of the user to add in the return array
@@ -116,7 +117,6 @@ function getUser(loggedUser, id) {
                     promises_pcomments.push(loadCommentPeer(user.submissions[i]));
                 }
                 Promise.all(promises_pcomments).then(b => {
-                    //utilities.closeConnection();
                     resolve(user);
                 });
             }else {
@@ -265,7 +265,6 @@ function getUser1(loggedUser, id) {
 * */
 function loadCommentPeer(submission) {
     return new Promise(resolve => {
-        //utilities.openConnection();
         connection.query('SELECT comment FROM comment_peer WHERE id_submission = ?', [submission.id],
             function (error, results, fields) {
                 if (error) {
@@ -304,10 +303,8 @@ function updateUser(user) {
                     resolve(null);
                 }
                 if (results.affectedRows > 0) {
-                    //utilities.closeConnection();
                     resolve(user);
                 } else {
-                    //utilities.closeConnection();
                     resolve(null);
                 }
 
@@ -326,9 +323,10 @@ function updateUser(user) {
 * */
 function deleteUser(loggedUser, userId) {
     return new Promise(resolve => {
+        let retval = null;
         if (userId != null && loggedUser != null && loggedUser.id != null) {
-            let retval;
-            getUser(loggedUser, userId, false).then(user => {
+
+            getUser(loggedUser, userId).then(user => {
                 if(user != null) {
                     connection.query('DELETE FROM user WHERE id = ?', [userId], function (error, results, fields) {
                         if (error) {
@@ -337,18 +335,14 @@ function deleteUser(loggedUser, userId) {
                         }
                         if (results.affectedRows > 0) {
                             retval = user;
-                        } else {
-                            retval = null;
                         }
-                        //utilities.closeConnection();
                         resolve(retval);
                     });
                 }else
-                    resolve(null);
+                    resolve(retval);
             });
         } else {
-            //utilities.closeConnection();
-            resolve(null);
+            resolve(retval);
         }
     });
 }

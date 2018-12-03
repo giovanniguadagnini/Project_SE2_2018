@@ -1,20 +1,8 @@
 //DUMMY OBJECTS FILE TO POPULATE AND UN-POPULATE DB
 //USED FOR TESTING
 //SUGGEST YOU TO CREATE USER AND ID < 100, SO IT'LL BE MUCH EASIER TO CLEAN IT UP AT THE END
-
-let mysql = require('mysql');
-let connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7267085',
-    password: 'IlVZ5TF9HT',
-    database: 'sql7267085'
-});
-
-function checkDBConnection() {
-    if (connection.state === 'disconnected') {
-        connection.connect();
-    }
-}
+const utilities = require('./utilities');
+const connection = utilities.connection;
 
 let dummyStud = {
     id: '12',
@@ -503,7 +491,6 @@ function popDB() {
                                     peerComment2().then(() => {
                                         peerComment3().then(() => {
 
-                                            connection.end();
                                         });
                                     });
                                 });
@@ -517,22 +504,17 @@ function popDB() {
     });
 }
 
-//popDB();
-//cleanDB();
-
 function cleanDB() {
-    //connection.connect();
     connection.query('DELETE FROM user WHERE id > 0 AND id < 100',
         function (error, results, fields) {
             if (error) {
-                //connection.end();
                 throw error;
             }
         }
     );
-
-    connection.end();
 }
+
+//cleanDB();
 
 module.exports = {
     dummyStud,
