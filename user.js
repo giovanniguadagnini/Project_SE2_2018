@@ -14,10 +14,13 @@ function getUsers(req, res) {
         enrolledAfter = 1900; //default is year 1900
     }
 
-    /* [TO DO] Consider implementing sorting options (see implementation in UserGroup)
-    * */
+    //
+    let sortUsrBy = req.query.sortUsrBy;
+    if (sortUsrBy == null || (sortUsrBy != 'alpha' && sortUsrBy != 'enrol')) {
+        sortUsrBy = 'alpha'; //default is 'alpha'
+    }
 
-    userDao.getAllUsers(req.user, enrolledBefore, enrolledAfter).then(users => {
+    userDao.getAllUsers(req.user, enrolledBefore, enrolledAfter, sortUsrBy).then(users => {
         if (users != null) {
             res.status(200).json(users);
         } else {
