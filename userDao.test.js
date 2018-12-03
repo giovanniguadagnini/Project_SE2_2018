@@ -63,7 +63,21 @@ test('userDao module should be defined', () => {
 test('check findOrCreate() with null user data', () => {
     expect.assertions(1);
     return userDao.findOrCreate(null).then(valueC => {
-        expect(valueC).toEqual({id: 'invalidId'});
+        expect(valueC).toBe(null);
+    });
+});
+
+test('check findOrCreate() with data.id undefined', () => {
+    expect.assertions(1);
+    return userDao.findOrCreate({notId: 'notId'}).then(valueC => {
+        expect(valueC).toEqual({notId: 'notId'});
+    });
+});
+
+test('check findOrCreate() with data.name undefined', () => {
+    expect.assertions(1);
+    return userDao.findOrCreate({id: 'notId', notName: 'notName'}).then(valueC => {
+        expect(valueC).toEqual({id: 'notId', notName: 'notName'});
     });
 });
 
@@ -219,6 +233,15 @@ test('check getUser() by id with pure string as id', () => {
     });
 });
 
+test('check updateUser() with an invalidId null field', () => {
+    expect.assertions(1);
+    let newUserCopy = jsonCopy(newUser);
+    newUserCopy.id = pureStringId;
+    return (userDao.updateUser(newUserCopy)).then(value => {
+        expect(value).toEqual(null);
+    });
+});
+
 test('check updateUser() with a born null field', () => {
     expect.assertions(1);
     newUser.born = null;
@@ -294,16 +317,6 @@ test('check deleteUser() with null as id', () => {
     });
 });
 
-test('check deleteUser() with null as id', () => {
-    expect.assertions(1);
-    return (userDao.deleteUser(null, null)).then(value => {
-        expect(value).toEqual(null);
-    });
-});
-
-test('check deleteUser() with null as id', () => {
-    expect.assertions(1);
-    return (userDao.deleteUser(null, null)).then(value => {
-        expect(value).toEqual(null);
-    });
-});
+function jsonCopy(src) {
+    return JSON.parse(JSON.stringify(src));
+}
