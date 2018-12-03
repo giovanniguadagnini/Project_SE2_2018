@@ -60,8 +60,22 @@ app.route('/exams')
             res.status(400).send("Bad Request");
         }
     });
+*/
 
-app.route('/exams/:id')
+function getExam(req, res) { //Get an exam
+  let id = req.params.id;
+  if(id == parseInt(id, 10)) {//Se l'id è un intero
+    let exam = examDao.getExam(req.user.id,id);
+    if (exam != null) {
+        res.status(200).send(exam);
+    } else {
+        res.status(400).send("Bad Request");
+    }
+  }else{
+      res.status(400).send("Invalid ID");
+  }
+};
+/*app.route('/exams/:id')
     .get(function(req, res) {
         var id = req.id;
         if(Number.isInteger(id) == true) {
@@ -130,7 +144,7 @@ app.route('/exams/:id')
             res.status(400).send("Invalid ID");
         }
 
-    });;
-*/
+    });;*/
 
-module.exports = {createExam};
+
+module.exports = {createExam,getExam};

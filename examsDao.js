@@ -1,4 +1,5 @@
 var mysql = require('mysql');
+const userDao = require('./userDao');
 
 var connection = mysql.createConnection({
     host: 'sql7.freesqldatabase.com',
@@ -236,8 +237,72 @@ function getAllExams(id_user,sortStudBy, minStudByMark,maxStudByMark,taskType){
   });
 }
 
-function getExam(id_user,id_exam,sortStudBy, minStudByMark,maxStudByMark,taskType){
+function getExam(id_user,id_exam){
+  var promise = new Promise(function(resolve, reject) {
+    connection.query('SELECT * FROM exam WHERE id = ?', [id_exam], function (error, results, fields) {
+      if (error) {
+          throw error;
+          resolve(null);
+      }
+      if (results.length > 0) {//Esame trovato
+        resolve({
+          id: results[0].id,
+          name: results[0].name,
+          owner: results[0].id_owner,
+          teachers: [],
+          students: results[0].id_group,
+          tasks: [],
+          submissions: [],
+          deadline: results[0].deadline,
+          reviewable: results[0].reviewable,
+          num_shuffle: results[0].num_shuffle
+        });
+      }else{
+        resolve(null);//Esame inesistente
+      }
+    });
+  });
 
+  promise.then(function(result) {
+    if(result!=null){
+      let exam=result;
+      //Recupero i teachers associati a questo exam
+      connection.query('SELECT id_teacher FROM teacher_exam WHERE id_exam = ?', [exam.id], function (error, results, fields) {
+        if (error) {
+            throw error;
+            resolve(null);
+        }
+        //Se ci sono teacher associati a questo esame allora controllo se il teacher che ha richiesto questo esame sia tra questi oppure sia l'owner
+        if(id_user==exam.owner){//Se è l'owner
+          results.forEach(function(teacher) {
+            exam.teachers.push(userDao.getUser(id_user, teacher.id));
+          });
+          return exam;
+        }else{//Controllo che sia un teacher
+          results.forEach(function(teacher) {
+            if(id_user==teacher.id){//Se fa parte di uno dei teacher vado avanti
+              results.forEach(function(teach) {
+                exam.teachers.push(userDao.getUser(id_user, teach.id));
+              });
+              return exam;
+            }
+          });
+          //Se arrivo qui vuol dire che non è nemmeno tra i teacher quindi non ha accesso all'esame
+          return null;
+        }
+      });
+    }else{//Altrimenti
+      return null;
+    }
+  }).then(function(result) {
+    if(result!=null){
+      //Riempio il campo students togliendo l'id dello user_group all'interno
+      
+
+    }else{//Altrimenti
+      return null;
+    }
+  };
 }
 
 function updateExam(exam){

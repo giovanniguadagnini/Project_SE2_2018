@@ -31,8 +31,8 @@ app.delete('/users/:id', protect(), userModule.deleteUser);
 //const examsModule = require('./exams');
 //app.post('/exams/', protect(), examsModule.createExam);
 
-//TASK MODULE
-const taskModule = require('./task');
+app.post('/exams/', protect(), examsModule.createExam);
+app.get('/exams/:id', protect(), examsModule.getExam);
 
 //USERGROUP MODULE
 const userGroupModule = require('./userGroups');

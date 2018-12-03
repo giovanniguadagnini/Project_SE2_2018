@@ -7,9 +7,55 @@ const dummyStud = require('./dummies').dummyStud;
 const validId = dummyStud.id;
 const invalidId = '999999999999999999999999';
 const pureStringId = 'aaaaaaaaaaaaaaaaaaaaaa';
+const NpCompleteExamId = 65;
+const validTeacherId = 11;//Associato a NpCompleteExam
 
 test('task module should be defined', () => {
     expect(app).toBeDefined();
+});
+
+test('GET /exams/validId?access_token=validId ; should return 200 + exam', async () => {
+  expect.assertions(2);
+    //[TODO]Fare query che aggiunge un esame per prendere entrambi gli id, sia dell'esame che del teacher associato all'esame
+    const response = await request(app).get('/exams/'+ NpCompleteExamId+ '?access_token=' + validTeacherId);
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toBeDefined();//[TODO]Da controllare struttura dell'exam ritornato
+});
+
+test('GET /exams/invalidId?access_token=validId ; should return 400 + exam', async () => {
+  expect.assertions(2);
+    //[TODO]Fare query che aggiunge un esame per prendere id dell'esame
+    const response = await request(app).get('/exams/'+ invalidId + '?access_token=' + validTeacherId);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({});
+});
+
+test('GET /exams/purestringid?access_token=validId with string as id in the uri; should return 400', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/exams/' + pureStringId + '?access_token=' + validTeacherId);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({});
+});
+
+test('GET /exams?access_token=validId without parameter; should return 200 + all exams managable', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/exams?access_token=' + validTeacherId);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('GET /exams/validId without access_token; should return 401', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/exams/' + NpCompleteExamId);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('GET /exams/validId?access_token=invalidId ; should return 401', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/exams/' + NpCompleteExamId + '?access_token=' + 34543213565);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
 });
 
 test('POST /exams with all the parameters; should return 200 + created task', async () => {
