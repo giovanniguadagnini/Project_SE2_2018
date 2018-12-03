@@ -86,7 +86,7 @@ function getUserGroup(loggedUser, id, sortingMethod){
                         });
                     }
                     Promise.all(promises_user).then(b => {
-                        if(sortingMethod == 'alpha')
+                        if(sortingMethod == 'enrolled')
                             userGroup.users.sort(compareAlfa);
                         else
                             userGroup.users.sort(compareEnrol);
@@ -102,9 +102,10 @@ function getUserGroup(loggedUser, id, sortingMethod){
 
 function compareAlfa(a, b){
     //we put null at the end of the queue
+
     if(a.surname == null && b.surname == null)
         return 0;
-    else if(a.surname == null && b.surname != null)
+    else if(a.surname == null && b.surname != null)loggedUser
         return 1;
     else if(a.surname != null && b.surname == null)
         return -1;
@@ -142,10 +143,37 @@ function compareEnrol(a, b){
         return -1;
     else if(a.enrolled == null && b.enrolled != null)
         return 0;
+    //check year
+    if (a.enrolled.year < b.enrolled.year)
+        return -1;
+    else if (a.enrolled.year > b.enrolled.year)
+        return 1;
+    //check month
+    if (a.enrolled.month < b.enrolled.month)
+        return -1;
+    else if (a.enrolled.month > b.enrolled.month)
+        return 1;
+    //check day
+    if (a.enrolled.day < b.enrolled.day)
+        return -1;
+    else if (a.enrolled.day > b.enrolled.day)
+        return 1;
+    //check hour
+    if (a.enrolled.hour < b.enrolled.hour)
+        return -1;
+    else if (a.enrolled.hour > b.enrolled.hour)
+        return 1;
+    //check minute
+    if (a.enrolled.minute < b.enrolled.minute)
+        return -1;
+    else if (a.enrolled.minute > b.enrolled.minute)
+        return 1;
+    //check second
+    if (a.enrolled.second < b.enrolled.second)
+        return -1;
+    else if (a.enrolled.second > b.enrolled.second)
+        return 1;
 
-    let yA = a.enrolled.year;
-    let yB = b.enrolled.year;
-    //NEED TO BE FINISHED
     return 0;
 }
 
@@ -176,89 +204,40 @@ getUserGroup({id: '12'},59,'alpha').then( value =>{
 });
 
 
-function getAllUserGroups(sortingMethod) {
-    if (sortingMethod == null)
-        sortingMethod = 'enrolled'; //order the "enrolled" field
-    else if (sortingMethod = 'alpha')
-        sortingMethod = 'surname' //order the "surname" field
+function getAllUserGroups(loggedUser, sortingMethod) {
+    if (sortingMethod == 'enrolled')
+        sortingMethod = 'enrolled'
     else
-        sortingMethod = 'enrolled';
+        sortingMethod = 'alpha';
 
+    let promises_userGroups;
+    let userGroups = []; //this function will return this filled with all user groups
 
-    var users = []; //used to store the users of every group
-    var userGroups = []; //this function will return this filled with all user groups
-
-    connection.query('SELECT * FROM user_group ', [], function (error, results, fields) {
-        if (error) {
-            throw error;
-            return null;
-        }
-        if (results.length > 0) {
-            //for every user group...
-            results.forEach(function (userGroup) {
-                var id = userGroup.id;
-                var creator = userGroup.creator;
-                var name = userGroup.name;
-
-                //...pick up its creator...
-                connection.query('SELECT * FROM user WHERE id = ?', [creator], function (error, results, fields) {
-                    if (error) {
-                        throw error;
-                        return null;
-                    }
-                    if (results.length = 1) {
-                        creator = null;
-                        creator.push({
-                            'id': '' + results[0].id,
-                            'name': '' + results[0].name,
-                            'surname': '' + results[0].surname,
-                            'mail': '' + results[0].mail,
-                            'enrolled': '' + results[0].enrolled,
-                            'born': '' + results[0].born
-                        })
-                    }
-                });
-
-                //...and all its users...
-                connection.query('SELECT * FROM user JOIN user_group_members WHERE id = id_user AND id_group = ? ORDER BY ?', [id, sortingMethod], function (error, results, fields) {
-                    if (error) {
-                        throw error;
-                        return null;
-                    }
-                    if (results.length > 0) {
-                        for (var i = 0; i < result.length; i++) {
-                            users.push({
-                                'id': '' + results[i].id,
-                                'name': '' + results[i].name,
-                                'surname': '' + results[i].surname,
-                                'mail': '' + results[i].mail,
-                                'enrolled': '' + results[i].enrolled,
-                                'born': '' + results[i].born
-                            })
-                        }
-                    }
-                });
-
-                //...and make a giant json
-                if (userGroup.id != null) {
-                    retval.push({
-                        'id': '' + id,
-                        'creator': '' + creator,
-                        'name': '' + name,
-                        'users': '' + users
-                    })
+    return new Promise(resolve => {
+        let fetchQuery = 'SELECT G.id_group FROM user_group';
+        connection.query(fetchQuery, [], function (error, results, fields) {
+            if (error) {
+                throw error;
+                resolve(null);
+            }
+            if(results.length > 0){
+                let promise_tmp;
+                for(let i=0; i < results.length; i++){
+                    promise_tmp = getUserGroup(loggedUser, results[i], sortingMethod);
+                    promises_userGroups.push(promise_tmp);
+                    promise_tmp.then(userGroupToAdd => {
+                        userGroups.push(userGroupToAdd);
+                    });
                 }
 
-                //resetting users for next group iteration
-                users = null;
-            });
-        } else {
-            //if there are no user groups
-            return null;
-        }
-    });
-
-    return userGroups;
+                Promise.all(promises_userGroups).then(b => {
+                    resolve(userGroups);
+                });
+            } else {
+              resolve(null);
+            }
+        });
+    }
 }
 
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup};
