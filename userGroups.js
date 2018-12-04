@@ -74,4 +74,8 @@ function deleteUserGroup(req, res){
         res.status(400).send('Bad request');
 }
 
+<<<<<<< HEAD
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
+=======
+module.exports = {postUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
+>>>>>>> 929d2c5ad77d6c95aaf6315d1dee9fbc81eee0ef
