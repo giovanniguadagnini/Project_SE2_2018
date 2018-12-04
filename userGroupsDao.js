@@ -112,7 +112,7 @@ function compareAlpha(a, b){
 
     if(a.surname == null && b.surname == null)
         return 0;
-    else if(a.surname == null && b.surname != null)
+    else if(a.surname == null && b.surname != null)loggedUser
         return 1;
     else if(a.surname != null && b.surname == null)
         return -1;
