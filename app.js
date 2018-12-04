@@ -20,19 +20,30 @@ app.get('/', (req, res) => {
 // private endpoints
 
 //USER MODULE
-const userModule = require('./user');
+//const userModule = require('./user');
 
 //EXAM MODULE
 //const examsModule = require('./exams');
 
-app.get('/users', protect(), userModule.getUsers);
+//TASK MODULE
+const taskModule = require('./task');
+
+/*app.get('/users', protect(), userModule.getUsers);
 
 app.get('/users/:id', protect(), userModule.getUserById);
 app.put('/users/:id', protect(), userModule.updateUser);
-app.delete('/users/:id', protect(), userModule.deleteUser);
+app.delete('/users/:id', protect(), userModule.deleteUser);*/
 
 
 //app.post('/exams/', protect(), examsModule.createExam);
+
+app.get('/tasks', protect(), taskModule.getTasks);
+app.post('/tasks', protect(), taskModule.createTask);
+
+app.get('/tasks/:id', protect(), taskModule.getTaskById);
+app.put('/tasks/:id', protect(), taskModule.updateTaskById);
+app.delete('/tasks/:id', protect(), taskModule.deleteTaskById);
+
 
 module.exports = app;
 

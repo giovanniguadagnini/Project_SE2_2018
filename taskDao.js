@@ -1,86 +1,69 @@
-// Database connection
-var mysql = require('mysql');
-var connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7267085',
-    password: 'IlVZ5TF9HT',
-    database: 'sql7267085'
-});
-
-/*
-function connectDB() {
-    connection.connect();
-}
-function disconnectDB() {
-    connection.end();
-}
-function reconnectDB() {
-    disconnectDB();
-    connectDB();
-}
-function checkDBConnection() {
-    if (connection.state === 'disconnected') {
-        connectDB();
-    }
-}
-*/
+const utilities = require('./utilities');
+const connection = utilities.connection; // DataBase connection
 
 // Get all the tasks with all the information without filtering
-function getAllTasks() {
+function getTasks(loggedUser) {
     return new Promise(resolve => {
         let retval = []; // Array that will return all the tasks
         // Query to receive all the tasks saved in the database
-        connection.query('SELECT * FROM task', function (error, results, fields) {
-            if (error) { // In case of error it blocks and returns a null
-                throw error;
-                resolve(null);
-            }
-            if (results.length > 0) { // If there is at least a task in the database
-                for (var i = 0; i < results.length; i++) { // Iterate for all the tasks
-                    let pos = []; // Array that will contain the possibilities for a question
-                    // Query to receive all the possibilities for a given question
-                    connection.query('SELECT * FROM task_possibility WHERE id_task = ?', [results[i].id], function (pos_error, pos_results, pos_fields) {
-                        if (pos_error) { // In case of error it blocks and returns a null
-                            throw pos_error;
-                            resolve(null);
-                        }
-                        if (pos_results.length > 0) { // If there is at least a possibility for that question in the database
-                            // Save all the possibilities in the array pos
-                            for (var i = 0; i < pos_results.length; i++)
-                                pos.push({ 'value': '' + pos_results[i].q_possibility });
-                        }
-                    });
-                    // Save the object task in the array retval that will be returned
-                    retval.push({
-                        'id': '' + results[i].id,
-                        'owner': '' + results[i].owner,
-                        'task_type': '' + results[i].task_type,
-                        'question': {
-                            'text': '' + results[i].q_text,
-                            'possibilities': '' + pos,
-                            'base_upload_url': '' + results[i].q_url
-                        },
-                        'points': '' + results[i].points
-                    })
+        connection.query('SELECT * FROM ' +
+            '(SELECT * FROM task) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
+            'ON TEMP.id = TP.id_task AND TEMP.id_exam IN ' +
+            '(SELECT id_exam FROM teacher_exam WHERE id_teacher = ? ' +
+            'UNION ' +
+            'SELECT E.id FROM exam E, user_group UG, user_group_members UGP ' +
+            'WHERE E.id_group = UG.id AND UG.id = UGP.id_group AND UGP.id_user = ?) ' +
+            'order by TEMP.id, TP.q_possibility, TEMP.id_exam;', [loggedUser.id, loggedUser.id], function (error, results, fields) {
+                if (error) { // In case of error it blocks and returns a null
+                    throw error;
+                    resolve(null);
                 }
-                resolve(retval); // Return all the tasks
-            }
-        });
-        resolve(null); // Return null in case there has been an error
+                if (results.length > 0) { // If there is at least a task in the database
+                    for (let i = 0; i < results.length; i++) { // Iterate for all the tasks
+                        let task = {
+                            'id': '' + results[i].id,
+                            'exam': '' + results[i].id_exam,
+                            'owner': '' + results[i].id_owner,
+                            'task_type': '' + results[i].task_type,
+                            'question': {
+                                'text': '' + results[i].q_text,
+                                'possibilities': [],
+                                'base_upload_url': '' + results[i].q_url
+                            },
+                            'points': '' + results[i].points
+                        }
+                        // Query to receive all the possibilities for a given question
+                        //see if the submission is a multiple/single choice type, so push its possibility in question
+                        if (results[i].task_type == 'single_c' || results[i].task_type == 'multiple_c') {
+                            let x;
+                            for (x = i; x < results.length && results[i].id == results[x].id; x++) {
+                                if (results[x].q_possibility != null) {
+                                    task.question.possibilities.push(results[x].q_possibility);
+                                }
+                            }
+                            i = x - 1;
+                        }
+                        // Save the object task in the array retval that will be returned
+                        retval.push(task);
+                    }
+                    resolve(retval); // Return all the tasks
+                } else {
+                    resolve(null);
+                }
+            });
     });
 }
-
 // Create a task given as parameter
-function createTask(task) {
+function createTask(loggedUser, task) {
     return new Promise(resolve => {
         // If the task is complete and respect the documentation's schema
-        if (task != null &&
-            task.id != null && task.owner != null && task.task_type != null && task.question != null &&
+        if (task != null && task.owner == loggedUser.id &&
+            task.id != null && task.exam != null && task.owner != null && task.task_type != null && task.question != null &&
             task.question.text != null && task.question.base_upload_url != null && task.question.possibilities != null &&
             task.points != null) {
             // Insert the task in the database
-            connection.query('INSERT INTO task (id, owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?,?)',
-                [task.id, task.owner, task.task_type, task.question.text, task.question.base_upload_url, task.points],
+            connection.query('INSERT INTO task (id_exam, id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?,?)',
+                [task.exam, task.owner, task.task_type, task.question.text, task.question.base_upload_url, task.points],
                 function (error, results, fields) {
                     if (error) { // In case of error it blocks and returns a null
                         throw error;
@@ -89,7 +72,7 @@ function createTask(task) {
                 }
             );
             // Insert every possibility for the question of the task in the database
-            for (var i = 0; i < task.question.possibilities.length; i++) {
+            for (let i = 0; i < task.question.possibilities.length; i++) {
                 connection.query('INSERT INTO task_possibility (id_task, id_poss, q_possibility) VALUES (?,?,?)',
                     [task.id, i, task.question.possibilities[i]],
                     function (error, results, fields) {
@@ -105,110 +88,124 @@ function createTask(task) {
         else resolve(null); // Return null in case there has been an error
     });
 }
-
 // Get the task with the given id
-function getTask(id) {
+function getTaskById(loggedUser, id) {
     return new Promise(resolve => {
-        connection.query('SELECT * FROM task WHERE id = ?', [id], function (error, results, fields) {
-            if (error) { // In case of error it blocks and returns a null
-                throw error;
-                return null;
+        getTasks(loggedUser).then(tasks => {
+            // Insert every possibility for the question of the task in the database
+            for (let i = 0; i < tasks.length; i++) {
+                if (tasks[i].id == id)
+                    resolve(tasks[i]);
             }
-            if (results.length > 0) { //If there is the task
-                let pos = []; // Array that will contain the possibilities for the question
-                // Query to receive all the possibilities for the given question
-                connection.query('SELECT * FROM task_possibility WHERE id_task = ?', [results[i].id], function (pos_error, pos_results, pos_fields) {
-                    if (pos_error) { // In case of error it blocks and returns a null
-                        throw pos_error;
-                        resolve(null);
-                    }
-                    if (pos_results.length > 0) { // If there is at least a possibility for that question in the database
-                        // Save all the possibilities in the array pos
-                        for (var i = 0; i < pos_results.length; i++)
-                            pos.push({ 'value': '' + pos_results[i].q_possibility });
-                    }
-                });
-                // Return the object task requested
-                resolve({
-                    'id': '' + results[i].id,
-                    'owner': '' + results[i].owner,
-                    'task_type': '' + results[i].task_type,
-                    'question': {
-                        'text': '' + results[i].q_text,
-                        'possibilities': '' + pos,
-                        'base_upload_url': '' + results[i].q_url
-                    },
-                    'points': '' + results[i].points
-                })
-            } else resolve(null); // Return null in case there isn't that task
+            resolve(null);
         });
     });
 }
-
+/*getTaskById({id:11}, 302).then(task=>{
+    console.log(task);
+});*/
 // Update the task given as parameter
-function updateTask(user) {
+function updateTaskById(loggedUser, task) {
     return new Promise(resolve => {
-        if (task != null && task.id != null) {
+        checkTaskPrivilege(loggedUser, task.id).then(check => {
+            if (check && task != null && task.id != null) {
+                connection.query('UPDATE task SET id_exam = ?, id_owner = ?, task_type = ?, q_text = ?, q_url = ?, points = ? WHERE id = ?', [task.exam, task.owner, task.task_type, task.question.text, task.question.base_upload_url, task.points, task.id], function (error, results, fields) {
+                    if (error) { // In case of error it blocks and returns a null
+                        throw error;
+                        resolve(null);
+                    }
+                    if (results.affectedRows > 0) { // If the query has effect, then there is the task and the possibilities need to be updated as well
+                        //Remove all the previous possibilities
+                        connection.query('DELETE FROM task_possibility WHERE id_task = ?', [task.id], function (pos_error, pos_results, pos_fields) {
+                            if (pos_error) { // In case of error it blocks and returns a null
+                                throw pos_error;
+                                resolve(null);
+                            }
+                            if (pos_results.affectedRows >= 0) { // If the query has effect, then there is the task and the possibilities need to be updated as well
+                                // Insert every possibility for the question of the task in the database
+                                let promises_possibility = [];
+                                for (let i = 0; i < task.question.possibilities.length; i++) {//load all the comment_peer for every submission
+                                    promises_possibility.push(addPossibility(task.question.possibilities[i], task.id, i));
+                                }
+                                Promise.all(promises_possibility).then(b => {
+                                    // Return the updated task after its update
+                                    getTaskById(loggedUser, task.id).then(updatedTask => {
+                                        resolve(updatedTask);
+                                    });
+                                });
+                            } else { // If the query has no effect, then return null
+                                resolve(null);
+                            }
+                        });
+                    } else { // If the query has no effect, then return null
+                        resolve(null);
+                    }
+                });
+            }
+            else resolve(null);
+        });
+    });
+}
+/*updateTaskById({id:11}, { 'id': 302,'exam': '154', 'owner': '11', 'task_type': 'multiple_c', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': ["0", "1"], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }).then(task=>{
+    console.log(task);
+});*/
+// Delete the task given as parameter
+function deleteTaskById(loggedUser, id) {
+    return new Promise(resolve => {
+        if (id != null) {
             let retval;
-
-            connection.query('UPDATE task SET owner = ?, task_type = ?, q_text = ?, q_url = ?, points = ? WHERE id = ?', [task.owner, task.task_type, task.question.text, task.question.base_upload_url, task.points], function (error, results, fields) {
+            getTaskById(loggedUser, id).then(task => {
+                retval = task;
+            })
+            connection.query('DELETE FROM task WHERE id = ?', [id], function (error, results, fields) {
                 if (error) { // In case of error it blocks and returns a null
                     throw error;
                     resolve(null);
                 }
-                if (results.affectedRows > 0) { // If the query has effect, then there is the task and the possibilities need to be updated as well
-                    //Remove all the previous possibilities
-                    connection.query('DELETE * FROM task_possibility WHERE id_task = ?', [task.id], function (pos_error, pos_results, pos_fields) {
-                        if (pos_error) { // In case of error it blocks and returns a null
-                            throw pos_error;
-                            resolve(null);
-                        }
-                    });
-                    // Insert every possibility for the question of the task in the database
-                    for (var i = 0; i < task.question.possibilities.length; i++) {
-                        connection.query('UPDATE task_possibility SET q_possibility = ? WHERE id_task = ? AND id_poss', [task.question.possibilities[i], task.id, i], function (pos_error, pos_results, pos_fields) {
-                            if (error) { // In case of error it blocks and returns a null
-                                throw error;
-                                resolve(null);
-                            }
-                            if (results.affectedRows <= 0) { // If the query has no effect, then return null
-                                retval = null;
-                                resolve(retval);
-                            }
-                        });
-                    }
-                    retval = task;
-                } else { // If the query has no effect, then return null
-                    retval = null;
-                }
-                resolve(retval); // Return the updated task after its update
-            });
-        }
-        else resolve(null);
-    });
-}
-
-// Delete the task given as parameter
-function deleteTask(task) {
-    return new Promise(resolve => {
-        if (task != null && task.id != null) {
-            let retval;
-
-            connection.query('DELETE FROM task WHERE id = ?', [task.id], function (error, results, fields) {
-                if (error) { // In case of error it blocks and returns a null
-                    throw error;
-                    return null;
-                }
                 if (results.affectedRows > 0) { // If the query has effect, then there is the task has been eliminated
-                    retval = user; // Return the deleted task after its deletion
+                    resolve(retval);
                 } else { // If the query has no effect, then return null
-                    retval = null;
+                    resolve(null);
                 }
-                resolve(retval);
             });
         }
         else resolve(null);
     });
 }
+deleteTaskById({ id: 11 }, 303).then(task => {
+    console.log(task);
+})
 
-module.exports = { getAllTasks, createTask, getTask, updateTask, deleteTask };
+
+// Controls if the loggedUser has the privileges to modify the Task
+function checkTaskPrivilege(loggedUser, id) {
+    return new Promise(resolve => {
+        connection.query('SELECT T.id FROM teacher_exam TE, task T WHERE TE.id_teacher = ? AND T.id_exam = TE.id_exam And T.id = ?', [loggedUser.id, id], function (error, results, fields) {
+            if (error) { // In case of error it blocks and returns a null
+                throw error;
+                resolve(null);
+            }
+            if (results.length > 0) { // If the query has effect
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    });
+}
+
+// add Possibility when update a task
+function addPossibility(possibility, id, i) {
+    return new Promise(resolve => {
+        connection.query('INSERT INTO task_possibility VALUES (?,?,?)', [id, i, possibility], function (pos_error, pos_results, pos_fields) {
+            if (pos_error) { // In case of error it blocks and returns a null
+                throw pos_error;
+                resolve(null);
+            }
+            resolve(null);//return null
+        });
+    });
+}
+
+
+module.exports = { getTasks, createTask, getTaskById, updateTaskById, deleteTaskById };

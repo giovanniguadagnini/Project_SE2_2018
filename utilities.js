@@ -7,18 +7,6 @@ const connection = mysql.createConnection({
     database: 'sql7268259'
 });
 
-function openConnection(){
-    if(connection.state === 'disconnected'){
-        connection.connect();
-    }
-}
-
-function closeConnection(){
-    if(connection.state != 'disconnected'){
-        connection.end();
-    }
-}
-
 //return true if user is a valid user
 function isAUser(user){
     return (user != null && user.id != null && user.name != null && user.surname != null);
@@ -218,4 +206,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, openConnection, closeConnection};
+module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth};
