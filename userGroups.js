@@ -14,7 +14,6 @@ function createUserGroup(req, res){
             else
                 res.status(405).send('Invalid input');
         });
-
     });
 
 }
