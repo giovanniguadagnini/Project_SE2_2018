@@ -6,7 +6,7 @@ function createUserGroup(userGroup) {
     return new Promise(resolve => {
         //checking if infos are complete and if the userGroup has at least one user in it
         if (userGroup != null && userGroup.creator != null && userGroup.creator.id != null &&
-            userGroup.name != null && userGroup.users != null) {
+            userGroup.name != null) {
             connection.query('INSERT INTO user_group (id_creator, name) VALUES (?,?)',
                 [userGroup.creator.id, userGroup.name],
                 function (error, results, fields) {
@@ -94,9 +94,9 @@ function getUserGroup(loggedUser, id, sortingMethod){
                     }
                     Promise.all(promises_user).then(b => {
                         if(sortingMethod == 'enrolled')
-                            userGroup.users.sort(compareEnrol);
+                            userGroup.users.sort(utilities.compareEnroll);
                         else
-                            userGroup.users.sort(compareAlpha);
+                            userGroup.users.sort(utilities.compareAlfa);
                         resolve(userGroup);
                     });
                 });
@@ -104,83 +104,6 @@ function getUserGroup(loggedUser, id, sortingMethod){
                 resolve(null);
         });
     });
-}
-
-function compareAlpha(a, b){
-    //we put null at the end of the queue
-
-    if(a.surname == null && b.surname == null)
-        return 0;
-    else if(a.surname == null && b.surname != null)loggedUser
-        return 1;
-    else if(a.surname != null && b.surname == null)
-        return -1;
-
-    let surnameA = a.surname.toUpperCase();
-    let surnameB = b.surname.toUpperCase();
-
-    if (surnameA < surnameB)
-        return -1;
-    else if (surnameA > surnameB)
-        return 1;
-
-    if(a.name == null && b.name == null)
-        return 0;
-    else if(a.name == null && b.name != null)
-        return 1;
-    else if(a.name != null && b.name == null)
-        return -1;
-
-    let nameA = a.name.toUpperCase();
-    let nameB = b.name.toUpperCase();
-    if(nameA < nameB)
-        return -1;
-    else if(nameA > nameB)
-        return 1;
-    else
-        return 0;
-}
-
-function compareEnrol(a, b){
-    //we put null at the end of the queue
-    if(a.enrolled == null && b.enrolled == null)
-        return 0;
-    else if(a.enrolled != null && b.enrolled == null)
-        return -1;
-    else if(a.enrolled == null && b.enrolled != null)
-        return 0;
-    //check year
-    if (a.enrolled.year < b.enrolled.year)
-        return -1;
-    else if (a.enrolled.year > b.enrolled.year)
-        return 1;
-    //check month
-    if (a.enrolled.month < b.enrolled.month)
-        return -1;
-    else if (a.enrolled.month > b.enrolled.month)
-        return 1;
-    //check day
-    if (a.enrolled.day < b.enrolled.day)
-        return -1;
-    else if (a.enrolled.day > b.enrolled.day)
-        return 1;
-    //check hour
-    if (a.enrolled.hour < b.enrolled.hour)
-        return -1;
-    else if (a.enrolled.hour > b.enrolled.hour)
-        return 1;
-    //check minute
-    if (a.enrolled.minute < b.enrolled.minute)
-        return -1;
-    else if (a.enrolled.minute > b.enrolled.minute)
-        return 1;
-    //check second
-    if (a.enrolled.second < b.enrolled.second)
-        return -1;
-    else if (a.enrolled.second > b.enrolled.second)
-        return 1;
-
-    return 0;
 }
 
 function getAllUserGroups(loggedUser, sortingMethod) {
@@ -292,15 +215,27 @@ function updateUserGroup(loggedUser, userGroup){
  |#USED FOR TESTING#|
  |##################|
 */
+/*
+let gusers = [
+{"id":"102214019543444378931","name":"DalMoro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},
+{"id":"110228221053954638301","name":"Giovanni","surname":"Guadagnini","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},
+{"id":"117840787244259010609","name":"List","surname":"BBShopping","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},
+{"id":"12","name":"null","surname":"null","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},
+{"id":"123","name":"Bubba","surname":"B","email":"null","enrolled":null,"born":{"year":1997,"month":0,"day":3,"hour":23,"minute":0,"second":15},"submissions":[],"exam_eval":[]}];
+*/
+let gusers = [
+    {"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]}
+];
 
-let gusers = [{"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"110228221053954638301","name":"Giovanni","surname":"Guadagnini","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"117840787244259010609","name":"List","surname":"BBShopping","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"12","name":"null","surname":"null","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"123","name":"Bubba","surname":"B","email":"null","enrolled":null,"born":{"year":1997,"month":0,"day":3,"hour":23,"minute":0,"second":15},"submissions":[],"exam_eval":[]}];
 let gcreator = {"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]};
 
 let userGroup = {
-    name: 'Japanese_offered By Daniel San',
+    name: 'I veganini',
     creator: gcreator,
     users: gusers
 };
-
+let tmp_ugroup = createUserGroup(userGroup)
+console.log(tmp_ugroup.id);
+console.log(tmp_ugroup.creator);
 
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
