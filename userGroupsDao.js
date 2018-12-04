@@ -1,12 +1,5 @@
-var mysql = require('mysql');
-
-var connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7267085',
-    password: 'IlVZ5TF9HT',
-    database: 'sql7267085'
-});
-
+const utilities = require('./utilities');
+const connection = utilities.connection;
 const userDao = require('./userDao');
 
 function createUserGroup(userGroup) {
@@ -53,6 +46,20 @@ function addMember(userGroup, member) {
     });
 }
 
+function emptyUserGroup(id){
+    return new Promise(resolve => {
+        if(id != null){
+            connection.query('DELETE FROM user_group_members WHERE id_group = ?', [id], function (error, results, fields) {
+                if (error) {
+                    throw error;
+                }
+                resolve(null);
+            });
+        } else
+            resolve(null);
+    });
+}
+
 function getUserGroup(loggedUser, id, sortingMethod){
     return new Promise(resolve => {
         let userGroup = {
@@ -87,9 +94,9 @@ function getUserGroup(loggedUser, id, sortingMethod){
                     }
                     Promise.all(promises_user).then(b => {
                         if(sortingMethod == 'enrolled')
-                            userGroup.users.sort(compareAlfa);
-                        else
                             userGroup.users.sort(compareEnrol);
+                        else
+                            userGroup.users.sort(compareAlpha);
                         resolve(userGroup);
                     });
                 });
@@ -100,7 +107,7 @@ function getUserGroup(loggedUser, id, sortingMethod){
     });
 }
 
-function compareAlfa(a, b){
+function compareAlpha(a, b){
     //we put null at the end of the queue
 
     if(a.surname == null && b.surname == null)
@@ -210,7 +217,7 @@ function getAllUserGroups(loggedUser, sortingMethod) {
     else
         sortingMethod = 'alpha';
 
-    let promises_userGroups;
+    let promises_userGroups = [];
     let userGroups = []; //this function will return this filled with all user groups
 
     return new Promise(resolve => {
@@ -240,4 +247,64 @@ function getAllUserGroups(loggedUser, sortingMethod) {
     }
 }
 
-module.exports = {createUserGroup, getAllUserGroups, getUserGroup};
+/* Delete a userGroup. Can be performed only by the userGroup creator
+ *  In this regard, security checks have to be added before the function calling
+ */
+
+function deleteUserGroup(loggedUser, id) {
+    return new Promise(resolve => {
+        if (id != null && Number.isInteger(id) && loggedUser != null && loggedUser.id != null) {
+            let deleteQuery = 'DELETE g, m' +
+                              'FROM user_group g JOIN user_group_members m ON g.id=m.id_group' +
+                              'WHERE g.id = ?'
+            let retval;
+
+            getUserGroup(loggedUser, id).then(userGroup => {
+                connection.query(deleteQuery, [id], function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                        return null;
+                    }
+                    if (results.affectedRows > 0) {
+                        retval = userGroup;
+                    } else {
+                        retval = null;
+                    }
+                    resolve(retval);
+                });
+            });
+        }
+        else
+            resolve(null);
+    });
+}
+
+function updateUserGroup(userGroup){
+    return new Promise(resolve => {
+        if(userGroup != null && userGroup.id != null && userGroup.creator != null && userGroup.creator.id != null){
+          connection.query('UPDATE user_group SET id_creator = ?, name = ? WHERE id = ?', [userGroup.creator.id, userGroup.name, userGroup.id], function (error, results, fields) {
+              if (error) {
+                  throw error;
+                  resolve(null);
+              }
+              if (results.affectedRows > 0) {
+                  let emptyUserGroup_promise;
+                  emptyUserGroup_promise = emptyUserGroup(userGroup.id);
+                  Promise.resolve(emptyUserGroup_promise).then(b=>{
+                      let members_promises = [];
+                      for (let member of userGroup.users) {
+                          members_promises.push(addMember(userGroup, member));
+                      }
+                      Promise.all(members_promises).then(b => {
+                          resolve(userGroup);
+                      });
+                  });
+              } else {
+                  resolve(null);
+              }
+          });
+        }
+    });
+}
+
+module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
