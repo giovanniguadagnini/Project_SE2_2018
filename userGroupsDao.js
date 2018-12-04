@@ -307,4 +307,8 @@ function updateUserGroup(userGroup){
     });
 }
 
+<<<<<<< HEAD
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
+=======
+module.export = {createUserGroup, getAllUserGroups};
+>>>>>>> 57d4449... Added basic test cases in userGroupsDao.test.js
