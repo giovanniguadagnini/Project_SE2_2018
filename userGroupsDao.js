@@ -102,7 +102,6 @@ function getUserGroup(loggedUser, id, sortingMethod){
                 });
             }else
                 resolve(null);
-
         });
     });
 }
@@ -184,33 +183,6 @@ function compareEnrol(a, b){
     return 0;
 }
 
-/*
-function rightParamForSort(sortingMethod){
-    if (sortingMethod == 'alpha')
-        sortingMethod = 'U.surname, U.name'; //order the "surname" field
-    else
-        sortingMethod = 'U.enrolled';
-    return sortingMethod;
-}*/
-
-let gusers = [{"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"110228221053954638301","name":"Giovanni","surname":"Guadagnini","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"117840787244259010609","name":"List","surname":"BBShopping","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"12","name":"null","surname":"null","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"123","name":"Bubba","surname":"B","email":"null","enrolled":null,"born":{"year":1997,"month":0,"day":3,"hour":23,"minute":0,"second":15},"submissions":[],"exam_eval":[]}];
-let gcreator = {"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]};
-
-let userGroup = {
-    name: 'Japanese_offered By Daniel San',
-    creator: gcreator,
-    users: gusers
-};
-
-/*createUserGroup(userGroup).then( value =>{
-    console.log(JSON.stringify(value));
-});*/
-
-getUserGroup({id: '12'},59,'alpha').then( value =>{
-    console.log(JSON.stringify(value));
-});
-
-
 function getAllUserGroups(loggedUser, sortingMethod) {
     if (sortingMethod == 'enrolled')
         sortingMethod = 'enrolled'
@@ -250,7 +222,6 @@ function getAllUserGroups(loggedUser, sortingMethod) {
 /* Delete a userGroup. Can be performed only by the userGroup creator
  *  In this regard, security checks have to be added before the function calling
  */
-
 function deleteUserGroup(loggedUser, id) {
     return new Promise(resolve => {
         if (id != null && Number.isInteger(id) && loggedUser != null && loggedUser.id != null) {
@@ -260,18 +231,21 @@ function deleteUserGroup(loggedUser, id) {
             let retval;
 
             getUserGroup(loggedUser, id).then(userGroup => {
-                connection.query(deleteQuery, [id], function (error, results, fields) {
-                    if (error) {
-                        throw error;
-                        return null;
-                    }
-                    if (results.affectedRows > 0) {
-                        retval = userGroup;
-                    } else {
-                        retval = null;
-                    }
-                    resolve(retval);
-                });
+                if(loggedUser.id == userGroup.creator.id){
+                    connection.query(deleteQuery, [id], function (error, results, fields) {
+                        if (error) {
+                            throw error;
+                            return null;
+                        }
+                        if (results.affectedRows > 0) {
+                            retval = userGroup;
+                        } else {
+                            retval = null;
+                        }
+                        resolve(retval);
+                    });
+                } else
+                    resolve('403');
             });
         }
         else
@@ -279,32 +253,54 @@ function deleteUserGroup(loggedUser, id) {
     });
 }
 
-function updateUserGroup(userGroup){
+function updateUserGroup(loggedUser, userGroup){
     return new Promise(resolve => {
-        if(userGroup != null && userGroup.id != null && userGroup.creator != null && userGroup.creator.id != null){
-          connection.query('UPDATE user_group SET id_creator = ?, name = ? WHERE id = ?', [userGroup.creator.id, userGroup.name, userGroup.id], function (error, results, fields) {
-              if (error) {
-                  throw error;
-                  resolve(null);
-              }
-              if (results.affectedRows > 0) {
-                  let emptyUserGroup_promise;
-                  emptyUserGroup_promise = emptyUserGroup(userGroup.id);
-                  Promise.resolve(emptyUserGroup_promise).then(b=>{
-                      let members_promises = [];
-                      for (let member of userGroup.users) {
-                          members_promises.push(addMember(userGroup, member));
+        userGroup_tmp = getUserGroup(loggedUser, id);
+        Promise.resolve(userGroup_tmp).then(check => {
+            if(userGroup_tmp.creator.id==loggedUser.id){
+                if(userGroup != null && userGroup.id != null && userGroup.creator != null && userGroup.creator.id != null){
+                  connection.query('UPDATE user_group SET id_creator = ?, name = ? WHERE id = ?', [userGroup.creator.id, userGroup.name, userGroup.id], function (error, results, fields) {
+                      if (error) {
+                          throw error;
+                          resolve(null);
                       }
-                      Promise.all(members_promises).then(b => {
-                          resolve(userGroup);
-                      });
+                      if (results.affectedRows > 0) {
+                          let emptyUserGroup_promise;
+                          emptyUserGroup_promise = emptyUserGroup(userGroup.id);
+                          Promise.resolve(emptyUserGroup_promise).then(a=>{
+                              let members_promises = [];
+                              for (let member of userGroup.users) {
+                                  members_promises.push(addMember(userGroup, member));
+                              }
+                              Promise.all(members_promises).then(b => {
+                                  resolve(userGroup);
+                              });
+                          });
+                      } else {
+                          resolve(null);
+                      }
                   });
-              } else {
-                  resolve(null);
-              }
-          });
-        }
+                }
+            } else
+                resolve('403');
+        });
     });
 }
+
+/*
+ |##################|
+ |#USED FOR TESTING#|
+ |##################|
+*/
+
+let gusers = [{"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"110228221053954638301","name":"Giovanni","surname":"Guadagnini","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"117840787244259010609","name":"List","surname":"BBShopping","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"12","name":"null","surname":"null","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"123","name":"Bubba","surname":"B","email":"null","enrolled":null,"born":{"year":1997,"month":0,"day":3,"hour":23,"minute":0,"second":15},"submissions":[],"exam_eval":[]}];
+let gcreator = {"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]};
+
+let userGroup = {
+    name: 'Japanese_offered By Daniel San',
+    creator: gcreator,
+    users: gusers
+};
+
 
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};

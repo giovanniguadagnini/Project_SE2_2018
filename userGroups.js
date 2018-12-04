@@ -53,9 +53,11 @@ function updateUserGroup(req, res){
         users: req.body.users
     };
 
-    userGroupsDao.updateUserGroup(userGroup).then(userGroup => {
+    userGroupsDao.updateUserGroup(req.user, userGroup).then(userGroup => {
         if(userGroup!=null)
             res.status(200).json(userGroup);
+        else if(userGroup==='403')
+            res.status(403).send('Forbidden');
         else
             res.status(404).send('userGroup not found');
     });
@@ -67,6 +69,8 @@ function deleteUserGroup(req, res){
         userGroupsDao.deleteUserGroup(req.user, id).then( userGroup => {
             if(userGroup!=null)
                 res.status(200).json(userGroup);
+            else if(userGroup==='403')
+                res.status(403).send('Forbidden');
             else
                 res.status(404).send('userGroup not found' );
         });
