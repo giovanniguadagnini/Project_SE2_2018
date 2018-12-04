@@ -90,6 +90,13 @@ test('GET /users?access_token=validId with alpha sorting, enrolledAfter & enroll
     expect(response.body).toBeDefined();
 });
 
+test('GET /users?access_token=validId with enrol sorting param; should return 200 + all users in the system', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol'});
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
 test('GET /users?access_token=validId with enrol sorting, enrolledAfter & enrolledBefore param; should return 200 + all users in the system', async () => {
     expect.assertions(2);
     let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol', enrolledAfter: '1900', enrolledBefore: '2019'});
