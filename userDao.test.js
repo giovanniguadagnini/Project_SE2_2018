@@ -70,14 +70,14 @@ test('check findOrCreate() with null user data', () => {
 test('check findOrCreate() with data.id undefined', () => {
     expect.assertions(1);
     return userDao.findOrCreate({notId: 'notId'}).then(valueC => {
-        expect(valueC).toEqual({notId: 'notId'});
+        expect(valueC).toEqual(null);
     });
 });
 
 test('check findOrCreate() with data.name undefined', () => {
     expect.assertions(1);
     return userDao.findOrCreate({id: 'notId', notName: 'notName'}).then(valueC => {
-        expect(valueC).toEqual({id: 'notId', notName: 'notName'});
+        expect(valueC).toEqual(null);
     });
 });
 
