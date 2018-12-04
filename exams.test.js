@@ -241,3 +241,25 @@ test('POST /exams with invalid user_group.id should return 400', async () => {
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({});
 });*/
+
+test('GET /exams/?access_token=validId ; should return 200 + all managable exam', async () => {
+  expect.assertions(2);
+    //[TODO]Fare query che aggiunge un esame per prendere entrambi gli id, sia dell'esame che del teacher associato all'esame
+    const response = await request(app).get('/exams/?access_token=' + validTeacherId);
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toBeDefined();//[TODO]Da controllare struttura dell'exam ritornato
+});
+
+test('GET /exams/ without access_token; should return 401', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/exams/');
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('GET /exams/?access_token=invalidId ; should return 401', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/exams/?access_token=' + 34543213565);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});

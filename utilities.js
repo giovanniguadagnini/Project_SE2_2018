@@ -17,6 +17,11 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
+function isExam(exam){
+    return (exam != null && exam.name!=null && exam.teachers!=null && exam.students!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null);
+}
+
+
 //return true if user is a valid user
 function isAUser(user){
     return (user != null && user.id != null && user.name != null && user.surname != null);

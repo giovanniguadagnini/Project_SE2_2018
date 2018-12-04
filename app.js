@@ -32,7 +32,10 @@ app.delete('/users/:id', protect(), userModule.deleteUser);
 //app.post('/exams/', protect(), examsModule.createExam);
 
 app.post('/exams/', protect(), examsModule.createExam);
+app.get('/exams/', protect(), examsModule.getAllExam);
 app.get('/exams/:id', protect(), examsModule.getExam);
+app.put('/exams/:id', protect(), examsModule.updateExam);
+app.delete('/exams/:id', protect(), examsModule.deleteExam);
 
 //USERGROUP MODULE
 const userGroupModule = require('./userGroups');

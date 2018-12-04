@@ -1,22 +1,20 @@
 var mysql = require('mysql');
 const userDao = require('./userDao');
+const userGroupsDao = require('./userGroupsDao');
+const submissionsDao = require('./submissionsDao');
+const taskDao = require('./taskDao');
 
-var connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7267085',
-    password: 'IlVZ5TF9HT',
-    database: 'sql7267085'
-});
+const utilities = require('./utilities');
+const connection = utilities.connection;
+
 
 function createExam(id_user,exam){
 
-  //console.log('1');
-  var promise = new Promise(function(resolve, reject) {
+  let promise = new Promise(function(resolve, reject) {
 
     //Controllo sul tipo e sul passaggio o meno dei parametri
     //[TODO controllo struttura di teachers e students]
-    if (id_user!=null && exam != null && exam.name!=null && exam.teachers!=null && exam.students!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null
-    && typeof exam.reviewable == typeof true && id_user == parseInt(id_user, 10) && exam.deadline == parseInt(exam.deadline, 10) && exam.num_shuffle == parseInt(exam.num_shuffle, 10)){
+    if (id_user!=null && utilities.isExam(exam) && typeof exam.reviewable == typeof true && id_user == parseInt(id_user, 10) && exam.deadline == parseInt(exam.deadline, 10) && exam.num_shuffle == parseInt(exam.num_shuffle, 10)){
       //Controllo se lo user group passato esiste ---[TODO]Manca controllo sugli user passati
       connection.query('SELECT * FROM user_group WHERE id = ? AND id_creator = ? AND name = ?', [exam.students.id,exam.students.creator,exam.students.name], function (error, results, fields) {
         if (error) {
@@ -156,90 +154,45 @@ function createExam(id_user,exam){
       return null;
     }
   };
+  return promise;
 }
 
-function getAllExams(id_user,sortStudBy, minStudByMark,maxStudByMark,taskType){
-  return new Promise(resolve => {
-    if(id_user!=null&&sortStudBy!=null&&Number.isInteger(minStudByMark)&&Number.isInteger(maxStudByMark)&&(taskType instanceof String || typeof taskType === "string")){
-      var teachers = [];
-      var students = [];
-      var tasks = [];
-      var submission = [];
-      //Query per ottenere tutti gli esami creati da questo utente
-      connection.query('SELECT * FROM exam WHERE id_owner = ?', [id_user], function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-
-        if (results.length > 0) {
-          results.forEach(function(exam) {
-            //Query per ottenere tutti i teacher di questo esame
-            connection.query('SELECT user.id,user.name,user.surname,user.email,user.born,user.enrolled FROM user_exam INNER JOIN user ON user_exam.id_user=user.id WHERE id_exam = ? AND teacher = true', [exam.id], function (error, results, fields) {
-                    if (error){
-                        throw error;
-                    }
-                    if (results.length > 0) {
-                      results.forEach(function(tacher) {
-
-                      });
-                    }else{
-
-                    }
-                }
-            );
-            //Query per ottenere tutti gli students di questo esame
-            connection.query('SELECT user.id,user.name,user.surname,user.email,user.born,user.enrolled FROM user_exam INNER JOIN user ON user_exam.id_user=user.id WHERE id_exam = ? AND teacher = false', [exam.id], function (error, results, fields) {
-                    if (error){
-                        throw error;
-                    }
-                    if (results.length > 0) {
-                      results.forEach(function(student) {
-
-                      });
-                    }else{
-
-                    }
-                }
-            );
-            //Query per otterene submission assegnate a questo esame
-            connection.query('SELECT * FROM submission WHERE id_exam = ?', [exam.id], function (error, results, fields) {
-              if (error) {
-                  throw error;
-                  resolve(null);
-              }
-
-              if (results.length > 0) {
-
-              }else{
-
-              }
-            });
-            //Query per ottenere task associati a questo esame
-            connection.query('SELECT * FROM task WHERE id_exam = ?', [exam.id], function (error, results, fields) {
-              if (error) {
-                  throw error;
-                  resolve(null);
-              }
-
-              if (results.length > 0) {
-
-              }else{
-
-              }
-            });
-          });
-        }else{
+function getAllExams(id_user){
+  let promise = new Promise(function(resolve, reject){
+    //Aggiungo tutti gli esami di cui sono owner
+    let exams=[];
+    connection.query('SELECT id FROM exam WHERE id_owner = ? ', [id_user], function (error, results, fields) {
+      if (error) {
+          throw error;
           resolve(null);
-        }
+      }
+      results.forEach(function(exam) {
+        exams.push(getExam(id_user,exam.id));
       });
-    }
+    });
+    resolve(exams);
   });
+
+  promise.then(function(result) {
+    //Aggiungo tutti gli esami di cui sono teacher
+    let exams=result;
+    connection.query('SELECT id_exam FROM teacher_exam WHERE id_teacher = ? ', [id_user], function (error, results, fields) {
+      if (error) {
+          throw error;
+          resolve(null);
+      }
+      results.forEach(function(exam) {
+        exams.push(getExam(id_user,exam.id_exam));
+      });
+    });
+    return exams;
+  });
+  return promise;
 }
 
 function getExam(id_user,id_exam){
-  var promise = new Promise(function(resolve, reject) {
-    connection.query('SELECT * FROM exam WHERE id = ?', [id_exam], function (error, results, fields) {
+  let promise = new Promise(function(resolve, reject) {
+    connection.query('SELECT * FROM exam WHERE id = ?', [id_exam], function (error, results, fields) {//Prelevo l'esame dal db
       if (error) {
           throw error;
           resolve(null);
@@ -296,13 +249,34 @@ function getExam(id_user,id_exam){
     }
   }).then(function(result) {
     if(result!=null){
-      //Riempio il campo students togliendo l'id dello user_group all'interno
-      
-
+      //Recupero lo user group
+      let exam=result;
+      id_user_group=exam.students;
+      exam.students=userGroupsDao.getUserGroup(id_user_group);
+      return exam;
+    }else{//Altrimenti
+      return null;
+    }
+  }.then(function(result) {
+    if(result!=null){
+      //Recupero tasks
+      let exam=result;
+      exam.tasks=taskDao.getTaskByIdExam(id_exam);
+      return exam;
+    }else{//Altrimenti
+      return null;
+    }
+  }.then(function(result) {
+    if(result!=null){
+      //Recupero submissions
+      let exam=result;
+      exam.submissions=submissionsDao.getSubmissionByIdExam(id_exam);
+      return exam;
     }else{//Altrimenti
       return null;
     }
   };
+  return promise;
 }
 
 function updateExam(exam){
