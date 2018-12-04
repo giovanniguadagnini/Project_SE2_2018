@@ -1,4 +1,3 @@
-const app = require('./app');
 const userGroupsDao = require('./userGroupsDao')
 const userDao = require('./userDao');
 
@@ -75,4 +74,4 @@ function deleteUserGroup(req, res){
         res.status(400).send('Bad request');
 }
 
-module.exports = {postUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
+module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};

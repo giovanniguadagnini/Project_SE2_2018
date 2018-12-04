@@ -112,7 +112,7 @@ function compareAlpha(a, b){
 
     if(a.surname == null && b.surname == null)
         return 0;
-    else if(a.surname == null && b.surname != null)loggedUser
+    else if(a.surname == null && b.surname != null)
         return 1;
     else if(a.surname != null && b.surname == null)
         return -1;
@@ -244,7 +244,7 @@ function getAllUserGroups(loggedUser, sortingMethod) {
               resolve(null);
             }
         });
-    }
+    });
 }
 
 /* Delete a userGroup. Can be performed only by the userGroup creator
