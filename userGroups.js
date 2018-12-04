@@ -1,5 +1,6 @@
 const userGroupsDao = require('./userGroupsDao')
 const userDao = require('./userDao');
+const utilities = require('./utilities');
 
 function createUserGroup(req, res){
     userDao.getUser(req.user, req.user.id).then( g_creator => {
@@ -8,12 +9,15 @@ function createUserGroup(req, res){
             name : req.body.name,
             users : req.body.users
         };
-        userGroupsDao.createUserGroup(userGroup).then( userGroupCreated => {
-            if(userGroupCreated != null)
-                res.status(201).json(userGroupCreated);
-            else
-                res.status(405).send('Invalid input');
-        });
+        if(utilities.isAUserGroupBody(userGroup)){
+            userGroupsDao.createUserGroup(userGroup).then( userGroupCreated => {
+                if(userGroupCreated != null)
+                    res.status(201).json(userGroupCreated);
+                else
+                    res.status(400).send('Bad request');
+            });
+        }else
+            res.status(400).send('Bad request');
     });
 
 }
@@ -26,7 +30,7 @@ function getUserGroup(req, res){
             if(userGroup!=null)
                 res.status(200).json(userGroup);
             else
-                res.status(404).send('userGroup not found' );
+                res.status(404).send('User Group not found' );
         });
 
     } else {
@@ -55,7 +59,7 @@ function updateUserGroup(req, res){
     userGroupsDao.updateUserGroup(req.user, userGroup).then(userGroup => {
         if(userGroup!=null)
             res.status(200).json(userGroup);
-        else if(userGroup==='403')
+        else if(userGroup == '403')
             res.status(403).send('Forbidden');
         else
             res.status(404).send('userGroup not found');
@@ -64,14 +68,14 @@ function updateUserGroup(req, res){
 
 function deleteUserGroup(req, res){
     let id = req.body.id;
-    if(Number.isInteger(id)){
+    if(Number.isInteger(+id)){
         userGroupsDao.deleteUserGroup(req.user, id).then( userGroup => {
             if(userGroup!=null)
                 res.status(200).json(userGroup);
-            else if(userGroup==='403')
+            else if(userGroup == '403')
                 res.status(403).send('Forbidden');
             else
-                res.status(404).send('userGroup not found' );
+                res.status(404).send('User Group not found' );
         });
     } else
         res.status(400).send('Bad request');
