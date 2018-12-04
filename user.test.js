@@ -40,6 +40,13 @@ test('GET /users/validId?access_token=validId; should return 200 + users obj', a
     expect(response.body).toBeDefined();
 });
 
+test('GET /users/validId?access_token=invalidId; should return 401 + {} obj', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/users/' + validId + '?access_token=' + invalidId);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
 test('GET /users/invalidId?access_token=validId should return 200 + invalid fields', async () => {
     expect.assertions(2);
     let response = await request(app).get('/users/' + invalidId + '?access_token=' + validId);
@@ -90,6 +97,13 @@ test('GET /users?access_token=validId with alpha sorting, enrolledAfter & enroll
     expect(response.body).toBeDefined();
 });
 
+test('GET /users?access_token=validId with enrol sorting param; should return 200 + all users in the system', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol'});
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
 test('GET /users?access_token=validId with enrol sorting, enrolledAfter & enrolledBefore param; should return 200 + all users in the system', async () => {
     expect.assertions(2);
     let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol', enrolledAfter: '1900', enrolledBefore: '2019'});
@@ -105,11 +119,11 @@ test('GET /users?access_token=validId with enrol sorting param; should return 20
 });
 
 
-test('GET /users?access_token=invalidId; should return 200 + null Fields', async () => {
+test('GET /users?access_token=invalidId; should return 401 + null Fields', async () => {
     expect.assertions(2);
     let response = await request(app).get('/users?access_token=' + invalidId);
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual([]);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
 });
 
 test('PUT /users/validId; should return 200 + users obj', async () => {
@@ -117,6 +131,20 @@ test('PUT /users/validId; should return 200 + users obj', async () => {
     let response = await request(app).put('/users/' + validId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
     expect(response.statusCode).toBe(200);
     expect(response.body).toBeDefined();
+});
+
+test('PUT /users/validId with wrong access token; should return 401 + obj {}', async () => {
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + validId).set('Authorization', 'Bearer ' + invalidId).send(dummyStud);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /users/invalidId with wrong access token; should return 401 + obj {}', async () => {
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + invalidId).send(dummyStud);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
 });
 
 test('PUT /users/invalidId; should return 403', async () => {
@@ -184,30 +212,30 @@ test('DELETE /users/validId; should return 200 + users obj', async () => {
     expect(response.body).toBeDefined();
 });
 
-test('DELETE /users/invalidId in the uri and no body; should return 403', async () => {
+test('DELETE /users/invalidId in the uri and no body; should return 401 + {}', async () => {
     expect.assertions(2);
     let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId);
-    expect(response.statusCode).toBe(403);
+    expect(response.statusCode).toBe(401);
     expect(response.body).toEqual({});
 });
 
-test('DELETE /users/invalidId in the uri + validAccessToken + invalidId in body; should return 400', async () => {
+test('DELETE /users/invalidId in the uri + validAccessToken + invalidId in body; should return 401 + {}', async () => {
     expect.assertions(2);
     let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({id: invalidId});
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(401);
     expect(response.body).toEqual({});
 });
 
-test('DELETE /users/invalidId in the uri + invalidAccessToken + invalidId in body; should return 400', async () => {
+test('DELETE /users/invalidId in the uri + invalidAccessToken + invalidId in body; should return 401 + {}', async () => {
     expect.assertions(2);
     let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + invalidId).send({id: invalidId});
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(401);
     expect(response.body).toEqual({});
 });
 
-test('DELETE /users/pureStringId with string as id in the uri and no body; should return 403', async () => {
+test('DELETE /users/pureStringId with string as id in the uri and no body; should return 401 + {}', async () => {
     expect.assertions(2);
     let response = await request(app).delete('/users/' + pureStringId).set('Authorization', 'Bearer ' + validId);
-    expect(response.statusCode).toBe(403);
+    expect(response.statusCode).toBe(401);
     expect(response.body).toEqual({});
 });

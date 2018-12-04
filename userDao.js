@@ -6,14 +6,14 @@ const connection = utilities.connection;
 */
 function findOrCreate(data) {
     return new Promise(resolve => {
-        if (data == null || data.id == null || data.name == null) {
+        if (data == null || data.id == null) {
             //return object with invalid id (this is not suppose to happen)
-            resolve(data);
+            resolve(null);
         } else {
             //use an invalid id just to see if the user is already in the db
             getUser({id: 'invalidId'}, data.id).then(value => {
                 let userFromDB = value;
-                if (userFromDB == null) { // user doesn't exist in db (registration)
+                if (userFromDB == null && data.name != null) { // user doesn't exist in db (registration)
                     let userToDB = {
                         id: data.id,
                         name: data.name.givenName,
