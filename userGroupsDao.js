@@ -12,7 +12,7 @@ function createUserGroup(userGroup) {
                 function (error, results, fields) {
                     if (error) {
                         throw error;
-                        return null;
+                        resolve(null);
                     }
                     userGroup.id = results.insertId;
                     let members_promises = [];
@@ -68,10 +68,10 @@ function getUserGroup(loggedUser, id, sortingMethod){
             name: null,
             users: []
         };
-        //sortingMethod = rightParamForSort(sortingMethod);
-        let fetchQuery = 'SELECT G.id_creator, G.name, GM.id_user\n' +
-            'FROM user_group G, user_group_members GM, user U\n' +
-            'WHERE G.id = ? AND G.id = GM.id_group AND GM.id_user=U.id\n';
+        //sortingMethod = rightParamForSort(sSELECT *ortingMethod);
+        let fetchQuery = 'SELECT G.id_creator, G.name, GM.id_user ' +
+            'FROM user_group G, user_group_members GM ' +
+            'WHERE G.id = ? AND G.id = GM.id_group';
         connection.query(fetchQuery, [id], function (error, results, fields) {
             if (error) {
                 throw error;
@@ -107,16 +107,14 @@ function getUserGroup(loggedUser, id, sortingMethod){
 }
 
 function getAllUserGroups(loggedUser, sortingMethod) {
-    if (sortingMethod == 'enrolled')
-        sortingMethod = 'enrolled'
-    else
+    if (sortingMethod != 'enrolled')
         sortingMethod = 'alpha';
 
     let promises_userGroups = [];
     let userGroups = []; //this function will return this filled with all user groups
 
     return new Promise(resolve => {
-        let fetchQuery = 'SELECT G.id_group FROM user_group';
+        let fetchQuery = 'SELECT G.id FROM user_group G';
         connection.query(fetchQuery, [], function (error, results, fields) {
             if (error) {
                 throw error;
@@ -125,9 +123,10 @@ function getAllUserGroups(loggedUser, sortingMethod) {
             if(results.length > 0){
                 let promise_tmp;
                 for(let i=0; i < results.length; i++){
-                    promise_tmp = getUserGroup(loggedUser, results[i], sortingMethod);
+                    promise_tmp = getUserGroup(loggedUser, results[i].id, sortingMethod);
                     promises_userGroups.push(promise_tmp);
                     promise_tmp.then(userGroupToAdd => {
+                        //console.log("New user Group added idUG = " + userGroupToAdd.id);
                         userGroups.push(userGroupToAdd);
                     });
                 }
@@ -147,10 +146,10 @@ function getAllUserGroups(loggedUser, sortingMethod) {
  */
 function deleteUserGroup(loggedUser, id) {
     return new Promise(resolve => {
-        if (id != null && Number.isInteger(id) && loggedUser != null && loggedUser.id != null) {
-            let deleteQuery = 'DELETE g, m' +
-                              'FROM user_group g JOIN user_group_members m ON g.id=m.id_group' +
-                              'WHERE g.id = ?'
+        if (id != null && Number.isInteger(+id) && loggedUser != null && loggedUser.id != null) {
+            let deleteQuery = 'DELETE ' +
+                              'FROM user_group ' +
+                              'WHERE id = ?';
             let retval;
 
             getUserGroup(loggedUser, id).then(userGroup => {
@@ -178,10 +177,9 @@ function deleteUserGroup(loggedUser, id) {
 
 function updateUserGroup(loggedUser, userGroup){
     return new Promise(resolve => {
-        userGroup_tmp = getUserGroup(loggedUser, id);
-        Promise.resolve(userGroup_tmp).then(check => {
+        getUserGroup(loggedUser, userGroup.id).then(userGroup_tmp => {
             if(userGroup_tmp.creator.id==loggedUser.id){
-                if(userGroup != null && userGroup.id != null && userGroup.creator != null && userGroup.creator.id != null){
+                if(utilities.isAUserGroup(userGroup)){
                   connection.query('UPDATE user_group SET id_creator = ?, name = ? WHERE id = ?', [userGroup.creator.id, userGroup.name, userGroup.id], function (error, results, fields) {
                       if (error) {
                           throw error;
@@ -223,19 +221,22 @@ let gusers = [
 {"id":"12","name":"null","surname":"null","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},
 {"id":"123","name":"Bubba","surname":"B","email":"null","enrolled":null,"born":{"year":1997,"month":0,"day":3,"hour":23,"minute":0,"second":15},"submissions":[],"exam_eval":[]}];
 */
-let gusers = [
-    {"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]}
-];
+/*
+let gusers = [{"id":"99","name":"Marco","surname":"Boffino","email":"dummy@dummy.com","enrolled":{"year":2011,"month":8,"day":31,"hour":12,"minute":30,"second":0},"born":{"year":1967,"month":11,"day":3,"hour":0,"minute":0,"second":0},"submissions":[],"exam_eval":[]},{"id":"12","name":"John","surname":"Doe","email":"email@email.com","enrolled":{"year":2016,"month":9,"day":8,"hour":19,"minute":16,"second":25},"born":{"year":1997,"month":9,"day":2,"hour":0,"minute":0,"second":0},"submissions":[{"id":360,"task_type":"open","question":{"text":"What do you get if you perform 1 + 1 ? ","possibilities":[],"base_upload_url":"http://uploadhere.com/dummy/v1/"},"answer":"25 I think","id_user":"12","id_exam":143,"completed":1,"comment_peer":["You did a great job dude","You better go study philosophy","Hi! My name's Peter"],"comment":"Almost... that's a shame: you were so close to the solution!","points":2,"earned_points":0},{"id":361,"task_type":"single_c","question":{"text":"What do you get if you perform 1 + 1 ?\nSelect the right answer","possibilities":["0","1","2","Infinite"],"base_upload_url":"http://uploadhere.com/dummy/v1/"},"answer":"0","id_user":"12","id_exam":143,"completed":1,"comment_peer":[],"comment":"My name is Bob and I've hacked the professor so I'll put you the best reward even if your answers suck","points":1,"earned_points":1},{"id":362,"task_type":"submit","question":{"text":"What do you get if you perform 1 + 1 ?\nPut the answer in a file (out.txt) that has to be uploaded","possibilities":[],"base_upload_url":"http://uploadhere.com/dummy/v1/"},"answer":"http://uploadhere.com/dummy/v1/solutions12_1_3","id_user":"12","id_exam":143,"completed":1,"comment_peer":[],"comment":"Hate saying this... but tomorrow I'll resign myself","points":3,"earned_points":3}],"exam_eval":[{"id_exam":143,"mark":20}]},{"id":"117840787244259010609","name":"BBShopping","surname":"List","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]},{"id":"11","name":"Jimmy","surname":"Teacher","email":"dummy@dummy.com","enrolled":{"year":2011,"month":8,"day":31,"hour":12,"minute":30,"second":0},"born":{"year":1967,"month":11,"day":3,"hour":0,"minute":0,"second":0},"submissions":[],"exam_eval":[]}];
 
-let gcreator = {"id":"102214019543444378931","name":"Dal Moro","surname":"Devis","email":"null","enrolled":null,"born":null,"submissions":[],"exam_eval":[]};
+let gcreator = {"id":"99","name":"Marco","surname":"Boffino","email":"dummy@dummy.com","enrolled":{"year":2011,"month":8,"day":31,"hour":12,"minute":30,"second":0},"born":{"year":1967,"month":11,"day":3,"hour":0,"minute":0,"second":0},"submissions":[],"exam_eval":[]};
 
 let userGroup = {
-    name: 'I veganini',
+    name: 'I mangiacarne3',
     creator: gcreator,
     users: gusers
 };
-let tmp_ugroup = createUserGroup(userGroup)
-console.log(tmp_ugroup.id);
-console.log(tmp_ugroup.creator);
+    getUserGroup({id: 'invalidId'}, 179, 'alpha').then(group => {
+        console.log(JSON.stringify(group) + "\n\n\n\n");
+        deleteUserGroup(group.creator, group.id).then( updgroup => {
+            console.log(JSON.stringify(updgroup));
+        });
+    });
+*/
 
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
