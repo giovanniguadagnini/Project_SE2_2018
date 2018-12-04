@@ -53,9 +53,11 @@ function updateUserGroup(req, res){
         users: req.body.users
     };
 
-    userGroupsDao.updateUserGroup(userGroup).then(userGroup => {
+    userGroupsDao.updateUserGroup(req.user, userGroup).then(userGroup => {
         if(userGroup!=null)
             res.status(200).json(userGroup);
+        else if(userGroup==='403')
+            res.status(403).send('Forbidden');
         else
             res.status(404).send('userGroup not found');
     });
@@ -67,6 +69,8 @@ function deleteUserGroup(req, res){
         userGroupsDao.deleteUserGroup(req.user, id).then( userGroup => {
             if(userGroup!=null)
                 res.status(200).json(userGroup);
+            else if(userGroup==='403')
+                res.status(403).send('Forbidden');
             else
                 res.status(404).send('userGroup not found' );
         });
@@ -74,8 +78,4 @@ function deleteUserGroup(req, res){
         res.status(400).send('Bad request');
 }
 
-<<<<<<< HEAD
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
-=======
-module.exports = {postUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
->>>>>>> 929d2c5ad77d6c95aaf6315d1dee9fbc81eee0ef
