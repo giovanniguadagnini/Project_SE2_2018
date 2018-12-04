@@ -34,8 +34,11 @@ app.delete('/users/:id', protect(), userModule.deleteUser);
 //USERGROUP MODULE
 const userGroupModule = require('./userGroups');
 
-app.post('/userGroups', protect(), userGroupModule.postUserGroup);
+app.post('/userGroups', protect(), userGroupModule.createUserGroup);
+app.get('/userGroups', protect(), userGroupModule.getAllUserGroups);
 
 app.get('/userGroups/:id', protect(), userGroupModule.getUserGroup);
+app.put('/userGroups/:id', protect(), userGroupModule.updateUserGroup);
+app.delete('/userGroups/:id', protect(), userGroupModule.deleteUserGroup);
 
 module.exports = app;

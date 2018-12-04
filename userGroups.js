@@ -2,7 +2,7 @@ const app = require('./app');
 const userGroupsDao = require('./userGroupsDao')
 const userDao = require('./userDao');
 
-function postUserGroup(req, res){
+function createUserGroup(req, res){
     userDao.getUser(req.user, req.user.id).then( g_creator => {
         let userGroup = {
             creator : g_creator,
