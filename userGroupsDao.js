@@ -177,9 +177,6 @@ function deleteUserGroup(loggedUser, id) {
 function updateUserGroup(loggedUser, userGroup){
     return new Promise(resolve => {
         getUserGroup(loggedUser, userGroup.id).then(userGroup_tmp => {
-            console.log(JSON.stringify(userGroup_tmp));
-            console.log("group_creator.id "+ userGroup_tmp.creator.id);
-            console.log("loggedUser.id" + loggedUser.id);
             if(userGroup_tmp.creator.id == loggedUser.id){
                 if(utilities.isAUserGroup(userGroup)){
                   connection.query('UPDATE user_group SET id_creator = ?, name = ? WHERE id = ?', [userGroup.creator.id, userGroup.name, userGroup.id], function (error, results, fields) {

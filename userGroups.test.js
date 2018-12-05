@@ -2,9 +2,14 @@ const app = require('./app');
 const request = require('supertest');
 const dummiesDB = require('./dummies');
 const utilities = require('./utilities');
-let dummyUserGroup = dummiesDB.dummyUserGroup;
 const dummyStud = dummiesDB.dummyStud;
 const dummyTeacher = dummiesDB.dummyTeacher;
+let dummyUserGroup = {
+    id: 6,
+    creator: dummyTeacher,
+    name: 'SEII Dummy Class',
+    users: [dummyStud]
+};
 
 let validUGId = dummyUserGroup.id;
 const validId = dummyStud.id;
@@ -48,7 +53,6 @@ test('POST /userGroups; with error as group, should return 400', async () => {
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({});
 });
-
 
 test('GET / should return 200', async () => {
     expect.assertions(1);
