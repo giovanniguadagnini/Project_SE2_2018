@@ -83,7 +83,7 @@ let dummyTeacher2 = {
 };
 
 let dummyUserGroup = {
-    id: 0,
+    id: null,
     creator: dummyTeacher,
     name: 'SEII Dummy Class',
     users: [dummyStud]

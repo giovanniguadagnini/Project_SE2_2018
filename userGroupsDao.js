@@ -151,7 +151,6 @@ function deleteUserGroup(loggedUser, id) {
                               'FROM user_group ' +
                               'WHERE id = ?';
             let retval;
-
             getUserGroup(loggedUser, id).then(userGroup => {
                 if(loggedUser.id == userGroup.creator.id){
                     connection.query(deleteQuery, [id], function (error, results, fields) {
@@ -178,7 +177,10 @@ function deleteUserGroup(loggedUser, id) {
 function updateUserGroup(loggedUser, userGroup){
     return new Promise(resolve => {
         getUserGroup(loggedUser, userGroup.id).then(userGroup_tmp => {
-            if(userGroup_tmp.creator.id==loggedUser.id){
+            console.log(JSON.stringify(userGroup_tmp));
+            console.log("group_creator.id "+ userGroup_tmp.creator.id);
+            console.log("loggedUser.id" + loggedUser.id);
+            if(userGroup_tmp.creator.id == loggedUser.id){
                 if(utilities.isAUserGroup(userGroup)){
                   connection.query('UPDATE user_group SET id_creator = ?, name = ? WHERE id = ?', [userGroup.creator.id, userGroup.name, userGroup.id], function (error, results, fields) {
                       if (error) {
@@ -207,7 +209,11 @@ function updateUserGroup(loggedUser, userGroup){
         });
     });
 }
-
+/*
+const dummiesDB = require('./dummies');
+const dummyStud = dummiesDB.dummyStud;
+const dummyTeacher = dummiesDB.dummyTeacher;
+updateUserGroup({id:11}, {id: 1, creator: dummyTeacher, name: 'SEII', users: [dummyStud]});*/
 /*
  |##################|
  |#USED FOR TESTING#|

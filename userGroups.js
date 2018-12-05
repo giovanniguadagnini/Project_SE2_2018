@@ -3,12 +3,20 @@ const userDao = require('./userDao');
 const utilities = require('./utilities');
 
 function createUserGroup(req, res){
-    userDao.getUser(req.user, req.user.id).then( g_creator => {
-        let userGroup = {
-            creator : g_creator,
-            name : req.body.name,
-            users : req.body.users
-        };
+    let userGroup = {
+        creator: req.body.userGroup.creator,
+        name: req.body.userGroup.name,
+        users: req.body.userGroup.users
+    };
+    let user = {
+        id: req.body.user.id,
+        name: req.body.user.name,
+        surname: req.body.user.surname,
+        email: req.body.user.email,
+        born: req.body.user.born,
+        enrolled: req.body.user.enrolled
+    };
+    userDao.getUser(user, user.id).then( g_creator => {
         if(utilities.isAUserGroupBody(userGroup)){
             userGroupsDao.createUserGroup(userGroup).then( userGroupCreated => {
                 if(userGroupCreated != null)
@@ -23,7 +31,7 @@ function createUserGroup(req, res){
 }
 
 function getUserGroup(req, res){
-    let id = req.id;
+    let id = req.params.id;
     if(Number.isInteger(+id)) {
         let sortingMethod = req.query.sortStudBy;
         userGroupsDao.getUserGroup(req.user, id, sortingMethod).then( userGroup => {
@@ -49,36 +57,62 @@ function getAllUserGroups(req, res){
 }
 
 function updateUserGroup(req, res){
+    let id = req.params.id;
     let userGroup = {
-        id: req.body.id,
-        creator: req.body.creator,
-        name: req.body.name,
-        users: req.body.users
+        id: req.body.userGroup.id,
+        creator: req.body.userGroup.creator,
+        name: req.body.userGroup.name,
+        users: req.body.userGroup.users
     };
-
-    userGroupsDao.updateUserGroup(req.user, userGroup).then(userGroup => {
-        if(userGroup!=null)
-            res.status(200).json(userGroup);
-        else if(userGroup == '403')
-            res.status(403).send('Forbidden');
-        else
-            res.status(404).send('userGroup not found');
-    });
-}
-
-function deleteUserGroup(req, res){
-    let id = req.body.id;
-    if(Number.isInteger(+id)){
-        userGroupsDao.deleteUserGroup(req.user, id).then( userGroup => {
+    let user = {
+        id: req.body.user.id,
+        name: req.body.user.name,
+        surname: req.body.user.surname,
+        email: req.body.user.email,
+        born: req.body.user.born,
+        enrolled: req.body.user.enrolled
+    };
+    if(id == userGroup.id){
+        userGroupsDao.updateUserGroup(id, user, userGroup).then(userGroup => {
             if(userGroup!=null)
                 res.status(200).json(userGroup);
             else if(userGroup == '403')
                 res.status(403).send('Forbidden');
             else
-                res.status(404).send('User Group not found' );
+                res.status(404).send('userGroup not found');
         });
-    } else
-        res.status(400).send('Bad request');
+    } else res.status(404).send('userGroup not found');
+}
+
+function deleteUserGroup(req, res){
+    let id = req.params.id;
+    let userGroup = {
+        id: req.body.userGroup.id,
+        creator: req.body.userGroup.creator,
+        name: req.body.userGroup.name,
+        users: req.body.userGroup.users
+    };
+    let user = {
+        id: req.body.user.id,
+        name: req.body.user.name,
+        surname: req.body.user.surname,
+        email: req.body.user.email,
+        born: req.body.user.born,
+        enrolled: req.body.user.enrolled
+    };
+    if(id == userGroup.id){
+        if(Number.isInteger(+id)){
+            userGroupsDao.deleteUserGroup(user, userGroup.id).then( userGroup2 => {
+                if(userGroup2!=null)
+                    res.status(200).json(userGroup2);
+                else if(userGroup == '403')
+                    res.status(403).send('Forbidden');
+                else
+                    res.status(404).send('User Group not found' );
+            });
+        } else
+            res.status(400).send('Bad request');
+    }else res.status(404).send('userGroup not found');
 }
 
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};
