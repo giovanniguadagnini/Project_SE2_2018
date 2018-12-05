@@ -28,7 +28,7 @@ function getAllExams(req, res) { //Get all managable exams
 };
 
 function getExam(req, res) { //Get an exam by id
-  let id_exam = req.params.id;
+  let id_exam = req.query.id;
   if(id_exam == parseInt(id_exam, 10)) {//Se l'id è un intero
     let exam = examDao.getExam(req.user.id,id_exam);
     if (exam != null) {
@@ -45,9 +45,12 @@ function updateExam(req, res) {
   let id_exam = req.params.id;
   if(id_exam == parseInt(id_exam, 10)) {
     var exam = {
+      id: req.body.id,
       name : req.body.name,
+      owner : req.body.owner,
       teachers : req.body.teachers,
       students : req.body.students,
+      tasks : req.body.students,
       deadline : req.body.deadline,
       reviewable : req.body.reviewable,
       num_shuffle : req.body.num_shuffle

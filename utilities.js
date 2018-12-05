@@ -17,10 +17,15 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
-function isExam(exam){
-    return (exam != null && exam.name!=null && exam.teachers!=null && exam.students!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null);
+function isExamBody(exam){
+    return (exam != null && exam.id!=null && exam.name!=null && isAnArrayOfUser(exam.teachers) && isAUserGroup(exam.students) && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null);
 }
 
+function isExam(exam){
+    return (exam != null && exam.id!=null && exam.name!=null && isAnArrayOfUser(exam.teachers) && isAUserGroup(exam.students) && isAnArrayOfTasks(exam.tasks) && exam.deadline!=null && exam.submissions!=null && exam.reviewable!=null && exam.num_shuffle!=null);
+}
+
+//[TODO]isAnArrayOfTasks,isAUserGroup
 
 //return true if user is a valid user
 function isAUser(user){
@@ -273,4 +278,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated};
+module.exports = {connection, isAnArrayOfTasks, isExam, isExamBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated};

@@ -58,7 +58,7 @@ test('GET /exams/validId?access_token=invalidId ; should return 401', async () =
     expect(response.body).toEqual({});
 });
 
-test('POST /exams with all the parameters; should return 200 + created task', async () => {
+test('POST /exams with all the parameters; should return 200 + created exam', async () => {
   expect.assertions(2);
     //[TODO]Query user
     //[TODO]Query user_group
@@ -261,5 +261,85 @@ test('GET /exams/?access_token=invalidId ; should return 401', async () => {
     expect.assertions(2);
     let response = await request(app).get('/exams/?access_token=' + 34543213565);
     expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /exams/validId; should return 200 + users obj', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).put('/exams/' + validId).set('Authorization', 'Bearer ' + validId).send();
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('PUT /exams/validId with wrong access token; should return 401 + obj {}', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + validId).set('Authorization', 'Bearer ' + invalidId).send(dummyStud);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /exams/invalidId with wrong access token; should return 401 + obj {}', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + invalidId).send(dummyStud);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /exams/validId with right access_token but wrong data in body; should return 400', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + validId).set('Authorization', 'Bearer ' + validId).send({
+        id: validId,
+        name: 'John',
+        surname: null
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /exams/invalidId with right access_token but no body; should return 400', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({});
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /exams/invalidId with right access_token; should return 400', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({
+        id: invalidId,
+        name: 'Giovanni',
+        surname: 'Guadagnini',
+        email: 'giovanni.guadagnini@gmail.com',
+        enrolled: '2012'
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /exams/pureStringId with string as id in the uri; should return 400', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + pureStringId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({});
+});
+
+test('DELETE /exams/validId; should return 200 + exams obj', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).delete('/users/' + validId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeDefined();
+});
+
+test('DELETE /exams/invalidId in the uri + invalidAccessToken; should return 401 + {}', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('DELETE /exams/invalidId in the uri + validAccessToken; should return 400 + {}', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({id: invalidId});
+    expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({});
 });

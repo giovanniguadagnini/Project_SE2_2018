@@ -14,7 +14,7 @@ function createExam(id_user,exam){
 
     //Controllo sul tipo e sul passaggio o meno dei parametri
     //[TODO controllo struttura di teachers e students]
-    if (id_user!=null && utilities.isExam(exam) && typeof exam.reviewable == typeof true && id_user == parseInt(id_user, 10) && exam.deadline == parseInt(exam.deadline, 10) && exam.num_shuffle == parseInt(exam.num_shuffle, 10)){
+    if (id_user!=null && utilities.isExamBody(exam) && typeof exam.reviewable == typeof true && id_user == parseInt(id_user, 10) && exam.deadline == parseInt(exam.deadline, 10) && exam.num_shuffle == parseInt(exam.num_shuffle, 10)){
       //Controllo se lo user group passato esiste ---[TODO]Manca controllo sugli user passati
       connection.query('SELECT * FROM user_group WHERE id = ? AND id_creator = ? AND name = ?', [exam.students.id,exam.students.creator,exam.students.name], function (error, results, fields) {
         if (error) {
@@ -159,7 +159,7 @@ function createExam(id_user,exam){
 
 function getAllExams(id_user){
   let promise = new Promise(function(resolve, reject){
-    //Aggiungo tutti gli esami di cui sono owner
+    //Ricavo tutti gli esami di cui sono owner
     let exams=[];
     connection.query('SELECT id FROM exam WHERE id_owner = ? ', [id_user], function (error, results, fields) {
       if (error) {
@@ -174,7 +174,7 @@ function getAllExams(id_user){
   });
 
   promise.then(function(result) {
-    //Aggiungo tutti gli esami di cui sono teacher
+    //Ricavo tutti gli esami di cui sono teacher
     let exams=result;
     connection.query('SELECT id_exam FROM teacher_exam WHERE id_teacher = ? ', [id_user], function (error, results, fields) {
       if (error) {
@@ -279,8 +279,69 @@ function getExam(id_user,id_exam){
   return promise;
 }
 
-function updateExam(exam){
-
+function updateExam(id_user,exam){
+  let promise = new Promise(function(resolve, reject) {
+    if(utilities.isExam(exam) && utilities.isAnArrayOfUser(exam.teachers) && utilities.isUserGroup(exam.students) && utilities.isAnArrayOfTasks(exam.tasks)){//Controllo strutture
+      //Controllo se id_user è id_owner di quell'exam e quindi l'esame può essere modificato
+      connection.query('SELECT id,start_time FROM exam WHERE id_owner = ? AND id = ?', [exam.owner,exam.id], function (error, results, fields) {
+        if (error) {
+            throw error;
+            return null;
+        }
+        if(results.length>0){//Se gli id corrispondono
+          //if(results[0].start_time>) [TODO]Controllo che lo start_time non sia più avanti di adesso
+          connection.query('DELETE FROM teacher_exam WHERE id_exam = ?', [exam.id], function (error, results, fields) {//Cancello tutti i teacher associati all'esame
+            if (error) {
+                throw error;
+                return null;
+            }
+              connection.query('DELETE FROM exam_task WHERE id_exam = ?', [exam.id], function (error, results, fields) {//Cancello tutti i task associati all'esame
+                if (error) {
+                    throw error;
+                    return null;
+                }
+                //Aggiorno l'esame
+                connection.query('UPDATE exam SET name = ?, owner = ?, teachers = ?, students = ?, deadline = ? reviewable = ?, num_shuffle = ? WHERE id = ?', [exam.name,exam.owner, exam.teachers, exam.students, exam.deadline, exam.reviewable ,exam.num_shuffle,exam.id], function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                        resolve(null);
+                    }
+                    //Una volta aggiornato re-inserisco le associazioni teacher-exam
+                    exam.teacher.forEach(function(teacher) {
+                      connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',
+                          [exam.id,teacher.id],
+                          function (error, results, fields) {
+                              if (error) {
+                                  throw error;
+                                  resolve(null);
+                              }
+                              exam.teacher.forEach(function(task) {
+                                connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
+                                    [exam.id,task.id],
+                                    function (error, results, fields) {
+                                        if (error) {
+                                            throw error;
+                                            resolve(null);
+                                        }
+                                    }
+                                );
+                              });
+                          }
+                      );
+                    });
+                });
+              });
+          });
+        }else{
+          resolve(null);
+        }
+      });
+    }else{
+      resolve(null);
+    }
+    resolve(getExam(id_user,exam.id))
+  }
+  return promise;
 }
 
 function deleteExam(id){
