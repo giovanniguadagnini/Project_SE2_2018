@@ -8,7 +8,6 @@ let dummyStud = {
     id: '12',
     name: 'John',
     surname: 'Doe',
-    password: 'hashed',
     email: 'email@email.com',
     born: {
         year: 1997,
@@ -514,7 +513,7 @@ function peerComment3() {
 }
 
 function popDB() {
-    //cleanDB().then(() => {
+    return new Promise(resolve => {
         insertUser().then(() => {
 
             insertUserGroup().then(() => {
@@ -534,7 +533,7 @@ function popDB() {
                                     peerComment1().then(() => {
                                         peerComment2().then(() => {
                                             peerComment3().then(() => {
-
+                                                resolve(null);
                                             });
                                         });
                                     });
@@ -545,7 +544,7 @@ function popDB() {
                 });
             });
         });
-    //});
+    });
 
 }
 

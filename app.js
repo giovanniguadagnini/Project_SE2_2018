@@ -1,8 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch');
-const passport = require('passport');
-const utilities = require('./utilities');
 const {auth, protect} = require('./google-auth');
 
 const app = express();
@@ -20,19 +17,18 @@ app.get('/', (req, res) => {
 // private endpoints
 
 //USER MODULE
-//const userModule = require('./user');
+const userModule = require('./user');
+app.get('/users', protect(), userModule.getUsers);
+
+app.get('/users/:id', protect(), userModule.getUserById);
+app.put('/users/:id', protect(), userModule.updateUser);
+app.delete('/users/:id', protect(), userModule.deleteUser);
 
 //EXAM MODULE
 //const examsModule = require('./exams');
 
 //TASK MODULE
 const taskModule = require('./task');
-
-/*app.get('/users', protect(), userModule.getUsers);
-
-app.get('/users/:id', protect(), userModule.getUserById);
-app.put('/users/:id', protect(), userModule.updateUser);
-app.delete('/users/:id', protect(), userModule.deleteUser);*/
 
 //USERGROUP MODULE
 const userGroupModule = require('./userGroups');
