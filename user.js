@@ -20,7 +20,7 @@ function getUsers(req, res) {
         sortUsrBy = 'alpha'; //default is 'alpha'
     }
 
-    userDao.getAllUsers(req.user, enrolledBefore, enrolledAfter, sortUsrBy).then(users => {
+    userDao.getAllUsers(req.user, enrolledAfter, enrolledBefore, sortUsrBy).then(users => {
         if (users != null) {
             res.status(200).json(users);
         } else {

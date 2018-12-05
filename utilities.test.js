@@ -45,15 +45,7 @@ let newUser2 = {
 test('utilities module should be defined', () => {
     expect(utilities).toBeDefined();
 });
-/*
-test('check openConnection() function', () => {
-    expect(utilities.openConnection()).toBeDefined();
-});
 
-test('check closeConnection() function', () => {
-    expect(utilities.closeConnection()).toBeDefined();
-});
-*/
 test('check isAnArrayOfUser() with valid users', () => {
     expect(utilities.isAnArrayOfUser([newUser])).toEqual(true);
 });

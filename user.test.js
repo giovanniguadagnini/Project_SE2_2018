@@ -18,7 +18,7 @@ beforeAll(() => {
 
 afterAll(() => {
     dummiesDB.cleanDB();
-    utilities.closeConnection();
+    utilities.connection.end();
 });
 
 

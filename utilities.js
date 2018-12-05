@@ -7,18 +7,6 @@ const connection = mysql.createConnection({
     database: 'sql7268259'
 });
 
-function openConnection(){
-    if(connection.state === 'disconnected'){
-        connection.connect();
-    }
-}
-
-function closeConnection(){
-    if(connection.state != 'disconnected'){
-        connection.end();
-    }
-}
-
 //return true if user is a valid user
 function isAUser(user){
     return (user != null && user.id != null && user.name != null && user.surname != null);
@@ -35,6 +23,16 @@ function isAnArrayOfUser(users) {
         }
         return true;
     }
+}
+
+//return true if userGroup is a valid userGroup body
+function isAUserGroupBody(userGroup) {
+    return (userGroup != null && isAUser(userGroup.creator) && userGroup.name != null && isAnArrayOfUser(userGroup.users));
+}
+
+//return true if userGroup is a valid userGroup
+function isAUserGroup(userGroup) {
+    return (userGroup != null && userGroup.id != null && isAUser(userGroup.creator) && userGroup.name != null && isAnArrayOfUser(userGroup.users));
 }
 
 //return true if date is a valid date acceptable in our app
@@ -218,4 +216,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, openConnection, closeConnection};
+module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup};
