@@ -268,7 +268,7 @@ paths:
           name: "access_token"
           required: true
           type: string
-          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"    
+          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"
         - name: "id"
           in: "path"
           description: "ID of user to return"
@@ -293,13 +293,8 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: header
-        name: "Authorization"
-        required: true
-        type: string
-        description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"
-      - in: body
-        name: "user"
+      - in: "body"
+        name: "body"
         description: "User object that needs to be updated"
         required: true
         schema:
@@ -832,19 +827,6 @@ definitions:
         type: "integer"
         format: "int32"
         description: "Teacher evaluation for a task submission (it has be less than the max points)"
-  Question:
-    type: "object"
-    properties:
-      text:
-        type: "string"
-      possibilities:
-        type: "array"
-        items:
-          type: "string"
-          description: "possibility in case of single / multiple choice task type"
-      base_upload_url:
-        type: "string"
-        description: "contains url of the document in case of file submission task type"
   Datetime:
     type: "object"
     properties:

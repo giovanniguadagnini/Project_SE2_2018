@@ -59,3 +59,9 @@ typings/
 
 # next.js build output
 .next
+
+#WebStorm data
+.idea/
+
+#Devis Experiments
+devisExperiments.js

@@ -1,1 +1,1 @@
-web: node api.js
+web: node -r dotenv/config ./server.js
