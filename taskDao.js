@@ -63,7 +63,7 @@ function createTask(loggedUser, task) {
             task.points != null) {
             // Insert the task in the database
             connection.query('INSERT INTO task (id_exam, id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?,?)',
-                [task.exam, task.owner, task.task_type, task.question.text, task.question.base_upload_url, task.points],
+                [task.exam, task.owner.id, task.task_type, task.question.text, task.question.base_upload_url, task.points],
                 function (error, results, fields) {
                     if (error) { // In case of error it blocks and returns a null
                         throw error;
@@ -156,25 +156,27 @@ function deleteTaskById(loggedUser, id) {
             let retval;
             getTaskById(loggedUser, id).then(task => {
                 retval = task;
-            })
-            connection.query('DELETE FROM task WHERE id = ?', [id], function (error, results, fields) {
-                if (error) { // In case of error it blocks and returns a null
-                    throw error;
-                    resolve(null);
-                }
-                if (results.affectedRows > 0) { // If the query has effect, then there is the task has been eliminated
-                    resolve(retval);
-                } else { // If the query has no effect, then return null
-                    resolve(null);
-                }
+                if (isATask(retval))
+                    connection.query('DELETE FROM task WHERE id = ?', [retval.id], function (error, results, fields) {
+                        if (error) { // In case of error it blocks and returns a null
+                            throw error;
+                            resolve(null);
+                        }
+                        if (results.affectedRows > 0) { // If the query has effect, then there is the task has been eliminated
+                            resolve(retval);
+                        } else { // If the query has no effect, then return null
+                            resolve(null);
+                        }
+                    });
             });
+
         }
         else resolve(null);
     });
 }
-deleteTaskById({ id: 11 }, 303).then(task => {
+/*deleteTaskById({ id: 11 }, 303).then(task => {
     console.log(task);
-})
+})*/
 
 
 // Controls if the loggedUser has the privileges to modify the Task
@@ -207,5 +209,25 @@ function addPossibility(possibility, id, i) {
     });
 }
 
+// Get all the tasks with all the information without filtering
+function getTasksbyExam(loggedUser, id_exam) {
+    return new Promise(resolve => {
+        let retval = [];
+        let gotTasks = getTasks(loggedUser);
+        gotTasks.then(tasks => {
+            if (tasks != null) {
+                for (let i = 0; i < tasks.length; i++) {
+                    if (tasks[i].exam == id_exam)
+                        retval.push(tasks[i]);
 
-module.exports = { getTasks, createTask, getTaskById, updateTaskById, deleteTaskById };
+                }
+            }
+            resolve(retval);
+        });
+    });
+}
+/*getTasksbyExam(11, 193).then(tasks => {
+    console.log(tasks);
+});*/
+
+module.exports = { getTasks, createTask, getTaskById, updateTaskById, deleteTaskById, getTasksbyExam };
