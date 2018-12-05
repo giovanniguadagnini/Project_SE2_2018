@@ -3,31 +3,32 @@ const userDao = require('./userDao');
 const utilities = require('./utilities');
 
 function createUserGroup(req, res){
-    let userGroup = {
-        creator: req.body.userGroup.creator,
-        name: req.body.userGroup.name,
-        users: req.body.userGroup.users
-    };
-    let user = {
-        id: req.body.user.id,
-        name: req.body.user.name,
-        surname: req.body.user.surname,
-        email: req.body.user.email,
-        born: req.body.user.born,
-        enrolled: req.body.user.enrolled
-    };
-    userDao.getUser(user, user.id).then( g_creator => {
-        if(utilities.isAUserGroupBody(userGroup)){
-            userGroupsDao.createUserGroup(userGroup).then( userGroupCreated => {
-                if(userGroupCreated != null)
-                    res.status(201).json(userGroupCreated);
-                else
-                    res.status(400).send('Bad request');
-            });
-        }else
-            res.status(400).send('Bad request');
-    });
-
+    if(req.body.userGroup != null && req.body.user != null){
+        let userGroup = {
+            creator: req.body.userGroup.creator,
+            name: req.body.userGroup.name,
+            users: req.body.userGroup.users
+        };
+        let user = {
+            id: req.body.user.id,
+            name: req.body.user.name,
+            surname: req.body.user.surname,
+            email: req.body.user.email,
+            born: req.body.user.born,
+            enrolled: req.body.user.enrolled
+        };
+        userDao.getUser(user, user.id).then( g_creator => {
+            if(utilities.isAUserGroupBody(userGroup)){
+                userGroupsDao.createUserGroup(userGroup).then( userGroupCreated => {
+                    if(userGroupCreated != null)
+                        res.status(201).json(userGroupCreated);
+                    else
+                        res.status(400).send('Bad request');
+                });
+            }else
+                res.status(400).send('Bad request');
+        });
+    }else res.status(400).send('Bad request');
 }
 
 function getUserGroup(req, res){
@@ -100,8 +101,8 @@ function deleteUserGroup(req, res){
         born: req.body.user.born,
         enrolled: req.body.user.enrolled
     };
-    if(id == userGroup.id){
-        if(Number.isInteger(+id)){
+    if(Number.isInteger(+id)){
+        if(id == userGroup.id){
             userGroupsDao.deleteUserGroup(user, userGroup.id).then( userGroup2 => {
                 if(userGroup == '403')
                     res.status(403).send('Forbidden');
@@ -111,8 +112,8 @@ function deleteUserGroup(req, res){
                     res.status(404).send('User Group not found' );
             });
         } else
-            res.status(400).send('Bad request');
-    }else res.status(404).send('userGroup not found');
+            res.status(404).send('userGroup not found');
+    }else res.status(400).send('Bad request');
 }
 
 module.exports = {createUserGroup, getAllUserGroups, getUserGroup, updateUserGroup, deleteUserGroup};

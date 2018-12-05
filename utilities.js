@@ -1,19 +1,20 @@
 //db connection
 const mysql = require('mysql');
+/*
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'giovanni',
     password: 'password',
     database: 'se2db',
     insecureAuth : true
-});
-/*const connection = mysql.createConnection({
+});*/
+const connection = mysql.createConnection({
     host: 'sql7.freesqldatabase.com',
     user: 'sql7268259',
     password: 'VvFmxJMKk3',
     database: 'sql7268259'
 });
-*/
+
 //return true if user is a valid user
 function isAUser(user){
     return (user != null && user.id != null && user.name != null && user.surname != null);

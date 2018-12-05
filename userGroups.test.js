@@ -39,15 +39,22 @@ test('POST /userGroups; should return 201 + userGroup obj', async () => {
     dummyUserGroup.creator = response.body.creator;
     validUGId = dummyUserGroup.id;
 });
-/*
-test('POST /userGroups; with error as group, should return 400', async () => {
+
+test('POST /userGroups with null userGroup, should return 400', async () => {
     expect.assertions(2);
     let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:null});
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({});
 });
-*/
-test('POST /userGroups; with error as group, should return 400', async () => {
+
+test('POST /userGroups with null userGroup creator, should return 400', async () => {
+    expect.assertions(2);
+    let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({user:null, userGroup:dummyUserGroup});
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({});
+});
+
+test('POST /userGroups with uncomplete userGroup; should return 400', async () => {
     expect.assertions(2);
     let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:{name:'ciao'}});
     expect(response.statusCode).toBe(400);
@@ -165,16 +172,16 @@ test('DELETE /userGroups/validUGId; should return 200 + userGroup obj', async ()
     expect(response.body).toBeDefined();
 });
 
-test('DELETE /userGroups/invalidUGId; should return 404 + userGroup obj', async () => {
+test('DELETE /userGroups/invalidUGId; should return 404', async () => {
     expect.assertions(2);
     let response = await request(app).delete('/userGroups/' + invalidUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
     expect(response.statusCode).toBe(404);
     expect(response.body).toEqual({});
 });
 
-test('DELETE /userGroups/pureStringUGId; should return 404 + userGroup obj', async () => {
+test('DELETE /userGroups/pureStringUGId; should return 400', async () => {
     expect.assertions(2);
     let response = await request(app).delete('/userGroups/' + pureStringUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toBeDefined();
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({});
 });
