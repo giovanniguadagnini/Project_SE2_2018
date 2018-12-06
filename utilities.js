@@ -1,10 +1,10 @@
 //db connection
 const mysql = require('mysql');
 const connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7268259',
-    password: 'VvFmxJMKk3',
-    database: 'sql7268259'
+    host: 'localhost',//'sql7.freesqldatabase.com',
+    user: 'root',//'sql7268259',
+    password: 'root',//'VvFmxJMKk3',
+    database: 'project_SE2'//'sql7268259'
 });
 
 function openConnection(){
