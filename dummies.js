@@ -549,16 +549,17 @@ function popDB() {
 }
 
 function cleanDB() {
-    //return new Promise(resolve => {
-        connection.query('DELETE FROM user WHERE id > 0 AND id < 100',
+    return new Promise((resolve, reject) => {
+        connection.query('DELETE FROM user WHERE id > 0',
             function (error, results, fields) {
                 if (error) {
-                    throw error;
+                    //throw error;
+                    reject(error);
                 }
-                //resolve(null);
+                resolve(null);
             }
         );
-    //});
+    });
 
 }
 
@@ -578,5 +579,6 @@ module.exports = {
     dummySubmission3,
     dummyExam,
     popDB,
-    cleanDB
+    cleanDB,
+    connection
 };

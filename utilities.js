@@ -1,11 +1,21 @@
 //db connection
 const mysql = require('mysql');
-const connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7268259',
-    password: 'VvFmxJMKk3',
-    database: 'sql7268259'
-});
+let connection;
+if (process.env.NODE_ENV !== 'test') {
+    connection = mysql.createConnection({
+        host: 'sql7.freesqldatabase.com',
+        user: 'sql7268259',
+        password: 'VvFmxJMKk3',
+        database: 'sql7268259'
+    });
+}else{
+    connection = mysql.createConnection({
+        host: 'sql7.freesqldatabase.com',
+        user: 'sql7268710',
+        password: '43qyYp5ajn',
+        database: 'sql7268710'
+    });
+}
 
 //return true if user is a valid user
 function isAUser(user){

@@ -48,13 +48,17 @@ let newUser2 = {
 const invalidId = '999999999999999999999999';
 const pureStringId = 'aaaaaaaaaaaaaaaaaaaaaa';
 
-beforeAll(() => {
+const dummiesDB = require('./dummies');
 
+beforeAll(() => {
+    //return dummiesDB.popDB()
 });
 
 afterAll(() => {
-    userDao.connection.end();
+    return dummiesDB.cleanDB().then(() => dummiesDB.connection.end());
+    //utilities.connection.end();
 });
+
 
 test('userDao module should be defined', () => {
     expect(userDao).toBeDefined();
