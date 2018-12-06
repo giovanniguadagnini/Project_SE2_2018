@@ -245,6 +245,8 @@ paths:
               type: "array"
               items:
                 $ref: "#/definitions/User"
+        401:
+          description: "Unauthorized"
         500:
             description: "Internal Server Error"
 
@@ -268,7 +270,7 @@ paths:
           name: "access_token"
           required: true
           type: string
-          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"    
+          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"
         - name: "id"
           in: "path"
           description: "ID of user to return"
@@ -280,6 +282,8 @@ paths:
           description: "Successful operation"
           schema:
             $ref: "#/definitions/User"
+        401:
+          description: "Unauthorized"
         404:
           description: "User not found"
     put:
@@ -311,6 +315,8 @@ paths:
             $ref: "#/definitions/User"
         400:
           description: "Bad request"
+        401:
+          description: "Unauthorized"
         403:
           description: "Forbidden"
     delete:
@@ -340,6 +346,8 @@ paths:
             $ref: "#/definitions/User"
         400:
           description: "Bad request"
+        401:
+          description: "Unauthorized"
         403:
           description: "Forbidden"
   /userGroups:
@@ -355,7 +363,7 @@ paths:
         - "application/json"
         parameters:
         - in: "body"
-          name: "body"
+          name: "userGroup"
           description: "User Group object that represents the newly created user group"
           required: true
           schema:
@@ -365,8 +373,8 @@ paths:
             description: "Successful operation"
             schema:
               $ref: "#/definitions/UserGroup"
-          405:
-            description: "Invalid input"
+          400:
+            description: "Bad request"
     get:
       tags:
       - "UserGroup"
@@ -377,16 +385,18 @@ paths:
       - "application/json"
       parameters:
       - in: query
-        name: "sortUsrBy"
+        name: "sortStudBy"
         type: string
         enum: ["alpha", "enrol"]
         description: "Decide how to sort students inside single UserGroup: alphabetical order or enrolment_code"
-        default: "enrol"
+        default: "alpha"
       responses:
         200:
           description: "Successful operation"
           schema:
             $ref: "#/definitions/UserGroup"
+        404:
+          description: "No user group found"
   /userGroups/{id}:
     parameters:
     - in: path
@@ -404,11 +414,11 @@ paths:
       - "application/json"
       parameters:
       - in: query
-        name: "sortUsrBy"
+        name: "sortStudBy"
         type: string
         enum: ["alpha", "enrol"]
         description: "Decide how to sort students inside single UserGroup: alphabetical order or enrolment_code"
-        default: "enrol"
+        default: "alpha"
       - in: path
         name: "id"
         description: "ID of user group to return"
@@ -436,7 +446,7 @@ paths:
       - "application/json"
       parameters:
       - in: "body"
-        name: "body"
+        name: "userGroup"
         description: "UserGroup object that needs to be updated"
         required: true
         schema:
@@ -448,6 +458,8 @@ paths:
             $ref: "#/definitions/UserGroup"
         400:
           description: "Invalid ID supplied"
+        403:
+          description: "Forbidden"
         404:
           description: "User group not found"
     delete:
@@ -472,6 +484,8 @@ paths:
             $ref: "#/definitions/UserGroup"
         400:
           description: "Invalid ID supplied"
+        403:
+          description: "Forbidden"
         404:
           description: "User group not found"
   /tasks:
@@ -507,6 +521,12 @@ paths:
       operationId: "getTasks"
       produces:
       - "application/json"
+      parameters:
+        - in: query
+          name: "access_token"
+          required: true
+          type: string
+          description: "Token to mantain alive logged session (and know who is the logged user). See Auth for further info"
       responses:
         200:
           description: "OK"
@@ -595,7 +615,7 @@ paths:
       - "Submission"
       summary: "Get all the manageable Submissions"
       description: "This API will allow to retrieve all the delivered task that the TA or the student has the right to see"
-      operationId: "getDeliverTasks"
+      operationId: "getDeliverTask"
       produces:
       - "application/json"
       responses:
@@ -629,8 +649,8 @@ paths:
           description: "OK"
           schema:
             $ref: "#/definitions/Submission"
-        403:
-          description: "Forbidden"
+        401:
+          description: "Unauthorized"
         404:
           description: "Submission not found"
     put:
