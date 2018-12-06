@@ -7,16 +7,34 @@ const connection = mysql.createConnection({
     database: 'sql7268259'
 });
 
+//return true if task is a valid task
+function isATask(task) {
+    return task != null && task.id != null && task.id != 'null' && isAUser(task.owner) && isATaskBody(task);
+}
+
+//return true if task is a valid task
+function isATaskBody(task) {
+    if ( task.task_type != null && task.question != null && task.question.text != null && task.points != null) {
+        if ((task.task_type == 'single_c' || task.task_type == 'multiple_c'))
+            return (task.question.possibilities.length > 0);
+        else if ((task.task_type == 'submit'))
+            return (task.question.base_upload_url != null );
+        else
+            return (task.task_type == 'open');
+    } else
+        return false;
+}
+
 //return true if user is a valid user
-function isAUser(user){
+function isAUser(user) {
     return (user != null && user.id != null && user.name != null && user.surname != null);
 }
 
 //return true if users is a valid array of user
 function isAnArrayOfUser(users) {
-    if(users == null || users.length == 0){
+    if (users == null || users.length == 0) {
         return false;
-    }else {
+    } else {
         for (let user of users) {
             if (!isAUser(user))
                 return false;
@@ -36,19 +54,19 @@ function isAUserGroup(userGroup) {
 }
 
 //return true if date is a valid date acceptable in our app
-function isAValidDate(date){
-    if(date == null){
+function isAValidDate(date) {
+    if (date == null) {
         return false;
-    }else return (date.year != null && date.month != null && date.day != null &&
-            date.hour != null && date.minute != null && date.second != null);
+    } else return (date.year != null && date.month != null && date.day != null &&
+        date.hour != null && date.minute != null && date.second != null);
 }
 
 //given two students a, b put before the student that alphabetically (based on surname, name) has to stay before
-function compareAlfa(a, b){
+function compareAlfa(a, b) {
     //we put null at the end of the queue
-    if(a == null || b == null){
+    if (a == null || b == null) {
         return 0;
-    }else {
+    } else {
         if (a.surname == null && b.surname == null)
             return 0;
         else if (a.surname == null && b.surname != null)
@@ -83,10 +101,10 @@ function compareAlfa(a, b){
 }
 
 //given two students a, b put before the student that based on enrolment date has to stay before
-function compareEnrol(a, b){
-    if(a == null || b == null){
+function compareEnrol(a, b) {
+    if (a == null || b == null) {
         return 0;
-    }else {
+    } else {
         //we put null at the end of the queue
         if (a.enrolled == null && b.enrolled == null)
             return 0;
@@ -171,9 +189,9 @@ function compareEnrol(a, b){
     }
 }
 
-function convertMonth(month){
+function convertMonth(month) {
     let ret = 0;
-    switch(month) {
+    switch (month) {
         case 'Jan':
             ret = 1;
             break;
@@ -210,10 +228,10 @@ function convertMonth(month){
         case 'Dic':
             ret = 12;
             break;
-        default :
+        default:
             break;
     }
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup};
+module.exports = { connection, isATask, isATaskBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup };

@@ -61,13 +61,22 @@ function updateTaskById(req, res) { //Update an existing task
 };
 function deleteTaskById(req, res) { //Delete a task by ID
     let id = req.params.id;
-    userDao.deleteTaskById(req.user, id).then(task => { //trying to delete the task
-        if (task != null) {
-            res.status(200).json(task);
-        } else {
-            res.status(400).send("Bad Request");
-        }
-    });
+    let task = {
+        id: req.body.id,
+        owner: req.body.owner,
+        task_type: req.body.task_type,
+        question: req.body.question,
+        points: req.body.points
+    };
+    if (id = task.id) {
+        userDao.deleteTaskById(req.user, task).then(task => { //trying to delete the task
+            if (task != null) {
+                res.status(200).json(task);
+            } else {
+                res.status(400).send("Bad Request");
+            }
+        });
+    }
 };
 
 

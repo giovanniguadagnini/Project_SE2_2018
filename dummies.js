@@ -194,7 +194,7 @@ let dummyExam = {
     start_time: {
         year: 2018,
         month: 12,
-        day: 12,
+        day: 05,
         hour: 18,
         minute: 0,
         second: 0
@@ -202,8 +202,8 @@ let dummyExam = {
     deadline: {
         year: 2018,
         month: 12,
-        day: 12,
-        hour: 20,
+        day: 05,
+        hour: 19,
         minute: 30,
         second: 0
     },
@@ -515,6 +515,7 @@ function peerComment3() {
 
 function popDB() {
     //cleanDB().then(() => {
+    return new Promise(resolve => {
         insertUser().then(() => {
 
             insertUserGroup().then(() => {
@@ -534,7 +535,7 @@ function popDB() {
                                     peerComment1().then(() => {
                                         peerComment2().then(() => {
                                             peerComment3().then(() => {
-
+                                                resolve(null);
                                             });
                                         });
                                     });
@@ -545,20 +546,19 @@ function popDB() {
                 });
             });
         });
-    //});
-
+    });
 }
 
 function cleanDB() {
     //return new Promise(resolve => {
-        connection.query('DELETE FROM user WHERE id > 0 AND id < 100',
-            function (error, results, fields) {
-                if (error) {
-                    throw error;
-                }
-                //resolve(null);
+    connection.query('DELETE FROM user WHERE id > 0 AND id < 100',
+        function (error, results, fields) {
+            if (error) {
+                throw error;
             }
-        );
+            //resolve(null);
+        }
+    );
     //});
 
 }
