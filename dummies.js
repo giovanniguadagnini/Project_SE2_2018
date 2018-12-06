@@ -218,7 +218,7 @@ let dummyExam = {
     start_time: {
         year: 2018,
         month: 12,
-        day: 12,
+        day: 05,
         hour: 18,
         minute: 0,
         second: 0
@@ -226,8 +226,8 @@ let dummyExam = {
     deadline: {
         year: 2018,
         month: 12,
-        day: 12,
-        hour: 20,
+        day: 05,
+        hour: 19,
         minute: 30,
         second: 0
     },
