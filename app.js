@@ -1,8 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch');
-const passport = require('passport');
-const utilities = require('./utilities');
 const {auth, protect} = require('./google-auth');
 
 const app = express();
@@ -21,15 +18,17 @@ app.get('/', (req, res) => {
 
 //USER MODULE
 const userModule = require('./user');
-
-//EXAM MODULE
-//const examsModule = require('./exams');
-
 app.get('/users', protect(), userModule.getUsers);
 
 app.get('/users/:id', protect(), userModule.getUserById);
 app.put('/users/:id', protect(), userModule.updateUser);
 app.delete('/users/:id', protect(), userModule.deleteUser);
+
+//EXAM MODULE
+//const examsModule = require('./exams');
+
+//TASK MODULE
+const taskModule = require('./task');
 
 //USERGROUP MODULE
 const userGroupModule = require('./userGroups');
@@ -40,5 +39,13 @@ app.get('/userGroups', protect(), userGroupModule.getAllUserGroups);
 app.get('/userGroups/:id', protect(), userGroupModule.getUserGroup);
 app.put('/userGroups/:id', protect(), userGroupModule.updateUserGroup);
 app.delete('/userGroups/:id', protect(), userGroupModule.deleteUserGroup);
+
+app.get('/tasks', protect(), taskModule.getTasks);
+app.post('/tasks', protect(), taskModule.createTask);
+
+app.get('/tasks/:id', protect(), taskModule.getTaskById);
+app.put('/tasks/:id', protect(), taskModule.updateTaskById);
+app.delete('/tasks/:id', protect(), taskModule.deleteTaskById);
+
 
 module.exports = app;

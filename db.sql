@@ -1,11 +1,12 @@
 DROP TABLE task_possibility;
 DROP TABLE comment_peer;
 DROP TABLE user_group_members;
-DROP TABLE user_group;
-DROP TABLE user_exam;
 DROP TABLE submission;
+DROP TABLE exam_task;
 DROP TABLE task;
+DROP TABLE teacher_exam;
 DROP TABLE exam;
+DROP TABLE user_group;
 DROP TABLE user;
 
 CREATE TABLE user(
@@ -40,8 +41,9 @@ CREATE TABLE exam(
   id_group INT,
   id_owner VARCHAR(30) NOT NULL,
   name VARCHAR(64),
-  deadline INT,
-  reviewable BOOLEAN,
+  start_time DATETIME,
+  deadline DATETIME,
+  reviewable VARCHAR(30),
   num_shuffle INT,
   CONSTRAINT `exam_TO_owner` FOREIGN KEY (id_owner) REFERENCES user (id)
     ON DELETE CASCADE ON UPDATE CASCADE,
@@ -61,15 +63,12 @@ CREATE TABLE teacher_exam(
 
 CREATE TABLE task(
   id INT PRIMARY KEY AUTO_INCREMENT,
-  id_exam INT NOT NULL,
   id_owner VARCHAR(30) NOT NULL,
   task_type VARCHAR(30),
   q_text VARCHAR(512),
   q_url VARCHAR(512),
   points INT,
   CONSTRAINT `task_TO_owner` FOREIGN KEY (id_owner) REFERENCES user (id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `task_TO_exam` FOREIGN KEY (id_exam) REFERENCES exam (id)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
@@ -79,6 +78,16 @@ CREATE TABLE task_possibility(
   q_possibility VARCHAR(256),
   PRIMARY KEY (id_task, id_poss),
   CONSTRAINT `qtask_pos_TO_qtask` FOREIGN KEY (id_task) REFERENCES task (id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE exam_task(
+  id_exam INT,
+  id_task INT,
+  PRIMARY KEY(id_exam, id_task),
+  CONSTRAINT `exam_task_TO_exam` FOREIGN KEY (id_exam) REFERENCES exam (id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `exam_task_TO_task` FOREIGN KEY (id_task) REFERENCES task (id)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
