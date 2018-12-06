@@ -210,19 +210,30 @@ function addPossibility(possibility, id, i) {
 }
 
 // Get all the tasks with all the information without filtering
-function getTasksbyExam(loggedUser, id_exam) {
+function getTasksByExam(loggedUser, id_exam) {
     return new Promise(resolve => {
         let retval = [];
-        let gotTasks = getTasks(loggedUser);
-        gotTasks.then(tasks => {
-            if (tasks != null) {
-                for (let i = 0; i < tasks.length; i++) {
-                    if (tasks[i].exam == id_exam)
-                        retval.push(tasks[i]);
-
-                }
+        connection.query('SELECT id_task FROM exam_task WHERE id_exam = ?', [id_exam], function (error, results, fields) {
+            if (error) { // In case of error it blocks and returns a null
+                throw error;
+                resolve(null);
             }
-            resolve(retval);
+            if (results.length > 0) {  // If the query has effect
+                let promise_tasks = [];
+                for (let i = 0; i < results.length; i++) { // Iterate for all the tasks
+                    let promise_tmp = getTaskById(loggedUser, results[i].id_task);
+                    promise_tasks.push(promise_tmp);
+                    promise_tmp.then(task => {
+                        if(utilities.isATask(task))
+                            retval.push(task);
+                    });
+                }
+
+                Promise.all(promise_tasks).then(() => {
+                    resolve(retval);
+                });
+            }
+            else resolve(retval);
         });
     });
 }
@@ -230,4 +241,4 @@ function getTasksbyExam(loggedUser, id_exam) {
     console.log(tasks);
 });*/
 
-module.exports = { getTasks, createTask, getTaskById, updateTaskById, deleteTaskById, getTasksbyExam };
+module.exports = { getTasks, createTask, getTaskById, updateTaskById, deleteTaskById, getTasksByExam };

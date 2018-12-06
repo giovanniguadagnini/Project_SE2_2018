@@ -28,11 +28,10 @@ app.delete('/users/:id', protect(), userModule.deleteUser);
 
 
 //EXAM MODULE
-//const examsModule = require('./exams');
-//app.post('/exams/', protect(), examsModule.createExam);
+const examsModule = require('./exams');
 
 app.post('/exams/', protect(), examsModule.createExam);
-app.get('/exams/', protect(), examsModule.getAllExam);
+app.get('/exams/', protect(), examsModule.getAllExams);
 app.get('/exams/:id', protect(), examsModule.getExam);
 app.put('/exams/:id', protect(), examsModule.updateExam);
 app.delete('/exams/:id', protect(), examsModule.deleteExam);
@@ -46,6 +45,8 @@ app.get('/userGroups', protect(), userGroupModule.getAllUserGroups);
 app.get('/userGroups/:id', protect(), userGroupModule.getUserGroup);
 app.put('/userGroups/:id', protect(), userGroupModule.updateUserGroup);
 app.delete('/userGroups/:id', protect(), userGroupModule.deleteUserGroup);
+
+const taskModule = require('./task');
 
 app.get('/tasks', protect(), taskModule.getTasks);
 app.post('/tasks', protect(), taskModule.createTask);

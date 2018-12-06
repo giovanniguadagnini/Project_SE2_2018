@@ -6,6 +6,7 @@ function createExam(req, res) { //Create an exam
       name : req.body.name,
       teachers : req.body.teachers,
       students : req.body.students,
+      start_time : req.body.start_time,
       deadline : req.body.deadline,
       reviewable : req.body.reviewable,
       num_shuffle : req.body.num_shuffle
@@ -21,29 +22,30 @@ function createExam(req, res) { //Create an exam
 function getAllExams(req, res) { //Get all managable exams
   let exams = examDao.getAllExams(req.user.id);
   if(exams != null) {
-      res.status(200).send(exams);
+      res.status(201).send(exams);
   } else {
       res.status(400).send("Bad request");
   }
 };
 
 function getExam(req, res) { //Get an exam by id
-  let id_exam = req.query.id;
-  if(id_exam == parseInt(id_exam, 10)) {//Se l'id è un intero
-    let exam = examDao.getExam(req.user.id,id_exam);
-    if (exam != null) {
-        res.status(200).send(exam);
-    } else {
-        res.status(400).send("Bad Request");
+  let id_exam = req.params.id;
+  if(id_exam == +id_exam) {//Se l'id è un intero
+    let exam = examDao.getExam(req.user,id_exam).then(exam => {
+      if (exam != null) {
+          res.status(201).send(exam);
+      } else {
+          res.status(400).send("Bad Request");
+      }
+    });
+    }else{
+        res.status(400).send("Invalid ID");
     }
-  }else{
-      res.status(400).send("Invalid ID");
-  }
 };
 
 function updateExam(req, res) {
   let id_exam = req.params.id;
-  if(id_exam == parseInt(id_exam, 10)) {
+  if(id_exam == parseInt(id_exam, 10) && id_exam == req.body.id) {
     var exam = {
       id: req.body.id,
       name : req.body.name,
@@ -51,6 +53,7 @@ function updateExam(req, res) {
       teachers : req.body.teachers,
       students : req.body.students,
       tasks : req.body.students,
+      start_time : req.body.start_time,
       deadline : req.body.deadline,
       reviewable : req.body.reviewable,
       num_shuffle : req.body.num_shuffle
@@ -69,7 +72,7 @@ function updateExam(req, res) {
 function deleteExam(req, res) {
   let id_exam = req.params.id;
   if(id_exam == parseInt(id_exam, 10)) {
-      exam = examDao.deleteExam(req.user.id,id);
+      exam = examDao.deleteExam(req.user.id,id_exam);
       if (exam != null) {
           res.status(200).send(exam);
       } else {
