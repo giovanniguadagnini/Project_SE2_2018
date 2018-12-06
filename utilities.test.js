@@ -41,6 +41,12 @@ let newUser2 = {
     submissions: [],
     exam_eval: []
 };
+let newUserGroup = {
+    id: 6,
+    creator: newUser,
+    name: 'SEII Dummy Class',
+    users: [newUser2]
+};
 
 test('utilities module should be defined', () => {
     expect(utilities).toBeDefined();
@@ -60,6 +66,34 @@ test('check isAnArrayOfUser() with empty array', () => {
 
 test('check isAnArrayOfUser() with null array', () => {
     expect(utilities.isAnArrayOfUser(null)).toEqual(false);
+});
+
+test('check isAUserGroupBody() with valid userGroups', () => {
+    expect(utilities.isAUserGroupBody(newUserGroup)).toEqual(true);
+});
+
+test('check isAUserGroupBody() with invalid userGroups', () => {
+    expect(utilities.isAUserGroupBody({id:111111})).toEqual(false);
+});
+
+test('check isAUserGroupBody() with null as userGroups', () => {
+    expect(utilities.isAUserGroupBody(null)).toEqual(false);
+});
+
+test('check isAnArrayOfUserGroups() with valid users', () => {
+    expect(utilities.isAnArrayOfUserGroups([newUserGroup])).toEqual(true);
+});
+
+test('check isAnArrayOfUserGroups() with invalid users', () => {
+    expect(utilities.isAnArrayOfUserGroups([{id:111111}])).toEqual(false);
+});
+
+test('check isAnArrayOfUserGroups() with empty array', () => {
+    expect(utilities.isAnArrayOfUserGroups([])).toEqual(false);
+});
+
+test('check isAnArrayOfUserGroups() with null array', () => {
+    expect(utilities.isAnArrayOfUserGroups(null)).toEqual(false);
 });
 
 test('check isAValidDate() with correct data', () => {

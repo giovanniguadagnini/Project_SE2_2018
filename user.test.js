@@ -19,8 +19,6 @@ afterAll(() => {
 });
 
 
-
-
 const dummyStud = dummiesDB.dummyStud;
 const validId = dummyStud.id;
 const invalidId = '999999999999999999999999';

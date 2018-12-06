@@ -45,6 +45,19 @@ function isAUserGroup(userGroup) {
     return (userGroup != null && userGroup.id != null && isAUser(userGroup.creator) && userGroup.name != null && isAnArrayOfUser(userGroup.users));
 }
 
+//return true if userGroups is a valid array of userGroups
+function isAnArrayOfUserGroups(userGroups) {
+    if(userGroups == null || userGroups.length == 0){
+        return false;
+    }else {
+        for (let userGroup of userGroups) {
+            if (!isAUserGroup(userGroup))
+                return false;
+        }
+        return true;
+    }
+}
+
 //return true if date is a valid date acceptable in our app
 function isAValidDate(date){
     if(date == null){
@@ -226,4 +239,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup};
+module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups};
