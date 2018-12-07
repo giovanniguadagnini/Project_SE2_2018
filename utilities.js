@@ -46,6 +46,23 @@ function isAUserGroup(userGroup) {
 
 }
 
+function isAQuestion(question){
+    return (question != null && question.text != null && question.possibilities != null && question.base_upload_url != null);
+}
+
+function isASubmission(subm){
+    return (subm != null && subm.id != null && (subm.task_type == 'open' || subm.task_type == 'single_c' || subm.task_type == 'multiple_c' || subm.task_type == 'submit')
+        && isAQuestion(subm.question) && subm.id_user != null && subm.id_exam != null && subm.completed != null && subm.points != null);
+}
+
+function isASubmissionAnswer(subm){
+    return (isAValidSubmission(subm) && subm.answer != null);
+}
+function isASubmissionEvaluated(subm){
+    return (isAValidSubmissionAnswer(subm) && subm.earned_points != null && subm.comment != null);
+}
+
+
 //return true if date is a valid date acceptable in our app
 function isAValidDate(date){
     if(date == null){
@@ -227,4 +244,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup};
+module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isASubmission, isASubmissionAnswer, isASubmissionEvaluated};

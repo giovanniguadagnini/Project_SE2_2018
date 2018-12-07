@@ -26,7 +26,7 @@ app.get('/users/:id', protect(), userModule.getUserById);
 app.put('/users/:id', protect(), userModule.updateUser);
 app.delete('/users/:id', protect(), userModule.deleteUser);
 
-<<<<<<< HEAD
+
 //EXAM MODULE
 //const examsModule = require('./exams');
 //app.post('/exams/', protect(), examsModule.createExam);
@@ -52,8 +52,8 @@ app.put('/tasks/:id', protect(), taskModule.updateTaskById);
 app.delete('/tasks/:id', protect(), taskModule.deleteTaskById);
 
 //SUBMISSION MODULE
-const submissionModule = require('./user');
-app.get('/submissions', protect(), submissionModule.getSubmission);
+const submissionModule = require('./submission');
+app.get('/submissions', protect(), submissionModule.getAllSubmissions);
 app.get('/submissions/:id', protect(), submissionModule.getSubmissionById);
 app.put('/submissions/:id', protect(), submissionModule.updateSubmission);
 

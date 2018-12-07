@@ -683,15 +683,15 @@ test('check compareEnrol() with equal year, month, day, hour, minute and second 
 });
 
 test('check isAValidSubmission() with valid submission', () => {
-    expect(utilities.isAnValidSubmission(dummySubmission1)).toEqual(true);
+    expect(utilities.isASubmission(dummySubmission1)).toEqual(true);
 });
 
 test('check isAValidSubmission() with null as submission', () => {
-    expect(utilities.isAnValidSubmission(null)).toEqual(false);
+    expect(utilities.isASubmission(null)).toEqual(false);
 });
 
 test('check isAValidSubmission() with invalid submission', () => {
-    expect(utilities.isAnValidSubmission([{id:111111}])).toEqual(false);
+    expect(utilities.isASubmission([{id:111111}])).toEqual(false);
 });
 
 function jsonCopy(src) {

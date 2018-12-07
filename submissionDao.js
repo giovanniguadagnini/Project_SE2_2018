@@ -109,31 +109,32 @@ function updateSubmission(loggedUser, submission) {
     return new Promise(resolve => {
         if(submission.id_user == loggedUser.id){//student who is attending the exam
 
-            if(submission.answer == null || submission.completed == null)//user hasn't sent any answer: no point to procede with the upd
-                resolve(null);
+            if(!utilities.isASubmissionAnswer(submission))//user hasn't sent any answer: no point to procede with the upd
+                resolve('400');
 
+            //check if the student can owerwrite its answer (still during the exam & submission is marked as not completed)
             let queryStudent = 'SELECT * ' +
                                 'FROM exam E, submission SE ' +
                                 'WHERE SE.id = ? AND SE.id_user = ? AND SE.id_exam=E.id AND SE.completed != false ' +
-                                'AND CONCAT(CURDATE(), ' ', CURTIME()) < E.deadline ' +
-                                'AND CONCAT(CURDATE(), ' ', CURTIME()) > E.start_time';
+                                'AND CONCAT(CURDATE(), \' \', CURTIME()) < E.deadline ' +
+                                'AND CONCAT(CURDATE(), \' \', CURTIME()) > E.start_time';
             let studentCanAnswer = new Promise( resolveStudent => {
                 connection.query(queryStudent, [submission.id, loggedUser.id], function (error, results, fields) {
                     if (error) {
                         throw error;
                         resolveStudent(false);
                     } else {
-                        if(results.length > 0){
+                        if (results.length > 0) {
                             resolveStudent(true);
-                        }else{
+                        } else {
                             resolveStudent(false);
                         }
                     }
-                );
+                });
             });
 
             studentCanAnswer.then(found => {
-                    if(!found)//unauthorized
+                    if(!found)//forbidden
                         resolve('403');
                     else{
                         let queryEvalUpd = 'UPDATE submission SET answer = ? AND completed = ? WHERE id = ?';
@@ -142,55 +143,65 @@ function updateSubmission(loggedUser, submission) {
                                 throw error;
                                 resolve(null);
                             } else {
-                                getSubmission(loggedUser, submission.id).then(updSubm => resolve(submission));
+                                if(results.affectedRows > 0)//successfull update
+                                    getSubmission(loggedUser, submission.id).then(updSubm => resolve(updSubm));//return the updated object
+                                else
+                                    resolve(null);
                             }
-                        );
+                        });
                     }
             });
-        }else{//check if loggedUser is one of the teacher
+        }else{//user is not the student is supposed to take the exam, so check if loggedUser is one of the teacher
 
-            if(submission.earned_points == null || submission.comment == null)//teacher can update just one time for comment & eval
-                resolve(null);
+            if(!utilities.isASubmissionEvaluated(submission))//comment & eval (earned_points) has to be set
+                resolve('400');
 
+            //see if the logged user is the teacher and if the exam is not finished give him permission to load eval & comment
             let findTeacher = new Promise( resolveTeach => {
                 let queryTeacher = 'SELECT TE.id_teacher ' +
                                     'FROM exam E, teacher_exam TE, submission SE ' +
                                     'WHERE SE.id = ? AND TE.id_teacher = ? AND SE.id_exam=E.id ' +
-                                    'AND E.id=TE.id_exam AND CONCAT(CURDATE(), ' ', CURTIME()) > E.deadline';
+                                    'AND E.id=TE.id_exam AND CONCAT(CURDATE(), \' \', CURTIME()) > E.deadline';
                 connection.query(queryTeacher, [submission.id, loggedUser.id], function (error, results, fields) {
                     if (error) {
                         throw error;
                         resolveTeach(false);
                     } else {
-                        if(results.length > 0){
+                        if (results.length > 0) {
                             resolveTeach(true);
-                        }else{
+                        } else {
                             resolveTeach(false);
                         }
                     }
-                );
+                });
             });
 
             findTeacher.then(found => {
                     if(!found)//unauthorized
                         resolve('403');
                     else{
+                        //obviously now the submission has to be marked as completed (just to be sure we checked it, although at this point it should have been already done)
                         let queryEvalUpd = 'UPDATE submission SET earned_points = ? AND comment = ? AND completed = true WHERE id = ?';
                         connection.query(queryEvalUpd, [submission.earned_points, submission.comment, submission.id], function (error, results, fields) {
                             if (error) {
                                 throw error;
                                 resolve(null);
                             } else {
-                                getSubmission(loggedUser, submission.id).then(updSubm => resolve(submission));
+                                if(results.affectedRows > 0)//successfull update
+                                    getSubmission(loggedUser, submission.id).then(updSubm => resolve(updSubm));//return the updated object
+                                else
+                                    resolve(null);
                             }
-                        );
+                        });
                     }
             });
         }
     });
-    return submission;
 }
 
+/*  This functions helps the examDao module to create "empty" (unanswered, uncommented & not evaluated) submissions object
+    in order to insert them in db & return them to examDao module
+* */
 function insertInExam(loggedUser, userSubmissions){
     return new Promise(resolve => {
         if(userSubmissions == null)
@@ -198,20 +209,22 @@ function insertInExam(loggedUser, userSubmissions){
 
         let allStudentsSubs = [];
         let retSubmissions = [];
-        for(let userSubm of userSubmissions){
-            for(let subm of userSubmissions.submissions){
-                let submissionPromise = insertSubmission(loggedUser, subm);
+        for(let userSubm of userSubmissions){//for each user
+            for(let subm of userSubmissions.submissions){//for each submission given to a specific user
+                let submissionPromise = insertSubmission(loggedUser, subm);//insert the submission in db
                 allStudentsSubs.push(submissionPromise);
 
                 submissionPromise.then( sub => retSubmissions.push(sub));
             }
         }
         Promise.all(allStudentsSubs).then(b => {
-            resolve(retSubmissions);
+            resolve(retSubmissions);//return all the inserted submission (for the entire exam)
         });
     });
 }
 
+/*  Function designed to break down the logic above & insert a single (not answered, not commented & not evaluated) submission in the db
+* */
 function insertSubmission(loggedUser, submission){
     return new Promise(resolve => {
         if(submission == null)
@@ -223,12 +236,16 @@ function insertSubmission(loggedUser, submission){
                 throw error;
                 resolve(null);
             } else {
-                getSubmission(loggedUser, submission.id).then(newSubm => resolve(newSubm));
+                submission.id = results.insertId;
+                getSubmission(loggedUser, submission.id).then(newSubm => resolve(newSubm));//return newly inserted submission
             }
-        );
+        });
     });
 }
 
+/*  This functions helps the examDao module to delete all the submissions object
+    related to a specific exam
+* */
 function cleanExamSubmissions(loggedUser, exam){
     return new Promise(resolve => {
         if(exam == null || exam.id == null)
@@ -242,7 +259,7 @@ function cleanExamSubmissions(loggedUser, exam){
             } else {
                 resolve(true);
             }
-        );
+        });
     });
 }
 
