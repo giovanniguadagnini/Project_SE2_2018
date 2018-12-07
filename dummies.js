@@ -8,7 +8,6 @@ let dummyStud = {
     id: '12',
     name: 'John',
     surname: 'Doe',
-    password: 'hashed',
     email: 'email@email.com',
     born: {
         year: 1997,
@@ -20,6 +19,31 @@ let dummyStud = {
     },
     enrolled: {
         year: 2016,
+        month: 9,
+        day: 8,
+        hour: 19,
+        minute: 16,
+        second: 25
+    },
+    exam_eval: [],
+    submissions: []
+};
+
+let dummyStud2 = {
+    id: '13',
+    name: 'Johnny',
+    surname: 'Doerino',
+    email: 'emailpazzesca@emailpazzesca.com',
+    born: {
+        year: 1998,
+        month: 9,
+        day: 2,
+        hour: 0,
+        minute: 0,
+        second: 0
+    },
+    enrolled: {
+        year: 2017,
         month: 9,
         day: 8,
         hour: 19,
@@ -83,7 +107,7 @@ let dummyTeacher2 = {
 };
 
 let dummyUserGroup = {
-    id: 0,
+    id: 1,
     creator: dummyTeacher,
     name: 'SEII Dummy Class',
     users: [dummyStud]
@@ -107,7 +131,7 @@ let dummyTask2 = {
     task_type: "single_c",
     question: {
         text: "What do you get if you perform 1 + 1 ?\nSelect the right answer",
-        possibilities: ["0", "1", "2" ,"Infinite"],
+        possibilities: ["0", "1", "2", "Infinite"],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
     points: 1
@@ -152,7 +176,7 @@ let dummySubmission2 = {
     task_type: "single_c",
     question: {
         text: "What do you get if you perform 1 + 1 ?\nSelect the right answer",
-        possibilities: ["0", "1", "2" ,"Infinite"],
+        possibilities: ["0", "1", "2", "Infinite"],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
     answer: "0",
@@ -191,8 +215,23 @@ let dummyExam = {
     students: dummyUserGroup,
     tasks: [dummyTask1, dummyTask2, dummyTask3],
     submissions: [dummySubmission1, dummySubmission2, dummySubmission3],
-    deadline: 7200,
-    reviewable: true,
+    start_time: {
+        year: 2018,
+        month: 12,
+        day: 12,
+        hour: 18,
+        minute: 0,
+        second: 0
+    },
+    deadline: {
+        year: 2018,
+        month: 12,
+        day: 12,
+        hour: 20,
+        minute: 30,
+        second: 0
+    },
+    reviewable: 'true',
     num_shuffle: 3
 };
 
@@ -270,8 +309,10 @@ function insertUserGroupMembers() {
 
 function insertExams() {
     return new Promise(resolve => {
-        connection.query('INSERT INTO exam (id_group, id_owner, name, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?)',
-            [dummyExam.students.id, dummyExam.owner.id, dummyExam.name, dummyExam.deadline, dummyExam.reviewable, dummyExam.num_shuffle],
+        let start_time = dummyExam.start_time.year + '-' + dummyExam.start_time.month + '-' + dummyExam.start_time.day + ' ' + dummyExam.start_time.hour + ':' + dummyExam.start_time.minute + ':' + dummyExam.start_time.second;
+        let deadline = dummyExam.deadline.year + '-' + dummyExam.deadline.month + '-' + dummyExam.deadline.day + ' ' + dummyExam.deadline.hour + ':' + dummyExam.deadline.minute + ':' + dummyExam.deadline.second;
+        connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',
+            [dummyExam.students.id, dummyExam.owner.id, dummyExam.name, start_time, deadline, dummyExam.reviewable, dummyExam.num_shuffle],
             function (error, results, fields) {
                 if (error) {
                     //connection.end();
@@ -298,31 +339,48 @@ function insertTeacherExam() {
 
 function task1() {
     return new Promise(resolve => {
-        connection.query('INSERT INTO task (id_exam, id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?,?)',
-            [dummyExam.id, dummyTask1.owner.id, dummyTask1.task_type, dummyTask1.question.text, dummyTask1.question.base_upload_url, dummyTask1.points],
+        connection.query('INSERT INTO task (id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?)',
+            [dummyTask1.owner.id, dummyTask1.task_type, dummyTask1.question.text, dummyTask1.question.base_upload_url, dummyTask1.points],
             function (error, results, fields) {
                 if (error) {
                     //connection.end();
                     throw error;
                 }
                 dummyTask1.id = results.insertId;
-                resolve(null);
-            }
-        );
+                connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
+                    [dummyExam.id, dummyTask1.id],
+                    function (error, results, fields) {
+                        if (error) {
+                            //connection.end();
+                            throw error;
+                        }
+                        resolve(null);
+                    }
+                );
+            });
     });
 }
 
 function task2() {
     return new Promise(resolve => {
-        connection.query('INSERT INTO task (id_exam, id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?,?)',
-            [dummyExam.id, dummyTask2.owner.id, dummyTask2.task_type, dummyTask2.question.text, dummyTask2.question.base_upload_url, dummyTask2.points],
+        connection.query('INSERT INTO task (id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?)',
+            [dummyTask2.owner.id, dummyTask2.task_type, dummyTask2.question.text, dummyTask2.question.base_upload_url, dummyTask2.points],
             function (error, results, fields) {
                 if (error) {
                     //connection.end();
                     throw error;
                 }
                 dummyTask2.id = results.insertId;
-                resolve(null);
+                connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
+                    [dummyExam.id, dummyTask2.id],
+                    function (error, results, fields) {
+                        if (error) {
+                            //connection.end();
+                            throw error;
+                        }
+                        resolve(null);
+                    }
+                );
             }
         );
     });
@@ -330,15 +388,24 @@ function task2() {
 
 function task3() {
     return new Promise(resolve => {
-        connection.query('INSERT INTO task (id, id_exam, id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?,?,?)',
-            [dummyTask3.id, dummyExam.id, dummyTask3.owner.id, dummyTask3.task_type, dummyTask3.question.text, dummyTask3.question.base_upload_url, dummyTask3.points],
+        connection.query('INSERT INTO task (id_owner, task_type, q_text, q_url, points) VALUES (?,?,?,?,?)',
+            [dummyTask3.owner.id, dummyTask3.task_type, dummyTask3.question.text, dummyTask3.question.base_upload_url, dummyTask3.points],
             function (error, results, fields) {
                 if (error) {
                     //connection.end();
                     throw error;
                 }
                 dummyTask3.id = results.insertId;
-                resolve(null);
+                connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
+                    [dummyExam.id, dummyTask3.id],
+                    function (error, results, fields) {
+                        if (error) {
+                            //connection.end();
+                            throw error;
+                        }
+                        resolve(null);
+                    }
+                );
             }
         );
     });
@@ -471,26 +538,28 @@ function peerComment3() {
 }
 
 function popDB() {
-    insertUser().then(() => {
+    return new Promise(resolve => {
+        insertUser().then(() => {
 
-        insertUserGroup().then(() => {
+            insertUserGroup().then(() => {
 
-            insertUserGroupMembers();
-            insertExams().then(() => {
+                insertUserGroupMembers();
+                insertExams().then(() => {
 
-                insertTeacherExam();
-                task1().then(() => {
+                    insertTeacherExam();
+                    task1().then(() => {
 
-                    task2().then(() => {
+                        task2().then(() => {
 
-                        task3().then(() => {
+                            task3().then(() => {
 
-                            insertTaskPoss();
-                            insertSubmissions().then(() => {
-                                peerComment1().then(() => {
-                                    peerComment2().then(() => {
-                                        peerComment3().then(() => {
-
+                                insertTaskPoss();
+                                insertSubmissions().then(() => {
+                                    peerComment1().then(() => {
+                                        peerComment2().then(() => {
+                                            peerComment3().then(() => {
+                                                resolve(null);
+                                            });
                                         });
                                     });
                                 });
@@ -499,21 +568,27 @@ function popDB() {
                     });
                 });
             });
-
         });
     });
+
 }
 
 function cleanDB() {
-    connection.query('DELETE FROM user WHERE id > 0 AND id < 100',
-        function (error, results, fields) {
-            if (error) {
-                throw error;
+    return new Promise((resolve, reject) => {
+        connection.query('DELETE FROM user WHERE id > 0',
+            function (error, results, fields) {
+                if (error) {
+                    //throw error;
+                    reject(error);
+                }
+                resolve(null);
             }
-        }
-    );
+        );
+    });
+
 }
 
+//popDB();
 //cleanDB();
 
 module.exports = {
@@ -529,5 +604,6 @@ module.exports = {
     dummySubmission3,
     dummyExam,
     popDB,
-    cleanDB
+    cleanDB,
+    connection
 };

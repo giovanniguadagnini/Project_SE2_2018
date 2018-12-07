@@ -1,8 +1,6 @@
 const utilities = require('./utilities');
 const connection = utilities.connection;
 
-
-
 /*  Fetching all the submissions that the loggedUser has the right to see,
     so they have to be either its own submissions or the submissions that have been part
     of an exam he/she was teacher of
@@ -11,27 +9,24 @@ function getAllSubmissions(loggedUser) {
     return new Promise(resolve => {
         let querySql = 'SELECT S.id FROM submission S';//fetch all the submissions' ids
         connection.query(querySql, [], function (error, results, fields) {
-                if (error) {
-                    throw error;
-                    resolve(null);
-                } else {
-                    let retval = [];
-                    let promiseSubmissions = [];
-                    let promiseTemp;
-                    for(let i = 0; i < results.length; i++){
-                        promiseTemp = getSubmission(loggedUser, results[i].id);// put into single promises fetch by id
-                        promiseSubmissions.push(promiseTemp);
-                        promiseTemp.then( submission => {
-                            if(submission)//if I have the right to see it, I'll have a proper submission (not null obj)
-                                retval.push(submission)// & insert it into the resulting array
-                        });
-                    }
-
-                    Promise.all(promiseSubmissions).then( () => resolve(retval));//after all the fetching by ids, just return the array of submissions
-
+            if (error) {
+                throw error;
+                resolve(null);
+            } else {
+                let retval = [];
+                let promiseSubmissions = [];
+                let promiseTemp;
+                for(let i = 0; i < results.length; i++){
+                    promiseTemp = getSubmission(loggedUser, results[i].id);// put into single promises fetch by id
+                    promiseSubmissions.push(promiseTemp);
+                    promiseTemp.then( submission => {
+                        if(submission)//if I have the right to see it, I'll have a proper submission (not null obj)
+                            retval.push(submission)// & insert it into the resulting array
+                    });
                 }
+                Promise.all(promiseSubmissions).then( () => resolve(retval));//after all the fetching by ids, just return the array of submissions
             }
-        );
+        });
     });
 }
 
@@ -108,7 +103,144 @@ function getSubmission(loggedUser, idSubmission) {
         - loggedUser is actually sending a test exercise (so its own submission)
 * */
 function updateSubmission(loggedUser, submission) {
+    return new Promise(resolve => {
+        if(submission.id_user == loggedUser.id){//student who is attending the exam
+
+            if(submission.answer == null || submission.completed == null)//user hasn't sent any answer: no point to procede with the upd
+                resolve(null);
+
+            let queryStudent = 'SELECT * ' +
+                                'FROM exam E, submission SE ' +
+                                'WHERE SE.id = ? AND SE.id_user = ? AND SE.id_exam=E.id AND SE.completed != false ' +
+                                'AND CONCAT(CURDATE(), ' ', CURTIME()) < E.deadline ' +
+                                'AND CONCAT(CURDATE(), ' ', CURTIME()) > E.start_time';
+            let studentCanAnswer = new Promise( resolveStudent => {
+                connection.query(queryStudent, [submission.id, loggedUser.id], function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                        resolveStudent(false);
+                    } else {
+                        if(results.length > 0){
+                            resolveStudent(true);
+                        }else{
+                            resolveStudent(false);
+                        }
+                    }
+                );
+            });
+
+            studentCanAnswer.then(found => {
+                    if(!found)//unauthorized
+                        resolve('403');
+                    else{
+                        let queryEvalUpd = 'UPDATE submission SET answer = ? AND completed = ? WHERE id = ?';
+                        connection.query(queryEvalUpd, [submission.answer, submission.completed, submission.id], function (error, results, fields) {
+                            if (error) {
+                                throw error;
+                                resolve(null);
+                            } else {
+                                getSubmission(loggedUser, submission.id).then(updSubm => resolve(submission));
+                            }
+                        );
+                    }
+            });
+        }else{//check if loggedUser is one of the teacher
+
+            if(submission.earned_points == null || submission.comment == null)//teacher can update just one time for comment & eval
+                resolve(null);
+
+            let findTeacher = new Promise( resolveTeach => {
+                let queryTeacher = 'SELECT TE.id_teacher ' +
+                                    'FROM exam E, teacher_exam TE, submission SE ' +
+                                    'WHERE SE.id = ? AND TE.id_teacher = ? AND SE.id_exam=E.id ' +
+                                    'AND E.id=TE.id_exam AND CONCAT(CURDATE(), ' ', CURTIME()) > E.deadline';
+                connection.query(queryTeacher, [submission.id, loggedUser.id], function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                        resolveTeach(false);
+                    } else {
+                        if(results.length > 0){
+                            resolveTeach(true);
+                        }else{
+                            resolveTeach(false);
+                        }
+                    }
+                );
+            });
+
+            findTeacher.then(found => {
+                    if(!found)//unauthorized
+                        resolve('403');
+                    else{
+                        let queryEvalUpd = 'UPDATE submission SET earned_points = ? AND comment = ? AND completed = true WHERE id = ?';
+                        connection.query(queryEvalUpd, [submission.earned_points, submission.comment, submission.id], function (error, results, fields) {
+                            if (error) {
+                                throw error;
+                                resolve(null);
+                            } else {
+                                getSubmission(loggedUser, submission.id).then(updSubm => resolve(submission));
+                            }
+                        );
+                    }
+            });
+        }
+    });
     return submission;
 }
 
-module.exports = {getAllSubmissions, getSubmission, updateSubmission};
+function insertInExam(loggedUser, userSubmissions){
+    return new Promise(resolve => {
+        if(userSubmissions == null)
+            resolve(null);
+
+        let allStudentsSubs = [];
+        let retSubmissions = [];
+        for(let userSubm of userSubmissions){
+            for(let subm of userSubmissions.submissions){
+                let submissionPromise = insertSubmission(loggedUser, subm);
+                allStudentsSubs.push(submissionPromise);
+
+                submissionPromise.then( sub => retSubmissions.push(sub));
+            }
+        }
+        Promise.all(allStudentsSubs).then(b => {
+            resolve(retSubmissions);
+        });
+    });
+}
+
+function insertSubmission(loggedUser, submission){
+    return new Promise(resolve => {
+        if(submission == null)
+            resolve(null);
+
+        let queryInsert = 'INSERT INTO submission (id_task, id_user, id_exam, completed, earned_points) VALUES (?,?,?,false,0)';
+        connection.query(queryInsert, [submission.id_task, submission.id_user, submission.id_exam], function (error, results, fields) {
+            if (error) {
+                throw error;
+                resolve(null);
+            } else {
+                getSubmission(loggedUser, submission.id).then(newSubm => resolve(newSubm));
+            }
+        );
+    });
+}
+
+function cleanExamSubmissions(loggedUser, exam){
+    return new Promise(resolve => {
+        if(exam == null || exam.id == null)
+            resolve(null);
+
+        let queryDelete = 'DELETE FROM submission WHERE id_exam = ?';
+        connection.query(queryDelete, [exam.id], function (error, results, fields) {
+            if (error) {
+                throw error;
+                resolve(null);
+            } else {
+                resolve(true);
+            }
+        );
+    });
+}
+
+module.exports = {getAllSubmissions, getSubmission, updateSubmission, insertInExam, cleanExamSubmissions};

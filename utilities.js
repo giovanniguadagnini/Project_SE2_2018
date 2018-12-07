@@ -2,9 +2,9 @@
 const mysql = require('mysql');
 const connection = mysql.createConnection({
     host: 'localhost',//'sql7.freesqldatabase.com',
-    user: 'root',//'sql7268259',
-    password: 'root',//'VvFmxJMKk3',
-    database: 'project_SE2'//'sql7268259'
+    user: 'giovanni',//'root',//'sql7268259',
+    password: 'password',//'root',//'VvFmxJMKk3',
+    database: 'se2db'//'sql7268259'
 });
 
 function openConnection(){
@@ -35,6 +35,12 @@ function isAnArrayOfUser(users) {
         }
         return true;
     }
+}
+
+function isAValidSubmission(subm){
+    return (subm != null && subm.id != null && (task_type == 'open' || task_type == 'single_c' || task_type == 'multiple_c' || task_type == 'submit')
+            && subm.question != null && subm.answer != null && subm.id_user != null && subm.id_exam != null && subm.completed != null && subm.comment_peer != null
+            && subm.comment != null && subm.points != null && subm.earned_points != null);
 }
 
 //return true if date is a valid date acceptable in our app
@@ -218,4 +224,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, openConnection, closeConnection};
+module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAValidSubmission, openConnection, closeConnection};
