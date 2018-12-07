@@ -13,7 +13,6 @@ function getTasks(req, res) { //Get all the manageable tasks
 function createTask(req, res) { //Create a task
     let task = {
         id: req.body.id,
-        exam: req.body.exam,
         owner: req.body.owner,
         task_type: req.body.task_type,
         question: req.body.question,
@@ -34,7 +33,7 @@ function getTaskById(req, res) { //Get a task by ID
         if (task != null) {
             res.status(200).json(task);
         } else {
-            res.status(400).send("Bad Request");
+            res.status(404).send("Task not found");
         }
     });
 };
@@ -69,7 +68,7 @@ function deleteTaskById(req, res) { //Delete a task by ID
         points: req.body.points
     };
     if (id = task.id) {
-        userDao.deleteTaskById(req.user, task).then(task => { //trying to delete the task
+        taskDao.deleteTaskById(req.user, task).then(task => { //trying to delete the task
             if (task != null) {
                 res.status(200).json(task);
             } else {

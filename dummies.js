@@ -218,7 +218,7 @@ let dummyExam = {
     start_time: {
         year: 2018,
         month: 12,
-        day: 05,
+        day: 5,
         hour: 18,
         minute: 0,
         second: 0
@@ -226,7 +226,7 @@ let dummyExam = {
     deadline: {
         year: 2018,
         month: 12,
-        day: 05,
+        day: 5,
         hour: 19,
         minute: 30,
         second: 0
@@ -241,6 +241,18 @@ function insertUser() {
         let enrolled = dummyStud.enrolled.year + '-' + dummyStud.enrolled.month + '-' + dummyStud.enrolled.day + ' ' + dummyStud.enrolled.hour + ':' + dummyStud.enrolled.minute + ':' + dummyStud.enrolled.second;
         connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
             [dummyStud.id, dummyStud.name, dummyStud.surname, dummyStud.email, born, enrolled],
+            function (error, results, fields) {
+                if (error) {
+                    //connection.end();
+                    throw error;
+                }
+            }
+        );
+
+        born = dummyStud2.born.year + '-' + dummyStud2.born.month + '-' + dummyStud2.born.day + ' ' + dummyStud2.born.hour + ':' + dummyStud2.born.minute + ':' + dummyStud2.born.second;
+        enrolled = dummyStud2.enrolled.year + '-' + dummyStud2.enrolled.month + '-' + dummyStud2.enrolled.day + ' ' + dummyStud2.enrolled.hour + ':' + dummyStud2.enrolled.minute + ':' + dummyStud2.enrolled.second;
+        connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
+            [dummyStud2.id, dummyStud2.name, dummyStud2.surname, dummyStud2.email, born, enrolled],
             function (error, results, fields) {
                 if (error) {
                     //connection.end();
@@ -593,6 +605,7 @@ function cleanDB() {
 
 module.exports = {
     dummyStud,
+    dummyStud2,
     dummyTeacher,
     dummyTeacher2,
     dummyUserGroup,

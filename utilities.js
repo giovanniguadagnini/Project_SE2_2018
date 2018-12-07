@@ -24,13 +24,14 @@ function isATask(task) {
 
 //return true if task is a valid task
 function isATaskBody(task) {
-    if (task.task_type != null && task.question != null && task.question.text != null && task.points != null) {
+    if (task != null && task.task_type != null && task.question != null && task.question.text != null && task.points != null) {
         if ((task.task_type == 'single_c' || task.task_type == 'multiple_c'))
             return (task.question.possibilities.length > 0);
         else if ((task.task_type == 'submit'))
-            return (task.question.base_upload_url != null);
+            return (task.question.base_upload_url != null && task.question.possibilities.length == 0);
         else
-            return (task.task_type == 'open');
+        if ((task.task_type == 'open'))
+            return (task.question.possibilities.length == 0);
     } else
         return false;
 }
