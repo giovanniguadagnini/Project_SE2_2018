@@ -29,6 +29,31 @@ let dummyStud = {
     submissions: []
 };
 
+let dummyStud2 = {
+    id: '13',
+    name: 'Johnny',
+    surname: 'Doerino',
+    email: 'emailpazzesca@emailpazzesca.com',
+    born: {
+        year: 1998,
+        month: 9,
+        day: 2,
+        hour: 0,
+        minute: 0,
+        second: 0
+    },
+    enrolled: {
+        year: 2017,
+        month: 9,
+        day: 8,
+        hour: 19,
+        minute: 16,
+        second: 25
+    },
+    exam_eval: [],
+    submissions: []
+};
+
 let dummyTeacher = {
     id: '11',
     name: 'Jimmy',

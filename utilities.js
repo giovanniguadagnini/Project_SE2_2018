@@ -43,6 +43,7 @@ function isAUserGroupBody(userGroup) {
 //return true if userGroup is a valid userGroup
 function isAUserGroup(userGroup) {
     return (userGroup != null && userGroup.id != null && isAUser(userGroup.creator) && userGroup.name != null && isAnArrayOfUser(userGroup.users));
+
 }
 
 //return true if date is a valid date acceptable in our app

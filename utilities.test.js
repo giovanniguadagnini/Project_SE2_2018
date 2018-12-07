@@ -41,6 +41,27 @@ let newUser2 = {
     submissions: [],
     exam_eval: []
 };
+let dummySubmission1 = {
+    id: 1,
+    task_type: "open",
+    question: {
+        text: "What do you get if you perform 1 + 1 ?",
+        possibilities: [],
+        base_upload_url: "http://uploadhere.com/dummy/v1/"
+    },
+    answer: "25 I think",
+    id_user: 12,
+    id_exam: 1,
+    completed: true,
+    comment_peer: [
+        "You did a great job dude",
+        "You better go study philosophy",
+        "Hi! My name's Peter"
+    ],
+    comment: "Almost... that's a shame: you were so close to the solution!",
+    points: 2,
+    earned_points: 0
+};
 
 test('utilities module should be defined', () => {
     expect(utilities).toBeDefined();
@@ -659,6 +680,18 @@ test('check compareEnrol() with equal year, month, day, hour, minute and second 
     userB.enrolled.minute = 1;
     userB.enrolled.second = 1;
     expect(utilities.compareEnrol(userB, userA)).toEqual(0);
+});
+
+test('check isAValidSubmission() with valid submission', () => {
+    expect(utilities.isAnValidSubmission(dummySubmission1)).toEqual(true);
+});
+
+test('check isAValidSubmission() with null as submission', () => {
+    expect(utilities.isAnValidSubmission(null)).toEqual(false);
+});
+
+test('check isAValidSubmission() with invalid submission', () => {
+    expect(utilities.isAnValidSubmission([{id:111111}])).toEqual(false);
 });
 
 function jsonCopy(src) {

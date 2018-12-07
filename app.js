@@ -18,14 +18,18 @@ app.get('/', (req, res) => {
 
 //USER MODULE
 const userModule = require('./user');
-app.get('/users', protect(), userModule.getUsers);
 
+//EXAM MODULE
+//const examsModule = require('./exams');
+app.get('/users', protect(), userModule.getUsers);
 app.get('/users/:id', protect(), userModule.getUserById);
 app.put('/users/:id', protect(), userModule.updateUser);
 app.delete('/users/:id', protect(), userModule.deleteUser);
 
+<<<<<<< HEAD
 //EXAM MODULE
 //const examsModule = require('./exams');
+//app.post('/exams/', protect(), examsModule.createExam);
 
 //TASK MODULE
 const taskModule = require('./task');
@@ -47,5 +51,15 @@ app.get('/tasks/:id', protect(), taskModule.getTaskById);
 app.put('/tasks/:id', protect(), taskModule.updateTaskById);
 app.delete('/tasks/:id', protect(), taskModule.deleteTaskById);
 
+//SUBMISSION MODULE
+const submissionModule = require('./user');
+app.get('/submissions', protect(), submissionModule.getSubmission);
+app.get('/submissions/:id', protect(), submissionModule.getSubmissionById);
+app.put('/submissions/:id', protect(), submissionModule.updateSubmission);
 
 module.exports = app;
+
+app.on('exit', function (){
+    utilities.closeConnection();
+    console.log('Goodbye!');
+});

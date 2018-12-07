@@ -63,6 +63,13 @@ test('GET /users/validId?access_token=invalidId; should return 401 + {} obj', as
     expect(response.body).toEqual({});
 });
 
+test('GET /users/validId?access_token=invalidId; should return 401 + {} obj', async () => {
+    expect.assertions(2);
+    let response = await request(app).get('/users/' + validId + '?access_token=' + invalidId);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
 test('GET /users/invalidId?access_token=validId should return 200 + invalid fields', async () => {
     expect.assertions(2);
     let response = await request(app).get('/users/' + invalidId + '?access_token=' + validId);
@@ -203,6 +210,20 @@ test('PUT /users/validId; should return 200 + users obj', async () => {
         submissions: []
     };
     expect(userPUT).toEqual(dummyStud);
+});
+
+test('PUT /users/validId with wrong access token; should return 401 + obj {}', async () => {
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + validId).set('Authorization', 'Bearer ' + invalidId).send(dummyStud);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
+});
+
+test('PUT /users/invalidId with wrong access token; should return 401 + obj {}', async () => {
+    expect.assertions(2);
+    let response = await request(app).put('/users/' + invalidId).set('Authorization', 'Bearer ' + invalidId).send(dummyStud);
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toEqual({});
 });
 
 test('PUT /users/validId with wrong access token; should return 401 + obj {}', async () => {
