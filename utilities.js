@@ -22,7 +22,7 @@ function isATask(task) {
     return task != null && task.id != null && task.id != 'null' && isAUser(task.owner) && isATaskBody(task);
 }
 
-//return true if task is a valid task
+//return true if task has a valid body
 function isATaskBody(task) {
     if (task != null && task.task_type != null && task.question != null && task.question.text != null && task.points != null) {
         if ((task.task_type == 'single_c' || task.task_type == 'multiple_c'))

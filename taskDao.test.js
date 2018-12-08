@@ -111,7 +111,7 @@ test('check getTasksById() with user invalidId', () => {
 });
 test('check getTasksById() with task invalidId', () => {
     expect.assertions(1);
-    return taskDao.getTaskById({ id: invalidId }, { id: dummies.dummyStud.id }, { 'id': invalidId, 'owner': dummies.dummyStud, 'task_type': 'single_c', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }).then(task => {
+    return taskDao.getTaskById({ id: dummies.dummyStud.id }, invalidId).then(task => {
         expect(task).toEqual(null);
     });
 });
@@ -139,6 +139,12 @@ test('check updateTaskById() without permissions', () => {
 test('check updateTaskById() with user invalidId', () => {
     expect.assertions(1);
     return taskDao.updateTaskById({ id: invalidId }, newTask).then(task => {
+        expect(task).toEqual(null);
+    });
+});
+test('check updateTaskById() with task invalidId', () => {
+    expect.assertions(1);
+    return taskDao.updateTaskById({ id: dummies.dummyStud.id }, { 'id': invalidId, 'owner': dummies.dummyStud, 'task_type': 'single_c', 'question': { 'text': 'What\'s the meaning of life ?', 'possibilities': [], 'base_upload_url': 'http://uploadhere.com/dummy/v1/' }, 'points': '2' }).then(task => {
         expect(task).toEqual(null);
     });
 });
