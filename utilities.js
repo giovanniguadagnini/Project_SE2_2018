@@ -58,6 +58,35 @@ function isAnArrayOfUserGroups(userGroups) {
     }
 }
 
+function isAQuestion(question){
+    return (question != null && question.text != null && question.possibilities != null && question.base_upload_url != null);
+}
+
+function isASubmission(subm){
+    return (subm != null && subm.id != null && (subm.task_type == 'open' || subm.task_type == 'single_c' || subm.task_type == 'multiple_c' || subm.task_type == 'submit')
+        && isAQuestion(subm.question) && subm.id_user != null && subm.id_exam != null && subm.completed != null && subm.points != null && subm.points > 0);
+}
+
+function isASubmissionAnswer(subm){
+    return (isASubmission(subm) && subm.answer != null);
+}
+
+function isASubmissionEvaluated(subm){
+    return (isASubmission(subm) && subm.earned_points != null && subm.earned_points >=0 && subm.comment != null && subm.earned_points <= subm.points);
+}
+
+function isAnArrayOfSubmission(submissions){
+    if(submissions == null || submissions.length == 0){
+        return false;
+    }else {
+        for(let subm of submissions){
+            if (!isASubmission(subm))
+                return false;
+        }
+        return true;
+    }
+}
+
 //return true if date is a valid date acceptable in our app
 function isAValidDate(date){
     if(date == null){
@@ -239,4 +268,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups};
+module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated};

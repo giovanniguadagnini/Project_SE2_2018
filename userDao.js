@@ -187,11 +187,13 @@ function getUser1(loggedUser, id) {
                     //logged user is asking for data of other users so he/she can only see data of exams he/she was teacher of
                     '( S.id_exam IN (SELECT id_exam FROM teacher_exam WHERE id_teacher = ?) ' +
                     'OR ' +
-                    '? = ? ' + // logged user is asking his/her own data
+                    '(? = ? AND S.comment IS NOT NULL AND S.earned_points IS NOT NULL AND NOT EXISTS ' +
+                        '(SELECT * FROM submission WHERE id_exam = S.id_exam AND (comment IS NULL OR earned_points IS NULL) ))' + // logged user is asking his/her own data
                     ') ' +
                     ') ' +
                     'ORDER BY S.id_exam, id_s ASC) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
-                    'ON TEMP.id_t = TP.id_task';
+                    'ON TEMP.id_t = TP.id_task ' +
+                    'ORDER BY id_s, id_exam';
 
                 connection.query(fetch_sub_query, [id, loggedUser.id, id, loggedUser.id],
                     function (error, results, fields) {
@@ -331,7 +333,7 @@ function deleteUser(loggedUser, userId) {
                     connection.query('DELETE FROM user WHERE id = ?', [userId], function (error, results, fields) {
                         if (error) {
                             throw error;
-                            return null;
+                            resolve (null);
                         }
                         if (results.affectedRows > 0) {
                             retval = user;

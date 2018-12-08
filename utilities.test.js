@@ -41,11 +41,34 @@ let newUser2 = {
     submissions: [],
     exam_eval: []
 };
+
 let newUserGroup = {
     id: 6,
     creator: newUser,
     name: 'SEII Dummy Class',
     users: [newUser2]
+};
+
+let dummySubmission1 = {
+    id: 1,
+    task_type: "open",
+    question: {
+        text: "What do you get if you perform 1 + 1 ?",
+        possibilities: [],
+        base_upload_url: "http://uploadhere.com/dummy/v1/"
+    },
+    answer: "25 I think",
+    id_user: 12,
+    id_exam: 1,
+    completed: true,
+    comment_peer: [
+        "You did a great job dude",
+        "You better go study philosophy",
+        "Hi! My name's Peter"
+    ],
+    comment: "Almost... that's a shame: you were so close to the solution!",
+    points: 2,
+    earned_points: 0
 };
 
 test('utilities module should be defined', () => {
@@ -693,6 +716,109 @@ test('check compareEnrol() with equal year, month, day, hour, minute and second 
     userB.enrolled.minute = 1;
     userB.enrolled.second = 1;
     expect(utilities.compareEnrol(userB, userA)).toEqual(0);
+});
+
+test('check isASubmission() with valid submission', () => {
+    expect(utilities.isASubmission(dummySubmission1)).toEqual(true);
+});
+
+test('check isASubmission() with null as submission', () => {
+    expect(utilities.isASubmission(null)).toEqual(false);
+});
+
+test('check isASubmission() with invalid submission', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.id_user = null;
+    expect(utilities.isASubmission(subm)).toEqual(false);
+});
+
+test('check isASubmissionAnswer() with valid submission', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = "test";
+    expect(utilities.isASubmissionAnswer(dummySubmission1)).toEqual(true);
+});
+
+test('check isASubmissionAnswer() with invalid submission answer', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = null;
+    expect(utilities.isASubmissionAnswer(subm)).toEqual(false);
+});
+
+test('check isASubmissionAnswer() with null as submission', () => {
+    expect(utilities.isASubmissionAnswer(null)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with invalid submission because there is no points defined', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.earned_points = 10;
+    subm.points = null;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with invalid submission evaluated', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.earned_points = null;
+    subm.comment = null;
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with submission evaluated, but not answered', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = null;
+    subm.earned_points = 10;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with submission evaluated with earned points == points', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = 'I\'m daniel san';
+    subm.earned_points = 10;
+    subm.points = 10;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(true);
+});
+
+test('check isASubmissionEvaluated() with submission evaluated but with earned points > points', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = 'I\'m daniel san';
+    subm.earned_points = 10;
+    subm.points = 9;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with submission evaluated, but comment equals null', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = "ciao";
+    subm.earned_points = 10;
+    subm.comment = null;
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with null as submission', () => {
+    expect(utilities.isASubmissionEvaluated(null)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with invalid submission', () => {
+    expect(utilities.isASubmissionEvaluated([{id:111111}])).toEqual(false);
+});
+
+test('check isAnArrayOfSubmission() with valid submission', () => {
+    expect(utilities.isAnArrayOfSubmission([dummySubmission1])).toEqual(true);
+});
+
+test('check isAnArrayOfSubmission() with empty array', () => {
+    expect(utilities.isAnArrayOfSubmission([])).toEqual(false);
+});
+
+test('check isAnArrayOfSubmission() with null as submission', () => {
+    expect(utilities.isAnArrayOfSubmission(null)).toEqual(false);
+});
+
+test('check isAnArrayOfSubmission() with invalid submission', () => {
+    expect(utilities.isAnArrayOfSubmission([{id:111111, gelato: 'cioccolata', boffo: 'marcolino'}])).toEqual(false);
 });
 
 function jsonCopy(src) {
