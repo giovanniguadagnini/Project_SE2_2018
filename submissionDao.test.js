@@ -36,6 +36,29 @@ test('check getAllSubmissions() with user as teacher', () => {
     });
 });
 
+test('check getSubmissionsByExam() with user as teacher', () => {
+    expect.assertions(2);
+    return submissionDao.getSubmissionsByExam(dummyTeacher, dummiesDB.dummyExam).then(submissions => {
+        expect(submissions.length).toBe(3);
+        expect(utilities.isAnArrayOfSubmission(submissions)).toBe(true);
+    });
+});
+
+test('check getSubmissionsByExam() with user as student', () => {
+    expect.assertions(1);
+    return submissionDao.getSubmissionsByExam(dummyStud, dummiesDB.dummyExam).then(submissions => {
+        expect(submissions).toBe(null);
+    });
+});
+
+test('check getAllSubmissions() by exam with user as teacher', () => {
+    expect.assertions(2);
+    return submissionDao.getAllSubmissions(dummyTeacher, dummiesDB.dummyExam).then(submissions => {
+        expect(submissions.length).toBe(3);
+        expect(utilities.isAnArrayOfSubmission(submissions)).toBe(true);
+    });
+});
+
 test('check getAllSubmissions() with user as null ', () => {
     expect.assertions(1);
     return submissionDao.getAllSubmissions(null).then(submissions => {
@@ -218,5 +241,25 @@ test('check updateSubmission() with valid teacher that wants to mark & evaluate,
     dummySubmFin.earned_points = -1;
     return submissionDao.updateSubmission(dummyTeacher, dummySubmFin).then(submission => {
         expect(submission).toBe('400');
+    });
+});
+
+test('check cleanExamSubmissions() by exam with user as student', () => {
+    expect.assertions(2);
+    return submissionDao.cleanExamSubmissions(dummyStud, dummiesDB.dummyExam).then(result => {
+        expect(result).toBe(null);
+        return submissionDao.getSubmissionsByExam(dummyTeacher, dummiesDB.dummyExam).then(submissions => {
+            expect(submissions.length).toBe(3);
+        });
+    });
+});
+
+test('check cleanExamSubmissions() by exam with user as teacher', () => {
+    expect.assertions(2);
+    return submissionDao.cleanExamSubmissions(dummyTeacher, dummiesDB.dummyExam).then(result => {
+        expect(result).toBe(true);
+        return submissionDao.getSubmissionsByExam(dummyTeacher, dummiesDB.dummyExam).then(submissions => {
+            expect(submissions.length).toBe(0);
+        });
     });
 });
