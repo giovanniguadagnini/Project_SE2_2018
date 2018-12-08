@@ -111,15 +111,15 @@ function getSubmission(loggedUser, idSubmission) {
 * */
 function updateSubmission(loggedUser, submission) {
     return new Promise(resolve => {
+        if(loggedUser == null || loggedUser.id == null)
+            resolve(null);
         if(submission.id_user == loggedUser.id){//student who is attending the exam
-
             if(!utilities.isASubmissionAnswer(submission))//user hasn't sent any answer: no point to procede with the upd
                 resolve('400');
-
             //check if the student can owerwrite its answer (still during the exam & submission is marked as not completed)
             let queryStudent = 'SELECT * ' +
                                 'FROM exam E, submission SE ' +
-                                'WHERE SE.id = ? AND SE.id_user = ? AND SE.id_exam=E.id AND SE.completed != false ' +
+                                'WHERE SE.id = ? AND SE.id_user = ? AND SE.id_exam=E.id AND SE.completed = false ' +
                                 'AND CONCAT(CURDATE(), \' \', CURTIME()) < E.deadline ' +
                                 'AND CONCAT(CURDATE(), \' \', CURTIME()) > E.start_time';
             let studentCanAnswer = new Promise( resolveStudent => {
@@ -141,14 +141,17 @@ function updateSubmission(loggedUser, submission) {
                     if(!found)//forbidden
                         resolve('403');
                     else{
-                        let queryEvalUpd = 'UPDATE submission SET answer = ? AND completed = ? WHERE id = ?';
+
+                        let queryEvalUpd = 'UPDATE submission SET answer = ?, completed = ?, earned_points = NULL, comment = NULL WHERE id = ?';
                         connection.query(queryEvalUpd, [submission.answer, submission.completed, submission.id], function (error, results, fields) {
                             if (error) {
                                 throw error;
                                 resolve(null);
                             } else {
                                 if(results.affectedRows > 0)//successfull update
-                                    getSubmission(loggedUser, submission.id).then(updSubm => resolve(updSubm));//return the updated object
+                                    getSubmission(loggedUser, submission.id).then(updSubm => {
+                                        resolve(updSubm)
+                                    });//return the updated object
                                 else
                                     resolve(null);
                             }
@@ -185,7 +188,7 @@ function updateSubmission(loggedUser, submission) {
                         resolve('403');
                     else{
                         //obviously now the submission has to be marked as completed (just to be sure we checked it, although at this point it should have been already done)
-                        let queryEvalUpd = 'UPDATE submission SET earned_points = ? AND comment = ? AND completed = true WHERE id = ?';
+                        let queryEvalUpd = 'UPDATE submission SET earned_points = ?, comment = ?, completed = true WHERE id = ?';
                         connection.query(queryEvalUpd, [submission.earned_points, submission.comment, submission.id], function (error, results, fields) {
                             if (error) {
                                 throw error;

@@ -157,8 +157,30 @@ let dummySubmission1 = {
         possibilities: [],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
+    answer: null,
+    id_user: '12',
+    id_exam: 1,
+    completed: false,
+    comment_peer: [
+        "You did a great job dude",
+        "You better go study philosophy",
+        "Hi! My name's Peter"
+    ],
+    comment: null,
+    points: 2,
+    earned_points: null
+};
+
+let dummySubmission1Finished = {
+    id: 1,
+    task_type: "open",
+    question: {
+        text: "What do you get if you perform 1 + 1 ?",
+        possibilities: [],
+        base_upload_url: "http://uploadhere.com/dummy/v1/"
+    },
     answer: "25 I think",
-    id_user: 12,
+    id_user: '12',
     id_exam: 1,
     completed: true,
     comment_peer: [
@@ -168,7 +190,7 @@ let dummySubmission1 = {
     ],
     comment: "Almost... that's a shame: you were so close to the solution!",
     points: 2,
-    earned_points: 0
+    earned_points: 1
 };
 
 let dummySubmission2 = {
@@ -180,7 +202,7 @@ let dummySubmission2 = {
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
     answer: "0",
-    id_user: 12,
+    id_user: '12',
     id_exam: 1,
     completed: true,
     comment_peer: [],
@@ -198,7 +220,7 @@ let dummySubmission3 = {
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
     answer: "http://uploadhere.com/dummy/v1/solutions12_1_3",
-    id_user: 12,
+    id_user: '12',
     id_exam: 1,
     completed: true,
     comment_peer: [],
@@ -230,6 +252,34 @@ let dummyExam = {
         hour: new Date().getHours() + 1,
         minute: new Date().getMinutes(),
         second: new Date().getSeconds()
+    },
+    reviewable: 'true',
+    num_shuffle: 3
+};
+
+let dummyExamFinished = {
+    id: 1,
+    name: "NP complete problems",
+    owner: dummyTeacher,
+    teachers: [dummyTeacher],
+    students: dummyUserGroup,
+    tasks: [dummyTask1, dummyTask2, dummyTask3],
+    submissions: [dummySubmission1, dummySubmission2, dummySubmission3],
+    start_time: {
+        year: 2018,
+        month: 12,
+        day: 7,
+        hour: 18,
+        minute: 0,
+        second: 0
+    },
+    deadline: {
+        year: 2018,
+        month: 12,
+        day: 7,
+        hour: 19,
+        minute: 0,
+        second: 0
     },
     reviewable: 'true',
     num_shuffle: 3
@@ -309,20 +359,41 @@ function insertUserGroupMembers() {
 
 function insertExams() {
     return new Promise(resolve => {
-        let start_time = dummyExam.start_time.year + '-' + dummyExam.start_time.month + '-' + dummyExam.start_time.day + ' ' + dummyExam.start_time.hour + ':' + dummyExam.start_time.minute + ':' + dummyExam.start_time.second;
-        let deadline = dummyExam.deadline.year + '-' + dummyExam.deadline.month + '-' + dummyExam.deadline.day + ' ' + dummyExam.deadline.hour + ':' + dummyExam.deadline.minute + ':' + dummyExam.deadline.second;
-        connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',
-            [dummyExam.students.id, dummyExam.owner.id, dummyExam.name, start_time, deadline, dummyExam.reviewable, dummyExam.num_shuffle],
-            function (error, results, fields) {
-                if (error) {
-                    //connection.end();
-                    throw error;
+       let promiseFirst = new Promise(resolveFirst => {
+           let start_time = dummyExam.start_time.year + '-' + dummyExam.start_time.month + '-' + dummyExam.start_time.day + ' ' + dummyExam.start_time.hour + ':' + dummyExam.start_time.minute + ':' + dummyExam.start_time.second;
+           let deadline = dummyExam.deadline.year + '-' + dummyExam.deadline.month + '-' + dummyExam.deadline.day + ' ' + dummyExam.deadline.hour + ':' + dummyExam.deadline.minute + ':' + dummyExam.deadline.second;
+
+           connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',
+                [dummyExam.students.id, dummyExam.owner.id, dummyExam.name, start_time, deadline, dummyExam.reviewable, dummyExam.num_shuffle],
+                function (error, results, fields) {
+                    if (error) {
+                        //connection.end();
+                        throw error;
+                    }
+                    dummyExam.id = results.insertId;
+                    resolveFirst(null);
                 }
-                dummyExam.id = results.insertId;
-                resolve(null);
-            }
-        );
+            );
+        });
+        
+        promiseFirst.then(() => {
+            let start_time = dummyExamFinished.start_time.year + '-' + dummyExamFinished.start_time.month + '-' + dummyExamFinished.start_time.day + ' ' + dummyExamFinished.start_time.hour + ':' + dummyExamFinished.start_time.minute + ':' + dummyExamFinished.start_time.second;
+            let deadline = dummyExamFinished.deadline.year + '-' + dummyExamFinished.deadline.month + '-' + dummyExamFinished.deadline.day + ' ' + dummyExamFinished.deadline.hour + ':' + dummyExamFinished.deadline.minute + ':' + dummyExamFinished.deadline.second;
+            //console.log('CIAO');
+            connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',
+                [dummyExamFinished.students.id, dummyExamFinished.owner.id, dummyExamFinished.name, start_time, deadline, dummyExamFinished.reviewable, dummyExamFinished.num_shuffle],
+                function (error, results, fields) {
+                    if (error) {
+                        //connection.end();
+                        throw error;
+                    }
+                    dummyExamFinished.id = results.insertId;
+                    resolve(null);
+                }
+            );
+        });
     });
+        
 }
 
 function insertTeacherExam() {
@@ -333,6 +404,15 @@ function insertTeacherExam() {
                 //connection.end();
                 throw error;
             }
+            connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',
+                [dummyExamFinished.id, dummyExam.teachers[0].id],
+                function (error, results, fields) {
+                    if (error) {
+                        //connection.end();
+                        throw error;
+                    }
+                }
+            );
         }
     );
 }
@@ -354,7 +434,16 @@ function task1() {
                             //connection.end();
                             throw error;
                         }
-                        resolve(null);
+                        connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
+                            [dummyExamFinished.id, dummyTask1.id],
+                            function (error, results, fields) {
+                                if (error) {
+                                    //connection.end();
+                                    throw error;
+                                }
+                                resolve(null);
+                            }
+                        );
                     }
                 );
             });
@@ -463,8 +552,19 @@ function insertSubmissions() {
                     throw error;
                 }
                 dummySubmission1.id = results.insertId;
-
-                resolve(null);
+                dummySubmission1.id_exam = dummyExam.id;
+                connection.query('INSERT INTO submission (id_task, id_user, id_exam, answer, completed, comment, earned_points) VALUES (?,?,?,?,?,?,?)',
+                    [dummyTask1.id, dummySubmission1Finished.id_user, dummyExamFinished.id, dummySubmission1Finished.answer, dummySubmission1Finished.completed, dummySubmission1Finished.comment, dummySubmission1Finished.earned_points],
+                    function (error, results, fields) {
+                        if (error) {
+                            //connection.end();
+                            throw error;
+                        }
+                        dummySubmission1Finished.id = results.insertId;
+                        dummySubmission1Finished.id_exam = dummyExamFinished.id;
+                        resolve(null);
+                    }
+                );
             }
         );
 
@@ -476,6 +576,7 @@ function insertSubmissions() {
                     throw error;
                 }
                 dummySubmission2.id = results.insertId;
+                dummySubmission2.id_exam = dummyExam.id;
             }
         );
 
@@ -487,6 +588,7 @@ function insertSubmissions() {
                     throw error;
                 }
                 dummySubmission3.id = results.insertId;
+                dummySubmission3.id_exam = dummyExam.id;
             }
         );
     });
@@ -602,6 +704,7 @@ module.exports = {
     dummySubmission1,
     dummySubmission2,
     dummySubmission3,
+    dummySubmission1Finished,
     dummyExam,
     popDB,
     cleanDB,

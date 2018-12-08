@@ -51,7 +51,7 @@ function isAQuestion(question){
 
 function isASubmission(subm){
     return (subm != null && subm.id != null && (subm.task_type == 'open' || subm.task_type == 'single_c' || subm.task_type == 'multiple_c' || subm.task_type == 'submit')
-        && isAQuestion(subm.question) && subm.id_user != null && subm.id_exam != null && subm.completed != null && subm.points != null);
+        && isAQuestion(subm.question) && subm.id_user != null && subm.id_exam != null && subm.completed != null && subm.points != null && subm.points > 0);
 }
 
 function isASubmissionAnswer(subm){
@@ -59,7 +59,7 @@ function isASubmissionAnswer(subm){
 }
 
 function isASubmissionEvaluated(subm){
-    return (isASubmissionAnswer(subm) && subm.earned_points != null && subm.comment != null);
+    return (isASubmission(subm) && subm.earned_points != null && subm.earned_points >=0 && subm.comment != null && subm.earned_points <= subm.points);
 }
 
 function isAnArrayOfSubmission(submissions){

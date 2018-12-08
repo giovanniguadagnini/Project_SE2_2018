@@ -691,7 +691,9 @@ test('check isASubmission() with null as submission', () => {
 });
 
 test('check isASubmission() with invalid submission', () => {
-    expect(utilities.isASubmission([{id:111111}])).toEqual(false);
+    let subm = jsonCopy(dummySubmission1);
+    subm.id_user = null;
+    expect(utilities.isASubmission(subm)).toEqual(false);
 });
 
 test('check isASubmissionAnswer() with valid submission', () => {
@@ -700,7 +702,7 @@ test('check isASubmissionAnswer() with valid submission', () => {
     expect(utilities.isASubmissionAnswer(dummySubmission1)).toEqual(true);
 });
 
-test('check isASubmissionAnswer() with valid submission', () => {
+test('check isASubmissionAnswer() with invalid submission answer', () => {
     let subm = jsonCopy(dummySubmission1);
     subm.answer = null;
     expect(utilities.isASubmissionAnswer(subm)).toEqual(false);
@@ -710,20 +712,51 @@ test('check isASubmissionAnswer() with null as submission', () => {
     expect(utilities.isASubmissionAnswer(null)).toEqual(false);
 });
 
-test('check isASubmissionAnswer() with invalid submission', () => {
-    expect(utilities.isASubmissionAnswer([{id:111111}])).toEqual(false);
-});
-
-test('check isASubmissionEvaluated() with valid submission', () => {
+test('check isASubmissionEvaluated() with invalid submission because there is no points defined', () => {
     let subm = jsonCopy(dummySubmission1);
     subm.earned_points = 10;
+    subm.points = null;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with invalid submission evaluated', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.earned_points = null;
+    subm.comment = null;
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with submission evaluated, but not answered', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = null;
+    subm.earned_points = 10;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with submission evaluated with earned points == points', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = 'I\'m daniel san';
+    subm.earned_points = 10;
+    subm.points = 10;
     subm.comment = "bravo";
     expect(utilities.isASubmissionEvaluated(subm)).toEqual(true);
 });
 
-test('check isASubmissionEvaluated() with valid submission', () => {
+test('check isASubmissionEvaluated() with submission evaluated but with earned points > points', () => {
     let subm = jsonCopy(dummySubmission1);
-    subm.earned_points = null;
+    subm.answer = 'I\'m daniel san';
+    subm.earned_points = 10;
+    subm.points = 9;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with submission evaluated, but comment equals null', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = "ciao";
+    subm.earned_points = 10;
     subm.comment = null;
     expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
 });
@@ -749,7 +782,7 @@ test('check isAnArrayOfSubmission() with null as submission', () => {
 });
 
 test('check isAnArrayOfSubmission() with invalid submission', () => {
-    expect(utilities.isAnArrayOfSubmission([{id:111111}])).toEqual(false);
+    expect(utilities.isAnArrayOfSubmission([{id:111111, gelato: 'cioccolata', boffo: 'marcolino'}])).toEqual(false);
 });
 
 function jsonCopy(src) {

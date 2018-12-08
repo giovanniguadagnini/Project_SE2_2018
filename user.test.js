@@ -52,7 +52,9 @@ test('GET /users/validId?access_token=validId; should return 200 + users obj', a
       submissions: []
     };
     expect(userGET).toEqual(dummyStud);
-    expect(response.body.submissions.length).toBe(3);
+    console.log(response.body.submissions);
+    console.log(response.body.exam_eval);
+    expect(response.body.submissions.length).toBe(1);
     expect(response.body.exam_eval.length).toBe(1);
 });
 

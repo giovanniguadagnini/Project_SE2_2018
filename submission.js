@@ -2,10 +2,10 @@ const submissionDao = require('./submissionDao');
 
 function getAllSubmissions(req, res){ //Get all manageable submissions
     submissionDao.getAllSubmissions(req.user).then(submissions => {
-        if (submissions != null) {
+        if (submissions != null){
             res.status(200).json(submissions);
         } else {
-            res.status(404).send('No submission found');
+            res.status(500).send('Internal Server Error');
         }
     });
 }
@@ -36,17 +36,21 @@ function updateSubmission(req, res){
         comment_peer: req.body.comment_peer
     };
 
-    submissionDao.updateSubmission(req.user, submission).then( updSubmission => {
-        if(updSubmission == '400'){
-            res.status(400).send('Bad request');
-        }else if(updSubmission == '403'){
-            res.status(403).send('Forbidden');
-        }else if(updSubmission != null){
-            res.status(200).json(updSubmission);
-        }else{
-            res.status(404).send('Submission not found');
-        }
-    });
+    if(submission.id != req.params.id)
+        res.status(400).send('Bad request');
+    else{
+        submissionDao.updateSubmission(req.user, submission).then( updSubmission => {
+            if(updSubmission == '400'){
+                res.status(400).send('Bad request');
+            }else if(updSubmission == '403'){
+                res.status(403).send('Forbidden');
+            }else if(updSubmission != null){
+                res.status(200).json(updSubmission);
+            }else{
+                res.status(404).send('Submission not found');
+            }
+        });
+    }
 }
 
 module.exports = {getSubmissionById, updateSubmission, getAllSubmissions};
