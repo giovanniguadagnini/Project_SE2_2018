@@ -7,6 +7,8 @@ const connection = utilities.connection;
 * */
 function getAllSubmissions(loggedUser) {
     return new Promise(resolve => {
+        if(loggedUser == null || loggedUser.id == null)
+            resolve(null);
         let querySql = 'SELECT S.id FROM submission S';//fetch all the submissions' ids
         connection.query(querySql, [], function (error, results, fields) {
                 if (error) {
@@ -39,6 +41,8 @@ function getAllSubmissions(loggedUser) {
 * */
 function getSubmission(loggedUser, idSubmission) {
     return new Promise(resolve => {
+        if(loggedUser == null || loggedUser.id == null || idSubmission == null)
+            resolve(null);
         let querySql = 'SELECT S2.id, S2.id_task, S2.id_exam, S2.id_user, S2.answer, S2.completed, S2.comment, S2.earned_points, S2.points, ' +
             'S2.q_text, S2.q_url, S2.task_type, S2.q_possibility, CP.comment AS comment_peer FROM ' +
                 '(SELECT S1.id, S1.id_task, S1.id_exam, S1.id_user, S1.answer, S1.completed, S1.comment, S1.earned_points, S1.points, S1.q_text, S1.q_url, S1.task_type, TP.q_possibility ' +

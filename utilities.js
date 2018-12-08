@@ -43,7 +43,6 @@ function isAUserGroupBody(userGroup) {
 //return true if userGroup is a valid userGroup
 function isAUserGroup(userGroup) {
     return (userGroup != null && userGroup.id != null && isAUser(userGroup.creator) && userGroup.name != null && isAnArrayOfUser(userGroup.users));
-
 }
 
 function isAQuestion(question){
@@ -56,12 +55,24 @@ function isASubmission(subm){
 }
 
 function isASubmissionAnswer(subm){
-    return (isAValidSubmission(subm) && subm.answer != null);
-}
-function isASubmissionEvaluated(subm){
-    return (isAValidSubmissionAnswer(subm) && subm.earned_points != null && subm.comment != null);
+    return (isASubmission(subm) && subm.answer != null);
 }
 
+function isASubmissionEvaluated(subm){
+    return (isASubmissionAnswer(subm) && subm.earned_points != null && subm.comment != null);
+}
+
+function isAnArrayOfSubmission(submissions){
+    if(submissions == null || submissions.length == 0){
+        return false;
+    }else {
+        for(let subm of submissions){
+            if (!isASubmission(subm))
+                return false;
+        }
+        return true;
+    }
+}
 
 //return true if date is a valid date acceptable in our app
 function isAValidDate(date){
@@ -244,4 +255,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isASubmission, isASubmissionAnswer, isASubmissionEvaluated};
+module.exports = {connection, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated};

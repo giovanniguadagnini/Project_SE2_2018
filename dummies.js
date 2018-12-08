@@ -216,20 +216,20 @@ let dummyExam = {
     tasks: [dummyTask1, dummyTask2, dummyTask3],
     submissions: [dummySubmission1, dummySubmission2, dummySubmission3],
     start_time: {
-        year: 2018,
-        month: 12,
-        day: 12,
-        hour: 18,
-        minute: 0,
-        second: 0
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1,
+        day: new Date().getDate(),
+        hour: new Date().getHours() - 1,
+        minute: new Date().getMinutes(),
+        second: new Date().getSeconds()
     },
     deadline: {
-        year: 2018,
-        month: 12,
-        day: 12,
-        hour: 20,
-        minute: 30,
-        second: 0
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1,
+        day: new Date().getDate(),
+        hour: new Date().getHours() + 1,
+        minute: new Date().getMinutes(),
+        second: new Date().getSeconds()
     },
     reviewable: 'true',
     num_shuffle: 3
@@ -588,8 +588,8 @@ function cleanDB() {
 
 }
 
-//popDB();
 //cleanDB();
+//popDB();
 
 module.exports = {
     dummyStud,

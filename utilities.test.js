@@ -682,16 +682,74 @@ test('check compareEnrol() with equal year, month, day, hour, minute and second 
     expect(utilities.compareEnrol(userB, userA)).toEqual(0);
 });
 
-test('check isAValidSubmission() with valid submission', () => {
+test('check isASubmission() with valid submission', () => {
     expect(utilities.isASubmission(dummySubmission1)).toEqual(true);
 });
 
-test('check isAValidSubmission() with null as submission', () => {
+test('check isASubmission() with null as submission', () => {
     expect(utilities.isASubmission(null)).toEqual(false);
 });
 
-test('check isAValidSubmission() with invalid submission', () => {
+test('check isASubmission() with invalid submission', () => {
     expect(utilities.isASubmission([{id:111111}])).toEqual(false);
+});
+
+test('check isASubmissionAnswer() with valid submission', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = "test";
+    expect(utilities.isASubmissionAnswer(dummySubmission1)).toEqual(true);
+});
+
+test('check isASubmissionAnswer() with valid submission', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.answer = null;
+    expect(utilities.isASubmissionAnswer(subm)).toEqual(false);
+});
+
+test('check isASubmissionAnswer() with null as submission', () => {
+    expect(utilities.isASubmissionAnswer(null)).toEqual(false);
+});
+
+test('check isASubmissionAnswer() with invalid submission', () => {
+    expect(utilities.isASubmissionAnswer([{id:111111}])).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with valid submission', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.earned_points = 10;
+    subm.comment = "bravo";
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(true);
+});
+
+test('check isASubmissionEvaluated() with valid submission', () => {
+    let subm = jsonCopy(dummySubmission1);
+    subm.earned_points = null;
+    subm.comment = null;
+    expect(utilities.isASubmissionEvaluated(subm)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with null as submission', () => {
+    expect(utilities.isASubmissionEvaluated(null)).toEqual(false);
+});
+
+test('check isASubmissionEvaluated() with invalid submission', () => {
+    expect(utilities.isASubmissionEvaluated([{id:111111}])).toEqual(false);
+});
+
+test('check isAnArrayOfSubmission() with valid submission', () => {
+    expect(utilities.isAnArrayOfSubmission([dummySubmission1])).toEqual(true);
+});
+
+test('check isAnArrayOfSubmission() with empty array', () => {
+    expect(utilities.isAnArrayOfSubmission([])).toEqual(false);
+});
+
+test('check isAnArrayOfSubmission() with null as submission', () => {
+    expect(utilities.isAnArrayOfSubmission(null)).toEqual(false);
+});
+
+test('check isAnArrayOfSubmission() with invalid submission', () => {
+    expect(utilities.isAnArrayOfSubmission([{id:111111}])).toEqual(false);
 });
 
 function jsonCopy(src) {
