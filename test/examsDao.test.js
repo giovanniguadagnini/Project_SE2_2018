@@ -1,6 +1,6 @@
-const examsDao = require('./examsDao');
+const examsDao = require('../src/db/examsDao');
 
-const dummies = require('./dummies');
+const dummies = require('../src/dummies');
 
 const exam={
   name :'Esame di prova',

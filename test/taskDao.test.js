@@ -1,4 +1,4 @@
-const taskDao = require('./taskDao');
+const taskDao = require('../src/db/taskDao');
 
 test('taskDao module should be defined', () => {
     expect(taskDao).toBeDefined();

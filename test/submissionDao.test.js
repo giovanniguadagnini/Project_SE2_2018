@@ -1,6 +1,6 @@
-const submissionDao = require('./submissionDao');
-const dummiesDB = require('./dummies');
-const utilities = require('./utilities');
+const submissionDao = require('../src/db/submissionDao');
+const dummiesDB = require('../src/dummies');
+const utilities = require('../src/utilities');
 
 const dummyStud = dummiesDB.dummyStud;
 const dummyTeacher = dummiesDB.dummyTeacher;

@@ -1,4 +1,4 @@
-const utilities = require('./utilities');
+const utilities = require('../utilities');
 const connection = utilities.connection;
 
 /*  See if the user is already in the db, if not register it

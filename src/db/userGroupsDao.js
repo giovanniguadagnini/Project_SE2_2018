@@ -1,4 +1,4 @@
-const utilities = require('./utilities');
+const utilities = require('../utilities');
 const connection = utilities.connection;
 const userDao = require('./userDao');
 

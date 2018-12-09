@@ -1,5 +1,5 @@
-const userGroupsDao = require('./userGroupsDao');
-const dummiesDB = require('./dummies');
+const userGroupsDao = require('../src/db/userGroupsDao');
+const dummiesDB = require('../src/dummies');
 const dummyStud = dummiesDB.dummyStud;
 const dummyTeacher = dummiesDB.dummyTeacher;
 let dummyUserGroup = {

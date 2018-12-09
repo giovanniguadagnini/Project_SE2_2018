@@ -1,4 +1,4 @@
-const utilities = require('./utilities');
+const utilities = require('../utilities');
 const connection = utilities.connection; // DataBase connection
 
 // Get all the tasks with all the information without filtering

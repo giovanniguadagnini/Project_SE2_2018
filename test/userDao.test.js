@@ -1,4 +1,4 @@
-const userDao = require('./userDao');
+const userDao = require('../src/db/userDao');
 
 let bornTemp = {
     year: 1997,
@@ -48,7 +48,7 @@ let newUser2 = {
 const invalidId = '999999999999999999999999';
 const pureStringId = 'aaaaaaaaaaaaaaaaaaaaaa';
 
-const dummiesDB = require('./dummies');
+const dummiesDB = require('../src/dummies');
 
 beforeAll(() => {
     //return dummiesDB.popDB()

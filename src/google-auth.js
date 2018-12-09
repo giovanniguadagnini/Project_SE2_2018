@@ -3,7 +3,7 @@ const passport = require('passport');
 const {OAuth2Client} = require('google-auth-library');
 const {Strategy} = require('passport-http-bearer');
 
-const userDao = require('./userDao');
+const userDao = require('./db/userDao');
 
 /**
  * Function to register google authentication workflow.

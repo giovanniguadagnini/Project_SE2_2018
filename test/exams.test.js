@@ -1,8 +1,8 @@
 const request = require('supertest');
-const app = require('./app')
+const app = require('../src/app')
 
-const dummy = require('./dummies');
-const dummyStud = require('./dummies').dummyStud;
+const dummy = require('../src/dummies');
+const dummyStud = require('../src/dummies').dummyStud;
 
 const validId = dummyStud.id;
 const invalidId = '999999999999999999999999';

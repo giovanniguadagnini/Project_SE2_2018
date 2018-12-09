@@ -1,4 +1,4 @@
-const taskDao = require('./taskDao');
+const taskDao = require('./db/taskDao');
 
 function getTasks(req, res) { //Get all the manageable tasks
     taskDao.getTasks(req.user).then(tasks => {

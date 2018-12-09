@@ -1,4 +1,4 @@
-const submissionDao = require('./submissionDao');
+const submissionDao = require('./db/submissionDao');
 
 function getAllSubmissions(req, res){ //Get all manageable submissions
     submissionDao.getAllSubmissions(req.user).then(submissions => {

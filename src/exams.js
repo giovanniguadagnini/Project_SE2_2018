@@ -1,4 +1,4 @@
-const examDao = require('./examsDao');
+const examDao = require('./db/examsDao');
 
 function createExam(req, res) { //Create an exam
     let id=req.user.id;

@@ -1,4 +1,4 @@
-const userDao = require('./userDao');
+const userDao = require('./db/userDao');
 
 /*function which handle GET /users */
 function getUsers(req, res) {

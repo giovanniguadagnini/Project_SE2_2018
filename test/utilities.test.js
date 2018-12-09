@@ -1,4 +1,4 @@
-const utilities = require('./utilities');
+const utilities = require('../src/utilities');
 let bornTemp = {
     year: 1997,
     month: 10,

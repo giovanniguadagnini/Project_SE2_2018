@@ -1,4 +1,4 @@
-const utilities = require('./utilities');
+const utilities = require('../utilities');
 const connection = utilities.connection;
 
 /*  Fetching all the submissions that the loggedUser has the right to see,

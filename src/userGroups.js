@@ -1,5 +1,5 @@
-const userGroupsDao = require('./userGroupsDao')
-const userDao = require('./userDao');
+const userGroupsDao = require('./db/userGroupsDao')
+const userDao = require('./db/userDao');
 const utilities = require('./utilities');
 
 function createUserGroup(req, res){

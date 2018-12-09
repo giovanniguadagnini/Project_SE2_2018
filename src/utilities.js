@@ -1,7 +1,7 @@
 //db connection
 const mysql = require('mysql');
 let connection;
-if (process.env.NODE_ENV !== 'test') {
+/*if (process.env.NODE_ENV !== 'test') {
     connection = mysql.createConnection({
         host: 'sql7.freesqldatabase.com',
         user: 'sql7268259',
@@ -15,7 +15,14 @@ if (process.env.NODE_ENV !== 'test') {
         password: '43qyYp5ajn',
         database: 'sql7268710'
     });
-}
+}*/
+
+connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'giovanni',
+    password: 'password',
+    database: 'se2db'
+});
 
 //return true if user is a valid user
 function isAUser(user){
