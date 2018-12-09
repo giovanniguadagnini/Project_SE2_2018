@@ -186,45 +186,46 @@ function getAllExams(loggedUser){
     let promise = new Promise(function(resolve, reject){
       //Ricavo tutti gli esami di cui sono owner
       let exams=[];
-      connection.query('SELECT id FROM exam WHERE id_owner = ? ', [loggedUser.id], function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-        let ExamsP = [];
-        let examPromise;
-        for(let exam of results){
-          examPromise = getExam(id_user,exam.id);
-          ExamsP.push(examPromise);
-          examPromise.then(ex => {
-              exams.push(ex);
-          });
-        }
-
-        resolve(Promise.all(ExamsP).then(d => {return exams}));
+      let waiting= new Promise(resolve => {
+        connection.query('SELECT id FROM exam WHERE id_owner = ? ', [loggedUser.id], function (error, results, fields) {
+          if (error) {
+              throw error;
+              resolve(null);
+          }
+          let ExamsP = [];
+          let examPromise;
+          for(let exam of results){
+            examPromise = getExam(loggedUser, exam.id).then(ex => {
+                exams.push(ex);
+            });
+            ExamsP.push(examPromise);
+          }
+          return Promise.all(ExamsP).then(d => {resolve(exams)});
+        });
       });
+      return Promise.all([waiting]).then(d => {resolve(exams)});
     });
 
-    promise.then(function(result) {
+    promise.then(function(exams) {
       //Ricavo tutti gli esami di cui sono teacher
-      let exams=result;
-      connection.query('SELECT id_exam FROM teacher_exam WHERE id_teacher = ? ', [loggedUser.id], function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-        let ExamsP = [];
-        let examPromise;
-        for(let exam of results){
-          examPromise = getExam(id_user,exam.id_exam);
-          ExamsP.push(examPromise);
-          examPromise.then(ex => {
-              exams.push(ex);
-          });
-        }
-
-      return Promise.all(ExamsP).then(d => {return exams});
+      let waiting= new Promise(resolve => {
+        connection.query('SELECT id_exam FROM teacher_exam WHERE id_teacher = ? ', [loggedUser.id], function (error, results, fields) {
+          if (error) {
+              throw error;
+              resolve(null);
+          }
+          let ExamsP = [];
+          let examPromise;
+          for(let exam of results){
+            examPromise = getExam(loggedUser, exam.id_exam).then(ex => {
+                exams.push(ex);
+            });
+            ExamsP.push(examPromise);
+          }
+          return Promise.all(ExamsP).then(d => {resolve(exams)});
+        });
       });
+      return Promise.all([waiting]).then(d => {return exams });
     }).then(function(exams) {
       if(exams!=null){
         resolveExt(exams);
@@ -309,8 +310,8 @@ function getExam(loggedUser,id_exam){
     });
     promise.then(function(exam) {
       if(exam!=null){
-        console.log("Prima promise: recuperati owner e students");
-        console.log(exam);
+        /*console.log("Prima promise: recuperati owner e students");
+        console.log(exam);*/
         //Recupero i teachers associati a questo exam
         let waiting= new Promise(resolve => {
           connection.query('SELECT id_teacher FROM teacher_exam WHERE id_exam = ?', [exam.id], function (error, results, fields) {
@@ -349,7 +350,7 @@ function getExam(loggedUser,id_exam){
             }
           });
         });
-        return Promise.all([waiting]).then(d => {console.log(exam);return exam });
+        return Promise.all([waiting]).then(d => {return exam });
       }else{//Altrimenti
         return null;
       }
@@ -370,8 +371,8 @@ function getExam(loggedUser,id_exam){
       }
     }*/).then(function(exam) {
       if(exam!=null){
-        console.log("Seconsa promise: recuperati i teachers");
-        console.log(exam);
+        /*console.log("Seconsa promise: recuperati i teachers");
+        console.log(exam);*/
         //Recupero tasks
         let Tasks = [];
         let TasksPromise;
@@ -385,8 +386,8 @@ function getExam(loggedUser,id_exam){
       }
     }).then(function(exam) {
       if(exam!=null){
-        console.log("Terza promise: recuperati i tasks");
-        console.log(exam);
+        /*console.log("Terza promise: recuperati i tasks");
+        console.log(exam);*/
         //Recupero submissions
         let Submissions = [];
         let SubmissionsPromise;
@@ -402,8 +403,8 @@ function getExam(loggedUser,id_exam){
       }
     }).then(function(exam) {
       if(exam!=null){
-        console.log("Quarta promise: recuperati le submissions");
-        console.log(exam);
+        /*console.log("Quarta promise: recuperati le submissions");
+        console.log(exam);*/
         resolveExt(exam);
       }else{
         resolveExt(null);
@@ -610,45 +611,52 @@ function deleteExam(loggedUser,id_exam){
   return new Promise(resolveExt => {
     let promise = new Promise(function(resolve, reject) {
       //Controllo se l'esame esiste e se lo user che ha chiesto di cancellarlo è l'owner
-      connection.query('SELECT id,start_time FROM exam WHERE id_owner = ? AND id = ?', [loggedUser,id_exam], function (error, results, fields) {
-        if (error) {
-            throw error;
-            resolve(null);
-        }
-        if(results.length>0){//Se gli id corrispondono e l'esame esiste
-          var t=results[0].start_time.split(/[- :]/);
-          var start_date_exam = new Date(Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]));
-          var now = Date.now();
-          if (start_date_exam.getTime()<now) {//Esame già cominciato, non è possibile fare la delete
+      //let waiting= new Promise(resolve => {
+        connection.query('SELECT id,start_time FROM exam WHERE id_owner = ? AND id = ?', [loggedUser.id,id_exam], function (error, results, fields) {
+          if (error) {
+              throw error;
               resolve(null);
-          }else{
-            resolve(id_exam);//Proseguo facendo la delete
           }
-        }else{
-          resolve(null);
-        }
-      });
+          if(results.length>0){//Se gli id corrispondono e l'esame esiste
+            let t1=results[0].start_time+'';
+            let t=t1.split(/[- :]/);
+            let start_date_exam = new Date(Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]));
+            let now = Date.now();
+            if (start_date_exam.getTime()<now) {//Esame già cominciato, non è possibile fare la delete
+                resolve(null);
+            }else{
+              resolve(id_exam);//Proseguo facendo la delete
+            }
+          }else{
+            resolve(null);
+          }
+        });
+      /*});
+      return Promise.all([waiting]).then(d => {resolve(exams)});*/
     });
     promise.then(function(exam_id) {
       if(exam_id!=null){
         //Recupero l'esame che poi ritornerò se la DELETE andrà a buon fine
-        getExam(loggedUser,exam_id).then(Exam => {return Exam});
+        return getExam(loggedUser,exam_id).then(Exam => {return Exam});
       }else{
         return null;
       }
     }).then(function(exam) {
       if(exam!=null){
-        connection.query('DELETE FROM exam WHERE id = ?', [id_exam], function (error, results, fields) {
-            if (error) {
-                throw error;
-                return null;
-            }
-            if (results.affectedRows > 0) {
-                return exam;
-            }else{
-              return null;
-            }
+        let waiting= new Promise(resolve => {
+          connection.query('DELETE FROM exam WHERE id = ?', [id_exam], function (error, results, fields) {
+              if (error) {
+                  throw error;
+                  return null;
+              }
+              if (results.affectedRows > 0) {
+                  resolve(exam);
+              }else{
+                resolve(null);
+              }
+          });
         });
+        return Promise.all([waiting]).then(d => {return exam});
       }else{
         return null;
       }

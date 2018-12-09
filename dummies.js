@@ -233,7 +233,7 @@ let dummyExam = {
     id: 1,
     name: "NP complete problems",
     owner: dummyTeacher,
-    teachers: [dummyTeacher],
+    teachers: [dummyTeacher2],
     students: dummyUserGroup,
     tasks: [dummyTask1, dummyTask2, dummyTask3],
     submissions: [dummySubmission1, dummySubmission2, dummySubmission3],
@@ -375,7 +375,7 @@ function insertExams() {
                 }
             );
         });
-        
+
         promiseFirst.then(() => {
             let start_time = dummyExamFinished.start_time.year + '-' + dummyExamFinished.start_time.month + '-' + dummyExamFinished.start_time.day + ' ' + dummyExamFinished.start_time.hour + ':' + dummyExamFinished.start_time.minute + ':' + dummyExamFinished.start_time.second;
             let deadline = dummyExamFinished.deadline.year + '-' + dummyExamFinished.deadline.month + '-' + dummyExamFinished.deadline.day + ' ' + dummyExamFinished.deadline.hour + ':' + dummyExamFinished.deadline.minute + ':' + dummyExamFinished.deadline.second;
@@ -393,7 +393,7 @@ function insertExams() {
             );
         });
     });
-        
+
 }
 
 function insertTeacherExam() {

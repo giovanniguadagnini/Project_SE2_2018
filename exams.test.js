@@ -239,15 +239,31 @@ test('GET /exams/validId?access_token=invalidId ; should return 401', async () =
     expect(response.body).toEqual({});
 });*/
 
-/*test('GET /exams/?access_token=validId ; should return 200 + all managable exam', async () => {
+test('GET /exams/?access_token=validId(Owner) ; should return 200 + all managable exam', async () => {
   expect.assertions(2);
     //[TODO]Fare query che aggiunge un esame per prendere entrambi gli id, sia dell'esame che del teacher associato all'esame
-    const response = await request(app).get('/exams/?access_token=' + validTeacherId);
+    const response = await request(app).get('/exams/?access_token=' + dummies.dummyExam.owner.id);
     expect(response.statusCode).toBe(201);
     expect(response.body).toBeDefined();//[TODO]Da controllare struttura dell'exam ritornato
-});*/
+});
 
-/*test('GET /exams/ without access_token; should return 401', async () => {
+test('GET /exams/?access_token=validId(Teacher) ; should return 200 + all managable exam', async () => {
+  expect.assertions(2);
+    //[TODO]Fare query che aggiunge un esame per prendere entrambi gli id, sia dell'esame che del teacher associato all'esame
+    const response = await request(app).get('/exams/?access_token=' + dummies.dummyExam.teachers[0].id);
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toBeDefined();//[TODO]Da controllare struttura dell'exam ritornato
+});
+
+test('GET /exams/?access_token=validId(Student that not have exams) ; should return 200 + no exams', async () => {
+  expect.assertions(2);
+    //[TODO]Fare query che aggiunge un esame per prendere entrambi gli id, sia dell'esame che del teacher associato all'esame
+    const response = await request(app).get('/exams/?access_token=' + dummies.dummyStud.id);
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toEqual([]);//[TODO]Da controllare struttura dell'exam ritornato
+});
+
+test('GET /exams/ without access_token; should return 401', async () => {
     expect.assertions(2);
     let response = await request(app).get('/exams/');
     expect(response.statusCode).toBe(401);
@@ -261,7 +277,7 @@ test('GET /exams/?access_token=invalidId ; should return 401', async () => {
     expect(response.body).toEqual({});
 });
 
-test('PUT /exams/validId; should return 200 + users obj', async () => {//[TODO]
+/*test('PUT /exams/validId; should return 200 + users obj', async () => {//[TODO]
     expect.assertions(2);
     let response = await request(app).put('/exams/' + validId).set('Authorization', 'Bearer ' + validId).send();
     expect(response.statusCode).toBe(200);
@@ -319,24 +335,31 @@ test('PUT /exams/pureStringId with string as id in the uri; should return 400', 
     expect(response.statusCode).toBe(403);
     expect(response.body).toEqual({});
 });
-
+*/
 test('DELETE /exams/validId; should return 200 + exams obj', async () => {//[TODO]
     expect.assertions(2);
-    let response = await request(app).delete('/users/' + validId).set('Authorization', 'Bearer ' + validId).send(dummyStud);
+    let response = await request(app).delete('/exams/' + dummies.dummyExam.id).set('Authorization', 'Bearer ' + dummies.dummyExam.owner.id).send(dummies.dummyExam);
     expect(response.statusCode).toBe(200);
     expect(response.body).toBeDefined();
-});*/
+});
 
-/*test('DELETE /exams/invalidId in the uri + invalidAccessToken; should return 401 + {}', async () => {//[TODO]
+test('DELETE /exams/invalidId in the uri + invalidAccessToken; should return 401 + {}', async () => {//[TODO]
     expect.assertions(2);
-    let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId);
+    let response = await request(app).delete('/exams/' + invalidId).set('Authorization', 'Bearer ' + 36452423546).send(dummies.dummyExam);
     expect(response.statusCode).toBe(401);
     expect(response.body).toEqual({});
 });
 
 test('DELETE /exams/invalidId in the uri + validAccessToken; should return 400 + {}', async () => {//[TODO]
     expect.assertions(2);
-    let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({id: invalidId});
+    let response = await request(app).delete('/exams/' + 645645342).set('Authorization', 'Bearer ' + dummies.dummyExam.owner.id).send();
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({});
-});*/
+});
+
+test('DELETE /exams/validIdButNotOwner in the uri + validAccessToken; should return 400 + {}', async () => {//[TODO]
+    expect.assertions(2);
+    let response = await request(app).delete('/exams/' + dummies.dummyExam.id).set('Authorization', 'Bearer ' + dummies.dummyExam.teachers[0].id).send();
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({});
+});

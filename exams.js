@@ -20,12 +20,13 @@ function createExam(req, res) { //Create an exam
 };
 
 function getAllExams(req, res) { //Get all managable exams
-  let exams = examDao.getAllExams(req.user.id);
-  if(exams != null) {
-      res.status(201).send(exams);
-  } else {
-      res.status(400).send("Bad request");
-  }
+  let exams = examDao.getAllExams(req.user).then(exams => {
+    if (exams != null) {
+        res.status(201).send(exams);
+    } else {
+        res.status(400).send("Bad Request");
+    }
+  });
 };
 
 function getExam(req, res) { //Get an exam by id
@@ -71,17 +72,18 @@ function updateExam(req, res) {
 
 function deleteExam(req, res) {
   let id_exam = req.params.id;
-  if(id_exam == parseInt(id_exam, 10)) {
-      exam = examDao.deleteExam(req.user.id,id_exam);
-      if (exam != null) {
+  let exam = {id: req.body.id};
+  if(id_exam==exam.id) {
+      examDao.deleteExam(req.user,exam.id).then(exam => {
+        if (exam != null) {
           res.status(200).send(exam);
-      } else {
+        } else {
           res.status(404).send("Exam not found");
-      }
+        }
+      });
   }else{
       res.status(400).send("Invalid ID");
   }
-
 };
 
 module.exports = {createExam,getExam,getAllExams,updateExam,deleteExam};
