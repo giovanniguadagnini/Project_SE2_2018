@@ -87,7 +87,7 @@ test('GET /users?access_token=validId without parameter; should return 200 + all
     expect.assertions(3);
     let response = await request(app).get('/users?access_token=' + validId);
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(3);
+    expect(response.body.length).toBe(4);
     expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
 });
 
@@ -95,7 +95,7 @@ test('GET /users?access_token=validId with only enrolledBefore param; should ret
     expect.assertions(3);
     let response = await request(app).get('/users?access_token=' + validId).query({enrolledBefore: '2019'});
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(3);
+    expect(response.body.length).toBe(4);
     expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
 });
 
@@ -103,7 +103,7 @@ test('GET /users?access_token=validId with only enrolledBefore param; should ret
     expect.assertions(4);
     let response = await request(app).get('/users?access_token=' + validId).query({enrolledAfter: '2012'});
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(1);
+    expect(response.body.length).toBe(2);
     expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
     let before = false; // true if there is a user that has been enrolled before 2012
     for(let user of response.body){
@@ -152,7 +152,7 @@ test('GET /users?access_token=validId with enrol sorting param; should return 20
     expect.assertions(4);
     let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol'});
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(3);
+    expect(response.body.length).toBe(4);
     expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
     expect(response.body.sort(utilities.compareEnrol)).toEqual(response.body);//enrol sorted
 });
@@ -161,7 +161,7 @@ test('GET /users?access_token=validId with enrol sorting, enrolledAfter & enroll
     expect.assertions(5);
     let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol', enrolledAfter: '1970', enrolledBefore: '2019'});
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(3);
+    expect(response.body.length).toBe(4);
     expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
     let before = false; // true if there is a user that has been enrolled before 2010
     let after = false; // true if there is a user that has been enrolled after 2013
@@ -179,7 +179,7 @@ test('GET /users?access_token=validId with enrol sorting param; should return 20
     expect.assertions(4);
     let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol'});
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(3);
+    expect(response.body.length).toBe(4);
     expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
     expect(response.body.sort(utilities.compareEnrol)).toEqual(response.body);//enrol sorted
 });

@@ -299,6 +299,18 @@ function insertUser() {
             }
         );
 
+        born = dummyStud2.born.year + '-' + dummyStud2.born.month + '-' + dummyStud2.born.day + ' ' + dummyStud2.born.hour + ':' + dummyStud2.born.minute + ':' + dummyStud2.born.second;
+        enrolled = dummyStud2.enrolled.year + '-' + dummyStud2.enrolled.month + '-' + dummyStud2.enrolled.day + ' ' + dummyStud2.enrolled.hour + ':' + dummyStud2.enrolled.minute + ':' + dummyStud2.enrolled.second;
+        connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
+            [dummyStud2.id, dummyStud2.name, dummyStud2.surname, dummyStud2.email, born, enrolled],
+            function (error, results, fields) {
+                if (error) {
+                    //connection.end();
+                    throw error;
+                }
+            }
+        );
+
         born = dummyTeacher.born.year + '-' + dummyTeacher.born.month + '-' + dummyTeacher.born.day + ' ' + dummyTeacher.born.hour + ':' + dummyTeacher.born.minute + ':' + dummyTeacher.born.second;
         enrolled = dummyTeacher.enrolled.year + '-' + dummyTeacher.enrolled.month + '-' + dummyTeacher.enrolled.day + ' ' + dummyTeacher.enrolled.hour + ':' + dummyTeacher.enrolled.minute + ':' + dummyTeacher.enrolled.second;
         connection.query('INSERT INTO user (id, name, surname, email, born, enrolled) VALUES (?,?,?,?,?,?)',
@@ -375,7 +387,7 @@ function insertExams() {
                 }
             );
         });
-        
+
         promiseFirst.then(() => {
             let start_time = dummyExamFinished.start_time.year + '-' + dummyExamFinished.start_time.month + '-' + dummyExamFinished.start_time.day + ' ' + dummyExamFinished.start_time.hour + ':' + dummyExamFinished.start_time.minute + ':' + dummyExamFinished.start_time.second;
             let deadline = dummyExamFinished.deadline.year + '-' + dummyExamFinished.deadline.month + '-' + dummyExamFinished.deadline.day + ' ' + dummyExamFinished.deadline.hour + ':' + dummyExamFinished.deadline.minute + ':' + dummyExamFinished.deadline.second;
@@ -393,7 +405,7 @@ function insertExams() {
             );
         });
     });
-        
+
 }
 
 function insertTeacherExam() {
@@ -695,6 +707,7 @@ function cleanDB() {
 
 module.exports = {
     dummyStud,
+    dummyStud2,
     dummyTeacher,
     dummyTeacher2,
     dummyUserGroup,

@@ -71,8 +71,52 @@ let dummySubmission1 = {
     earned_points: 0
 };
 
+let newTask = {
+    id: '269',
+    owner: newUser,
+    task_type: 'open',
+    question: {
+        text: 'testCreateTask0',
+        possibilities: [],
+        base_upload_url: 'http://uploadhere.com/dummy/v1/'
+    },
+    points: '1'
+};
+
 test('utilities module should be defined', () => {
     expect(utilities).toBeDefined();
+});
+
+test('check isATask() with valid task', () => {
+    expect(utilities.isATask(newTask)).toEqual(true);
+});
+test('check isATask() with valid task', () => {
+    newTask.task_type = 'submit';
+    expect(utilities.isATask(newTask)).toEqual(true);
+});
+test('check isATask() with valid task', () => {
+    newTask.task_type = 'single_c';
+    newTask.question.possibilities = ['0', '1'];
+    expect(utilities.isATask(newTask)).toEqual(true);
+});
+test('check isATask() with invalid task question', () => {
+    newTask.question.possibilities = [];
+    expect(utilities.isATask(newTask)).toEqual(false);
+});
+test('check isATask() with invalid task field', () => {
+    newTask.points = null;
+    expect(utilities.isATask(newTask)).toEqual(false);
+});
+test('check isATask() with invalid task field', () => {
+    newTask.points = null;
+    newTask.owner = {id:111111};
+    expect(utilities.isATask(newTask)).toEqual(false);
+});
+test('check isATask() with null task field', () => {
+    expect(utilities.isATask(null)).toEqual(false);
+});
+test('check isATask() with null task field', () => {
+    expect(utilities.isATaskBody(null)).toEqual(false);
 });
 
 test('check isAnArrayOfUser() with valid users', () => {
