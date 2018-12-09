@@ -1,10 +1,27 @@
 //db connection
 const mysql = require('mysql');
-const connection = mysql.createConnection({
-    host: 'sql7.freesqldatabase.com',
-    user: 'sql7268259',
-    password: 'VvFmxJMKk3',
-    database: 'sql7268259'
+let connection;
+/*if (process.env.NODE_ENV !== 'test') {
+    connection = mysql.createConnection({
+        host: 'sql7.freesqldatabase.com',
+        user: 'sql7268259',
+        password: 'VvFmxJMKk3',
+        database: 'sql7268259'
+    });
+} else {
+    connection = mysql.createConnection({
+        host: 'sql7.freesqldatabase.com',
+        user: 'sql7268710',
+        password: '43qyYp5ajn',
+        database: 'sql7268710'
+    });
+}*/
+
+connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'giovanni',
+    password: 'password',
+    database: 'se2db'
 });
 
 //return true if task is a valid task
@@ -12,15 +29,16 @@ function isATask(task) {
     return task != null && task.id != null && task.id != 'null' && isAUser(task.owner) && isATaskBody(task);
 }
 
-//return true if task is a valid task
+//return true if task has a valid body
 function isATaskBody(task) {
-    if ( task.task_type != null && task.question != null && task.question.text != null && task.points != null) {
+    if (task != null && task.task_type != null && task.question != null && task.question.text != null && task.points != null) {
         if ((task.task_type == 'single_c' || task.task_type == 'multiple_c'))
             return (task.question.possibilities.length > 0);
         else if ((task.task_type == 'submit'))
-            return (task.question.base_upload_url != null );
+            return (task.question.base_upload_url != null && task.question.possibilities.length == 0);
         else
-            return (task.task_type == 'open');
+        if ((task.task_type == 'open'))
+            return (task.question.possibilities.length == 0);
     } else
         return false;
 }
@@ -51,6 +69,19 @@ function isAUserGroupBody(userGroup) {
 //return true if userGroup is a valid userGroup
 function isAUserGroup(userGroup) {
     return (userGroup != null && userGroup.id != null && isAUser(userGroup.creator) && userGroup.name != null && isAnArrayOfUser(userGroup.users));
+}
+
+//return true if userGroups is a valid array of userGroups
+function isAnArrayOfUserGroups(userGroups) {
+    if (userGroups == null || userGroups.length == 0) {
+        return false;
+    } else {
+        for (let userGroup of userGroups) {
+            if (!isAUserGroup(userGroup))
+                return false;
+        }
+        return true;
+    }
 }
 
 //return true if date is a valid date acceptable in our app
@@ -234,4 +265,4 @@ function convertMonth(month) {
     return ret;
 }
 
-module.exports = { connection, isATask, isATaskBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup };
+module.exports = { connection, isATask, isATaskBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups };
