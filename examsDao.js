@@ -181,12 +181,12 @@ function createExam(loggedUser, exam){
   });
 }
 
-function getAllExams(id_user){
+function getAllExams(loggedUser){
   return new Promise(resolveExt => {
     let promise = new Promise(function(resolve, reject){
       //Ricavo tutti gli esami di cui sono owner
       let exams=[];
-      connection.query('SELECT id FROM exam WHERE id_owner = ? ', [id_user], function (error, results, fields) {
+      connection.query('SELECT id FROM exam WHERE id_owner = ? ', [loggedUser.id], function (error, results, fields) {
         if (error) {
             throw error;
             resolve(null);
@@ -208,7 +208,7 @@ function getAllExams(id_user){
     promise.then(function(result) {
       //Ricavo tutti gli esami di cui sono teacher
       let exams=result;
-      connection.query('SELECT id_exam FROM teacher_exam WHERE id_teacher = ? ', [id_user], function (error, results, fields) {
+      connection.query('SELECT id_exam FROM teacher_exam WHERE id_teacher = ? ', [loggedUser.id], function (error, results, fields) {
         if (error) {
             throw error;
             resolve(null);
@@ -258,9 +258,6 @@ function getExam(loggedUser,id_exam){
           });
           Promises.push(prom2);
           return Promise.all(Promises).then(d => {
-            /*console.log("post 2 query");
-            console.log(user);
-            console.log(userGroup);*/
             let start_time1 = null;
             if (results[0].start_time != null) {
                 let temp = results[0].start_time;
@@ -296,7 +293,7 @@ function getExam(loggedUser,id_exam){
                 students: userGroup,
                 tasks: [],
                 submissions: [],
-                start_time:results[0].start_time1,
+                start_time:start_time1,
                 deadline: deadline1,
                 reviewable: results[0].reviewable,
                 num_shuffle: results[0].num_shuffle
@@ -312,6 +309,8 @@ function getExam(loggedUser,id_exam){
     });
     promise.then(function(exam) {
       if(exam!=null){
+        console.log("Prima promise: recuperati owner e students");
+        console.log(exam);
         //Recupero i teachers associati a questo exam
         let waiting= new Promise(resolve => {
           connection.query('SELECT id_teacher FROM teacher_exam WHERE id_exam = ?', [exam.id], function (error, results, fields) {
@@ -354,8 +353,9 @@ function getExam(loggedUser,id_exam){
       }else{//Altrimenti
         return null;
       }
-    }).then(function(exam) {
+    }/*).then(function(exam) {
       if(exam!=null){
+
         //Recupero lo user group
         let id_user_group=exam.students.id;
         let getUserGroup1 = [];
@@ -364,12 +364,14 @@ function getExam(loggedUser,id_exam){
           exam.students=userGroup;
         });
         getUserGroup1.push(UserGroupPromise);
-        return Promise.all(getUserGroup1).then(d => {console.log(exam);return exam});
+        return Promise.all(getUserGroup1).then(d => {return exam});
       }else{//Altrimenti
         return null;
       }
-    }).then(function(exam) {
+    }*/).then(function(exam) {
       if(exam!=null){
+        console.log("Seconsa promise: recuperati i teachers");
+        console.log(exam);
         //Recupero tasks
         let Tasks = [];
         let TasksPromise;
@@ -383,21 +385,25 @@ function getExam(loggedUser,id_exam){
       }
     }).then(function(exam) {
       if(exam!=null){
+        console.log("Terza promise: recuperati i tasks");
+        console.log(exam);
         //Recupero submissions
-        /*let Submissions = [];
+        let Submissions = [];
         let SubmissionsPromise;
-        SubmissionsPromise=submissionsDao.getSubmissionByIdExam(loggedUser,id_exam).then(submissions => {
+        SubmissionsPromise=submissionsDao.getSubmissionsByExam(loggedUser,exam).then(submissions => {
           exam.submissions=submissions;
         });
-        Tasks.push(SubmissionsPromise);
-        return Promise.all(Submissions).then(d => {return exam});*/
-        exam.submissions=[];
+        Submissions.push(SubmissionsPromise);
+        return Promise.all(Submissions).then(d => {return exam});
+        //exam.submissions=[];
         return exam;
       }else{//Altrimenti
         return null;
       }
     }).then(function(exam) {
       if(exam!=null){
+        console.log("Quarta promise: recuperati le submissions");
+        console.log(exam);
         resolveExt(exam);
       }else{
         resolveExt(null);

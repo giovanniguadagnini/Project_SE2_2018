@@ -5,12 +5,16 @@ const connection = utilities.connection;
     so they have to be either its own submissions or the submissions that have been part
     of an exam he/she was teacher of
 * */
-function getAllSubmissions(loggedUser) {
+function getAllSubmissions(loggedUser, exam) { //exam defined when you want to filter for a specific exam
     return new Promise(resolve => {
         if(loggedUser == null || loggedUser.id == null)
             resolve(null);
-        let querySql = 'SELECT S.id FROM submission S';//fetch all the submissions' ids
-        connection.query(querySql, [], function (error, results, fields) {
+        let querySql = 'SELECT S.id FROM submission S WHERE S.id_exam = ?';//fetch all the submissions' ids
+        if(exam == null) {//if exam does not exist, fetch all the possible submission's ids
+            querySql += ' OR 1=1';
+            exam = {id: 0};
+        }
+        connection.query(querySql, [exam.id], function (error, results, fields) {
                 if (error) {
                     throw error;
                     resolve(null);
@@ -237,14 +241,25 @@ function insertSubmission(loggedUser, submission){
         if(submission == null)
             resolve(null);
 
-        let queryInsert = 'INSERT INTO submission (id_task, id_user, id_exam, completed, earned_points) VALUES (?,?,?,false,0)';
-        connection.query(queryInsert, [submission.id_task, submission.id_user, submission.id_exam], function (error, results, fields) {
+        // find if the logged user is an administrator of the exam
+        let queryAuth = 'SELECT id_teacher FROM teacher_exam WHERE id_exam = ? AND id_teacher = ?';
+        connection.query(queryAuth, [exam.id, loggedUser.id], function (error, results, fields) {
             if (error) {
                 throw error;
                 resolve(null);
-            } else {
-                submission.id = results.insertId;
-                getSubmission(loggedUser, submission.id).then(newSubm => resolve(newSubm));//return newly inserted submission
+            } else if (results.length > 0){ // auth ok
+                let queryInsert = 'INSERT INTO submission (id_task, id_user, id_exam, completed, earned_points) VALUES (?,?,?,false,0)';
+                connection.query(queryInsert, [submission.id_task, submission.id_user, submission.id_exam], function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                        resolve(null);
+                    } else {
+                        submission.id = results.insertId;
+                        getSubmission(loggedUser, submission.id).then(newSubm => resolve(newSubm));//return newly inserted submission
+                    }
+                });
+            }else{
+                resolve(null); // no auth
             }
         });
     });
@@ -258,16 +273,50 @@ function cleanExamSubmissions(loggedUser, exam){
         if(exam == null || exam.id == null)
             resolve(null);
 
-        let queryDelete = 'DELETE FROM submission WHERE id_exam = ?';
-        connection.query(queryDelete, [exam.id], function (error, results, fields) {
+        // find if the logged user is an administrator of the exam
+        let queryAuth = 'SELECT id_teacher FROM teacher_exam WHERE id_exam = ? AND id_teacher = ?';
+        connection.query(queryAuth, [exam.id, loggedUser.id], function (error, results, fields) {
             if (error) {
                 throw error;
                 resolve(null);
-            } else {
-                resolve(true);
+            } else if (results.length > 0){ // auth ok
+                let queryDelete = 'DELETE FROM submission WHERE id_exam = ?';
+                connection.query(queryDelete, [exam.id], function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                        resolve(null);
+                    } else {
+                        resolve(true);
+                    }
+                });
+            }else{
+                resolve(null); // no auth
             }
         });
     });
 }
 
-module.exports = {getAllSubmissions, getSubmission, updateSubmission, insertInExam, cleanExamSubmissions};
+/*  This functions helps the examDao module to fetch all the submissions object
+    related to a specific exam
+* */
+function getSubmissionsByExam(loggedUser, exam){
+    return new Promise(resolve => {
+        if(exam == null || exam.id == null)
+            resolve(null);
+
+        // find if the logged user is an administrator of the exam
+        let queryAuth = 'SELECT id_teacher FROM teacher_exam WHERE id_exam = ? AND id_teacher = ?';
+        connection.query(queryAuth, [exam.id, loggedUser.id], function (error, results, fields) {
+            if (error) {
+                throw error;
+                resolve(null);
+            } else if (results.length > 0){ // auth ok
+                getAllSubmissions(loggedUser, exam).then(submissions => resolve(submissions));
+            }else{
+                resolve(null); // no auth
+            }
+        });
+    });
+}
+
+module.exports = {getAllSubmissions, getSubmission, updateSubmission, insertInExam, cleanExamSubmissions, getSubmissionsByExam};
