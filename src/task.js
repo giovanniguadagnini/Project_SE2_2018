@@ -5,7 +5,7 @@ function getTasks(req, res) { //Get all the manageable tasks
         if (tasks != null) {
             res.status(200).json(tasks);
         } else {
-            res.status(400).send("Bad request");
+            res.status(500).send("Internal Server Error");
         }
     });
 };

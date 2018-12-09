@@ -25,7 +25,7 @@ function getTasks(loggedUser) {
                 Promise.all(promise_tasks).then(() => { //Wait the fetch of every task, then returns the array
                     resolve(retval);
                 });
-            } else resolve(null); //Return null if there aren't tasks in the DataBase, returns null
+            } else resolve(retval); //Return null if there aren't tasks in the DataBase, returns null
         });
     });
 }
