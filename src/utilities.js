@@ -1,7 +1,13 @@
 //db connection
 const mysql = require('mysql');
 let connection;
-if (process.env.NODE_ENV !== 'test') {
+connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'project_SE2'
+});
+/*if (process.env.NODE_ENV !== 'test') {
     connection = mysql.createConnection({
         host: 'sql7.freesqldatabase.com',
         user: 'sql7268259',
@@ -15,7 +21,7 @@ if (process.env.NODE_ENV !== 'test') {
         password: '43qyYp5ajn',
         database: 'sql7268710'
     });
-}
+}*/
 
 //return true if task is a valid task
 function isATask(task) {
