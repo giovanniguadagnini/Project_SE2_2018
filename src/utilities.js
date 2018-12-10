@@ -1,6 +1,8 @@
 //db connection
 const mysql = require('mysql');
 let connection;
+
+
 if (process.env.NODE_ENV !== 'test') {
     connection = mysql.createConnection({
         host: 'sql7.freesqldatabase.com',
