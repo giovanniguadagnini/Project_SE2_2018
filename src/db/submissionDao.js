@@ -221,7 +221,7 @@ function insertInExam(loggedUser, userSubmissions){
         let allStudentsSubs = [];
         let retSubmissions = [];
         for(let userSubm of userSubmissions){//for each user
-            for(let subm of userSubmissions.submissions){//for each submission given to a specific user
+            for(let subm of userSubm.submissions){//for each submission given to a specific user
                 let submissionPromise = insertSubmission(loggedUser, subm);//insert the submission in db
                 allStudentsSubs.push(submissionPromise);
 
@@ -240,10 +240,9 @@ function insertSubmission(loggedUser, submission){
     return new Promise(resolve => {
         if(submission == null)
             resolve(null);
-
         // find if the logged user is an administrator of the exam
         let queryAuth = 'SELECT id_teacher FROM teacher_exam WHERE id_exam = ? AND id_teacher = ?';
-        connection.query(queryAuth, [exam.id, loggedUser.id], function (error, results, fields) {
+        connection.query(queryAuth, [submission.id_exam, loggedUser.id], function (error, results, fields) {
             if (error) {
                 throw error;
                 resolve(null);

@@ -1,22 +1,24 @@
 const examDao = require('./examsDao');
 
 function createExam(req, res) { //Create an exam
-    let id=req.user.id;
-    var exam = {
+    let loggedUser=req.user;
+    let exam = {
       name : req.body.name,
       teachers : req.body.teachers,
       students : req.body.students,
+      tasks : req.body.tasks,
       start_time : req.body.start_time,
       deadline : req.body.deadline,
       reviewable : req.body.reviewable,
       num_shuffle : req.body.num_shuffle
     };
-    exam = examDao.createExam(id,exam);//trying to create the exam
-    if (exam != null) {
-        res.status(201).json(exam);
-    } else {
-        res.status(400).send("Bad Request");
-    }
+    exam = examDao.createExam(loggedUser,exam).then(exam => {
+      if (exam != null) {
+          res.status(201).json(exam);
+      } else {
+          res.status(400).send("Bad Request");
+      }
+    });
 };
 
 function getAllExams(req, res) { //Get all managable exams
@@ -53,18 +55,19 @@ function updateExam(req, res) {
       owner : req.body.owner,
       teachers : req.body.teachers,
       students : req.body.students,
-      tasks : req.body.students,
+      tasks : req.body.tasks,
       start_time : req.body.start_time,
       deadline : req.body.deadline,
       reviewable : req.body.reviewable,
       num_shuffle : req.body.num_shuffle
     };
-    exam = examDao.createExam(req.user.id,exam);//trying to update the exam
-    if (exam != null) {
-        res.status(201).json(exam);
-    } else {
-        res.status(400).send("Bad Request");
-    }
+    exam = examDao.updateExam(req.user,exam).then(exam => {
+      if (exam != null) {
+          res.status(200).json(exam);
+      } else {
+          res.status(400).send("Bad Request");
+      }
+    });
   }else{
       res.status(400).send("Invalid ID");
   }

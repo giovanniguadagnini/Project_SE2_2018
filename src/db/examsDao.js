@@ -21,7 +21,7 @@ function createExam(loggedUser, exam){
           id_teachers = 'id = ' + exam.teachers[i].id;
         }
 
-        connection.query('SELECT id FROM user WHERE ', [teacher.id],function (error, results, fields) {
+        connection.query('SELECT id FROM user WHERE '+id_teachers ,function (error, results, fields) {
             if (error) {
                 throw error;
                 resolve(null);
@@ -41,7 +41,7 @@ function createExam(loggedUser, exam){
     promise.then(function(result) {
       if(result){//Se ha passato il controllo precedente
         //Controllo intersezione di user group con i teacher
-        userGroupsDao.getUserGroup(loggedUser,exam.students.id).then( userGroup => {
+        return userGroupsDao.getUserGroup(loggedUser,exam.students.id).then( userGroup => {
           for(let user of userGroup.users){
             for(let teacher of exam.teachers)
               if(user.id == teacher.id)
@@ -63,14 +63,19 @@ function createExam(loggedUser, exam){
               deadline = exam.deadline.year + '-' + exam.deadline.month + '-' + exam.deadline.day + ' ' + exam.deadline.hour + ':' + exam.deadline.minute + ':' + exam.deadline.second;
         //Inserisco il nuovo esame
         let id_exam;
-        connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',[exam.students.id,loggedUser.id, exam.name,start_time,deadline, exam.reviewable, exam.num_shuffle],function (error, results, fields) {
-            if (error) {
-              throw error;
-              return null;
-            }
-            id_exam=results.insertId;
-            return id_exam;
+        let waiting= new Promise(resolve => {
+          connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',[exam.students.id,loggedUser.id, exam.name,start_time,deadline, exam.reviewable, exam.num_shuffle],function (error, results, fields) {
+              if (error) {
+                throw error;
+                id_exam=null;
+                resolve(null);
+              }else{
+                id_exam=results.insertId;
+                resolve(id_exam);
+              }
+          });
         });
+        return Promise.all([waiting]).then(d => {return id_exam});
       }else{//Altrimenti
         return null;
       }
@@ -78,6 +83,7 @@ function createExam(loggedUser, exam){
       if(id_exam!=null){//Se ha passato l'inserimento precedente
         let insertTeachers = [];
         let insertTPromise;
+        //[TODO]
         for(let teacher of exam.teachers){
           insertTPromise = new Promise(resolve => {
             connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',[id_exam, teacher.id],function (error, results, fields) {
@@ -102,7 +108,15 @@ function createExam(loggedUser, exam){
           let insertTasks = [];
           let insertTPromise;
           let userSubmissions = [];
-
+          let isIn=false
+          for(let teacher of exam.teachers){
+            if(teacher.id==loggedUser.id){
+              isIN=true;
+            }
+          }
+          if(isIn==false){
+            exam.teachers.push(loggedUser);
+          }
           for(let user of exam.students.users){
               userSubmissions.push({
                 id_student: user.id,
@@ -114,7 +128,7 @@ function createExam(loggedUser, exam){
 
           for(let task of exam.tasks){
             insertTPromise = new Promise(resolve => {
-              connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',[exam.id,task.id],function (error, results, fields) {
+              connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',[id_exam,task.id],function (error, results, fields) {
                 if (error){
                   throw error;
                 }
@@ -156,16 +170,16 @@ function createExam(loggedUser, exam){
                 }
                 if(!found){
                   userSubm.submissions.push(submissionTemplates[n]);
+                  userSubm.submissions[userSubm.submissions.length - 1].id_user = userSubm.id_student;
                 }
               }
             }
-            /*submissionDao.insertInExam(loggedUser, userSubmissions).then( result => {
+            submissionsDao.insertInExam(loggedUser, userSubmissions).then( result => {
               if(result != null)
                 return id_exam
               else
                 return null
-
-            });*/
+            });
           });
         return id_exam;
       }else{//Altrimenti
@@ -418,13 +432,14 @@ function updateExam(loggedUser,exam){
     let promise = new Promise(function(resolve, reject) {
       if(utilities.isExam(exam)){//Controllo strutture
         //Controllo se id_user è id_owner di quell'exam e quindi l'esame può essere modificato
-        connection.query('SELECT id,start_time FROM exam WHERE id_owner = ? AND id = ?', [loggedUser,exam.id], function (error, results, fields) {
+        connection.query('SELECT id,start_time FROM exam WHERE id_owner = ? AND id = ?', [loggedUser.id,exam.id], function (error, results, fields) {
           if (error) {
               throw error;
               resolve(null);
           }
           if(results.length>0){//Se ho trovato l'esame, gli id corrispondono
-            var t=results[0].start_time.split(/[- :]/);
+            let t1=results[0].start_time+'';
+            let t=t1.split(/[- :]/);
             var d = new Date(Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]));
             var now = Date.now();
             if (d.getTime()<now) {//Se l'esame è già cominciato, non è possibile fare l'update
@@ -442,7 +457,7 @@ function updateExam(loggedUser,exam){
     });
     promise.then(function(to_continue) {
       if(to_continue){
-        userGroupsDao.getUserGroup(loggedUser,exam.students.id).then( userGroup => {
+        return userGroupsDao.getUserGroup(loggedUser,exam.students.id).then( userGroup => {
           for(let user of userGroup.users){
             for(let teacher of exam.teachers)
               if(user.id == teacher.id)
@@ -463,66 +478,95 @@ function updateExam(loggedUser,exam){
         if (exam.deadline != null && utilities.isAValidDate(exam.deadline))
               deadline = exam.deadline.year + '-' + exam.deadline.month + '-' + exam.deadline.day + ' ' + exam.deadline.hour + ':' + exam.deadline.minute + ':' + exam.deadline.second;
         //Aggiorno l'esame
-        connection.query('UPDATE exam SET id_group = ?, id_owner = ?, name = ?, start_time = ?, deadline = ? ,reviewable = ?, num_shuffle = ? WHERE id = ?', [exam.students.id, exam.owner, exam.name, start_time, deadline, exam.reviewable ,exam.num_shuffle,exam.id], function (error, results, fields) {
-          if (error) {
-              throw error;
-              return null;
-          }
-          return true;
+        let passOrNot;
+        let waiting= new Promise(resolve => {
+          connection.query('UPDATE exam SET id_group = ?, id_owner = ?, name = ?, start_time = ?, deadline = ? ,reviewable = ?, num_shuffle = ? WHERE id = ?', [exam.students.id, exam.owner.id, exam.name, start_time, deadline, exam.reviewable ,exam.num_shuffle,exam.id], function (error, results, fields) {
+            if (error) {
+                throw error;
+                passOrNot=null;
+                resolve(null) ;
+            }
+            passOrNot=true;
+            resolve(true);
+          });
         });
+        return Promise.all([waiting]).then(d => {return passOrNot });
       }else{
         return null;
       }
     }).then(function(to_continue) {
       if(to_continue){
-        //Cancello tutti i teacher associati all'esame
-        connection.query('DELETE FROM teacher_exam WHERE id_exam = ?', [exam.id], function (error, results, fields) {
-          if (error) {
-              throw error;
-              return null;
-          }
-          return true;
-        });
-      }else{
-        return null;
-      }
-    }).then(function(to_continue) {
-      if(to_continue){
-        //Cancello tutti i task associati all'esame
-        connection.query('DELETE FROM exam_task WHERE id_exam = ?', [exam.id], function (error, results, fields) {
-          if (error) {
-              throw error;
-              return null;
-          }
-          return true;
-        });
-      }else{
-        return null;
-      }
-    }).then(function(to_continue) {
-      if(to_continue){
-        exam.teachers.forEach(function(teacher) {
-          let insertTeachers = [];
-          let insertTPromise;
-          for(let teacher of exam.teachers){
-            insertTPromise = new Promise(resolve => {
-              connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',[exam.id, teacher.id],function (error, results, fields) {
-                if (error){
-                  throw error;
-                }
+        let passOrNot;
+        let waiting= new Promise(resolve => {
+          //Cancello tutti i teacher associati all'esame
+          connection.query('DELETE FROM teacher_exam WHERE id_exam = ?', [exam.id], function (error, results, fields) {
+            if (error) {
+                throw error;
+                passOrNot=null;
                 resolve(null);
-              });
-            });
-            insertTeachers.push(insertTPromise);
-          }
-
-          return Promise.all(insertTeachers).then(d => {return true});
+            }else{
+              passOrNot=true;
+              resolve(true);
+            }
+          });
         });
+        return Promise.all([waiting]).then(d => {return passOrNot });
       }else{
         return null;
       }
     }).then(function(to_continue) {
-      submissionsDao.cleanExamSubmissions(loggedUser,exam).then(random => {return true});
+      if(to_continue){
+        let passOrNot;
+        let waiting= new Promise(resolve => {
+        //Cancello tutti i task associati all'esame
+          connection.query('DELETE FROM exam_task WHERE id_exam = ?', [exam.id], function (error, results, fields) {
+            if (error) {
+                throw error;
+                passOrNot=null;
+                resolve(null);
+            }
+            passOrNot=true;
+            resolve(true);
+          });
+        });
+        return Promise.all([waiting]).then(d => {return passOrNot });
+      }else{
+        return null;
+      }
+    }).then(function(to_continue) {
+      if(to_continue){
+        let insertTeachers = [];
+        let insertTPromise;
+        let isIn=false
+        for(let teacher of exam.teachers){
+          if(teacher.id==exam.owner.id){
+            isIN=true;
+          }
+        }
+        if(isIn==false){
+          exam.teachers.push(exam.owner);
+        }
+        for(let teacher of exam.teachers){
+          insertTPromise = new Promise(resolve => {
+            connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',[exam.id, teacher.id],function (error, results, fields) {
+              if (error){
+                throw error;
+              }
+              resolve(null);
+            });
+          });
+          insertTeachers.push(insertTPromise);
+        }
+        return Promise.all(insertTeachers).then(d => {return true});
+      }else{
+        return null;
+      }
+    }).then(function(to_continue) {
+      if(to_continue){
+        return submissionsDao.cleanExamSubmissions(loggedUser,exam).then(random => {return true});
+      }else{
+        return null;
+      }
     }).then(function(to_continue) {
       if(to_continue){
         let insertTasks = [];
@@ -537,6 +581,7 @@ function updateExam(loggedUser,exam){
         }
 
         let submissionTemplates = [];
+
 
         for(let task of exam.tasks){
           insertTPromise = new Promise(resolve => {
@@ -556,7 +601,7 @@ function updateExam(loggedUser,exam){
                 },
                 answer: null,
                 id_user: null,
-                id_exam: id_exam,
+                id_exam: exam.id,
                 completed: false,
                 comment_peer: [],
                 comment: null,
@@ -582,16 +627,17 @@ function updateExam(loggedUser,exam){
               }
               if(!found){
                 userSubm.submissions.push(submissionTemplates[n]);
+                userSubm.submissions[userSubm.submissions.length - 1].id_user = userSubm.id_student;
               }
             }
           }
-          /*submissionDao.insertInExam(loggedUser, userSubmissions).then( result => {
+          submissionsDao.insertInExam(loggedUser, userSubmissions).then( result => {
             if(result != null)
-              return id_exam
+              return exam.id
             else
               return null
 
-          });*/
+          });
         });
         return true;
       }else{

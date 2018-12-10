@@ -36,11 +36,41 @@ function isATaskBody(task) {
 }
 
 function isExamBody(exam){
-    return (exam != null && exam.name!=null && isAnArrayOfUser(exam.teachers) && isAUserGroup(exam.students) && exam.start_time!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null && exam.deadline > exam.start_time);
+    return (exam != null && exam.name!=null && isAnArrayOfUser(exam.teachers) && isAUserGroup(exam.students) && exam.start_time!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null && (compareTwoDate(exam.deadline,exam.start_time)==1) );
+}
+
+function compareTwoDate(date1,date2){
+  if(date1.year>date2.year){
+    return 1;
+  }else if(date2.year>date1.year){
+    return 2;
+  }else if(date1.month>date2.month){
+    return 1;
+  }else if(date2.month>date1.month){
+    return 2;
+  }else if(date1.day>date2.day){
+    return 1;
+  }else if(date2.day>date1.day){
+    return 2;
+  }else if(date1.hour>date2.hour){
+    return 1;
+  }else if(date2.hour>date1.hour){
+    return 2;
+  }else if(date1.minute>date2.minute){
+    return 1;
+  }else if(date2.minute>date1.minute){
+    return 2;
+  }else if(date1.second>date2.second){
+    return 1;
+  }else if(date2.second>date1.second){
+    return 2;
+  }else{
+    return 0;
+  }
 }
 
 function isExam(exam){
-    return (exam != null && exam.id!=null && isExamBody(exam));
+    return (exam.id!=null && isExamBody(exam));
 }
 //return true if user is a valid user
 function isAUser(user){
@@ -293,4 +323,4 @@ function convertMonth(month){
     return ret;
 }
 
-module.exports = {connection, isExam, isExamBody, isExam, isExamBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated,isATask, isATaskBody};
+module.exports = {connection, compareTwoDate,isExam, isExamBody, isExam, isExamBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated,isATask, isATaskBody};

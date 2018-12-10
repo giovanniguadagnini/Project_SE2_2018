@@ -257,6 +257,31 @@ let dummyExam = {
     num_shuffle: 3
 };
 
+let dummyExamToInsert = {
+    name: "Devis Problems",
+    teachers: [dummyTeacher2],
+    students: dummyUserGroup,
+    tasks: [dummyTask1, dummyTask2, dummyTask3],
+    start_time: {
+        year: 2018,
+        month: 12,
+        day: 6,
+        hour: 6,
+        minute: 6,
+        second: 30
+    },
+    deadline: {
+        year: 3018,
+        month: 12,
+        day: 6,
+        hour: 6,
+        minute: 6,
+        second: 30
+    },
+    reviewable: 'true',
+    num_shuffle: 3
+};
+
 let dummyExamFinished = {
     id: 1,
     name: "NP complete problems",
@@ -706,6 +731,7 @@ module.exports = {
     dummySubmission3,
     dummySubmission1Finished,
     dummyExam,
+    dummyExamToInsert,
     popDB,
     cleanDB,
     connection
