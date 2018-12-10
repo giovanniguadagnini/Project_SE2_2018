@@ -1,6 +1,6 @@
 const app = require('../src/app');
 const request = require('supertest');
-const dummies = require('../src/dummies');
+const dummies = require('./dummies');
 const utilities = require('../src/utilities');
 
 // NOTE in TESTING access_token == validId

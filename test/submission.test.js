@@ -1,6 +1,6 @@
 const app = require('../src/app');
 const request = require('supertest');
-const dummiesDB = require('../src/dummies');
+const dummiesDB = require('./dummies');
 const utilities = require('../src/utilities');
 
 /*NOTE in TESTING access_token == validId
@@ -17,7 +17,7 @@ afterAll(() => {
 
 const dummyStud = dummiesDB.dummyStud;
 const dummyTeach = dummiesDB.dummyTeacher;
-const dummyTeach2 = dummiesDB.dummyTeacher2;
+const dummyUserNoProvileges = dummiesDB.dummyStud2;
 const validStudId = dummyStud.id;
 const validTeachId = dummyTeach.id;
 const invalidId = '999999999999999999999999';
@@ -56,9 +56,9 @@ test('GET /submissions?access_token=invalid_id with user as invalid', async () =
     expect(response.body).toEqual({});
 });
 
-test('GET /submissions?access_token=teacher2_id  with user as teacher without privileges to see anything', async () => {
+test('GET /submissions?access_token=valid_id  with user without privileges to see anything', async () => {
     expect.assertions(2);
-    let response = await request(app).get('/submissions?access_token=' + dummyTeach2.id);
+    let response = await request(app).get('/submissions?access_token=' + dummyUserNoProvileges.id);
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual([]);
 });
@@ -84,9 +84,9 @@ test('GET /submissions/id_valid?access_token=teach_id with user as teacher', asy
     expect(utilities.isASubmission(response.body)).toBe(true);
 });
 
-test('GET /submissions/id_valid?access_token=teach_id with user as teacher who can\'t see the requested object', async () => {
+test('GET /submissions/id_valid?access_token=valid_id with user who can\'t see the requested object', async () => {
     expect.assertions(2);
-    let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + dummyTeach2.id);
+    let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + dummyUserNoProvileges.id);
     expect(response.statusCode).toBe(404);
     expect(response.text).toBe('Submission not found');
 });

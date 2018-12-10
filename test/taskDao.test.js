@@ -1,5 +1,5 @@
 const taskDao = require('../src/db/taskDao');
-const dummies = require('../src/dummies');
+const dummies = require('./dummies');
 
 
 const invalidId = '999999999999999999999999';

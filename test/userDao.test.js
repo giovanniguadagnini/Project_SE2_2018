@@ -48,7 +48,7 @@ let newUser2 = {
 const invalidId = '999999999999999999999999';
 const pureStringId = 'aaaaaaaaaaaaaaaaaaaaaa';
 
-const dummiesDB = require('../src/dummies');
+const dummiesDB = require('./dummies');
 
 beforeAll(() => {
     //return dummiesDB.popDB()

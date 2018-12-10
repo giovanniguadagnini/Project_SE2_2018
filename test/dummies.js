@@ -1,7 +1,7 @@
 //DUMMY OBJECTS FILE TO POPULATE AND UN-POPULATE DB
 //USED FOR TESTING
 //SUGGEST YOU TO CREATE USER AND ID < 100, SO IT'LL BE MUCH EASIER TO CLEAN IT UP AT THE END
-const utilities = require('./utilities');
+const utilities = require('../src/utilities');
 const connection = utilities.connection;
 
 let dummyStud = {
@@ -233,10 +233,35 @@ let dummyExam = {
     id: 1,
     name: "NP complete problems",
     owner: dummyTeacher,
-    teachers: [dummyTeacher],
+    teachers: [dummyTeacher, dummyTeacher2],
     students: dummyUserGroup,
     tasks: [dummyTask1, dummyTask2, dummyTask3],
     submissions: [dummySubmission1, dummySubmission2, dummySubmission3],
+    start_time: {
+        year: 2018,
+        month: 12,
+        day: 6,
+        hour: 6,
+        minute: 6,
+        second: 30
+    },
+    deadline: {
+        year: 3018,
+        month: 12,
+        day: 6,
+        hour: 6,
+        minute: 6,
+        second: 30
+    },
+    reviewable: 'true',
+    num_shuffle: 3
+};
+
+let dummyExamToInsert = {
+    name: "Devis' Problems",
+    teachers: [dummyTeacher2],
+    students: dummyUserGroup,
+    tasks: [dummyTask1, dummyTask2, dummyTask3],
     start_time: {
         year: 2018,
         month: 12,
@@ -418,6 +443,15 @@ function insertTeacherExam() {
             }
             connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',
                 [dummyExamFinished.id, dummyExam.teachers[0].id],
+                function (error, results, fields) {
+                    if (error) {
+                        //connection.end();
+                        throw error;
+                    }
+                }
+            );
+            connection.query('INSERT INTO teacher_exam (id_exam, id_teacher) VALUES (?,?)',
+                [dummyExam.id, dummyExam.teachers[1].id],
                 function (error, results, fields) {
                     if (error) {
                         //connection.end();
@@ -719,6 +753,7 @@ module.exports = {
     dummySubmission3,
     dummySubmission1Finished,
     dummyExam,
+    dummyExamToInsert,
     popDB,
     cleanDB,
     connection

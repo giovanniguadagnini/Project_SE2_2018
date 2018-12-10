@@ -8,7 +8,7 @@ const utilities = require('../src/utilities');
 * NOTE FOR ALL COPY FOR ALL TEST 15 - 23
 * */
 
-const dummiesDB = require('../src/dummies');
+const dummiesDB = require('./dummies');
 beforeAll(() => {
     return dummiesDB.popDB();
 });

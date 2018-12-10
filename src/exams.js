@@ -1,136 +1,92 @@
 const examDao = require('./db/examsDao');
 
 function createExam(req, res) { //Create an exam
-    let id=req.user.id;
-    var exam = {
+    let loggedUser=req.user;
+    let exam = {
       name : req.body.name,
       teachers : req.body.teachers,
       students : req.body.students,
+      tasks : req.body.tasks,
+      start_time : req.body.start_time,
       deadline : req.body.deadline,
       reviewable : req.body.reviewable,
       num_shuffle : req.body.num_shuffle
     };
-    exam = examDao.createExam(id,exam);//trying to create the exam
-    if (exam != null) {
-        res.status(201).json(exam);
+    exam = examDao.createExam(loggedUser,exam).then(exam => {
+      if (exam != null) {
+          res.status(201).json(exam);
+      } else {
+          res.status(400).send("Bad Request");
+      }
+    });
+};
+
+function getAllExams(req, res) { //Get all managable exams
+  let exams = examDao.getAllExams(req.user).then(exams => {
+    if (exams != null) {
+        res.status(201).send(exams);
     } else {
         res.status(400).send("Bad Request");
     }
+  });
 };
-/*
-app.route('/exams')
-    .get(function(req, res) { //Get all managable exams
-        var sortStudBy = req.query.sortStudBy;
-        if(sortStudBy == null){
-            sortStudBy ="enrol";
-        }
-        var minStudByMark = req.query.minStudByMark;
-        if(minStudByMark == null) {
-            minStudByMark = -1;
-        }
-        var maxStudByMark = req.query.maxStudByMark;
-        if(maxStudByMark == null) {
-            maxStudByMark = 31;
-        }
-        var taskType = req.query.taskType;
-        if(taskType == null) {
-            taskType = "1111";
-        }
-        var exams = examDao.getAllExams(req.user.id,sortStudBy, minStudByMark,maxStudByMark,taskType);
-        if(exams != null) {
-            res.status(200).send(exams);
-        } else {
-            res.status(400).send("Bad request");
-        }
-    })
-    .post(function(req, res) { //Create an exam
-        let id = req.params.id;
-        var exam = {
-          name : req.body.name,
-          teachers : req.body.teachers,
-          students : req.body.students,
-          deadline : req.body.deadline,
-          reviewable : req.body.reviewable,
-          num_shuffle : req.body.num_shuffle
-        };
-        exam = examDao.createExam(id,exam);//trying to create the exam
-        if (exam != null) {
-            res.status(201).json(exam);
-        } else {
-            res.status(400).send("Bad Request");
-        }
+
+function getExam(req, res) { //Get an exam by id
+  let id_exam = req.params.id;
+  if(id_exam == +id_exam) {//Se l'id è un intero
+    let exam = examDao.getExam(req.user,id_exam).then(exam => {
+      if (exam != null) {
+          res.status(201).send(exam);
+      } else {
+          res.status(400).send("Bad Request");
+      }
     });
+    }else{
+        res.status(400).send("Invalid ID");
+    }
+};
 
-app.route('/exams/:id')
-    .get(function(req, res) {
-        var id = req.id;
-        if(Number.isInteger(id) == true) {
-            var sortStudBy = req.query.sortStudBy;
-            if(sortStudBy == null){
-                sortStudBy ="enrol";
-            }
-            var minStudByMark = req.query.minStudByMark;
-            if(minStudByMark == null) {
-                minStudByMark = -1;
-            }
-            var maxStudByMark = req.query.maxStudByMark;
-            if(maxStudByMark == null) {
-                maxStudByMark = 31;
-            }
-            var taskType = req.query.taskType;
-            if(taskType == null) {
-                taskType = 1111;
-            }
-            var exam = examDao.getExam(req.user.id,id,sortStudBy, minStudByMark,maxStudByMark,taskType);
-            if (exam != null) {
-                res.status(200).send(exam);
-            } else {
-                res.status(404).send("Exam not found");
-            }
-        }else{
-            res.status(400).send("Invalid ID");
+function updateExam(req, res) {
+  let id_exam = req.params.id;
+  if(id_exam == parseInt(id_exam, 10) && id_exam == req.body.id) {
+    var exam = {
+      id: req.body.id,
+      name : req.body.name,
+      owner : req.body.owner,
+      teachers : req.body.teachers,
+      students : req.body.students,
+      tasks : req.body.tasks,
+      start_time : req.body.start_time,
+      deadline : req.body.deadline,
+      reviewable : req.body.reviewable,
+      num_shuffle : req.body.num_shuffle
+    };
+    exam = examDao.updateExam(req.user,exam).then(exam => {
+      if (exam != null) {
+          res.status(200).json(exam);
+      } else {
+          res.status(400).send("Bad Request");
+      }
+    });
+  }else{
+      res.status(400).send("Invalid ID");
+  }
+};
+
+function deleteExam(req, res) {
+  let id_exam = req.params.id;
+  let exam = {id: req.body.id};
+  if(id_exam==exam.id) {
+      examDao.deleteExam(req.user,exam.id).then(exam => {
+        if (exam != null) {
+          res.status(200).send(exam);
+        } else {
+          res.status(404).send("Exam not found");
         }
-    })
-    .put(function(req, res) {
-        var id = req.id;
-        if(Number.isInteger(id) == true) {
-            var exam = {
-              id: req.body.id,
-              name : req.body.name,
-              owner : req.body.owner,
-              teachers : req.body.teachers,
-              students : req.body.students,
-              tasks : req.body.tasks,
-              submissions : req.body.submissions,
-              deadline : req.body.deadline,
-              reviewable : req.body.reviewable,
-              num_shuffle : req.body.num_shuffle
-            };
-            exam = examDao.updateExam(req.user.id,exam);
-            if (exam != null) {
-                res.status(200).send(exam);
-            } else {
-                res.status(404).send("Exam not found");
-            }
-        }else{
-            res.status(400).send("Invalid ID");
-        }
+      });
+  }else{
+      res.status(400).send("Invalid ID");
+  }
+};
 
-    })
-    .delete(function(req, res) {
-        var id = req.id;
-        if(Number.isInteger(id) == true) {
-            exam = examDao.deleteExam(req.user.id,id);
-            if (exam != null) {
-                res.status(200).send(exam);
-            } else {
-                res.status(404).send("Exam not found");
-            }
-        }else{
-            res.status(400).send("Invalid ID");
-        }
-
-    });;
-*/
-
-module.exports = {createExam};
+module.exports = {createExam,getExam,getAllExams,updateExam,deleteExam};

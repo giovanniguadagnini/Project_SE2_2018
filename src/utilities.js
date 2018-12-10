@@ -1,13 +1,7 @@
 //db connection
 const mysql = require('mysql');
 let connection;
-connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'project_SE2'
-});
-/*if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test') {
     connection = mysql.createConnection({
         host: 'sql7.freesqldatabase.com',
         user: 'sql7268259',
@@ -21,7 +15,7 @@ connection = mysql.createConnection({
         password: '43qyYp5ajn',
         database: 'sql7268710'
     });
-}*/
+}
 
 //return true if task is a valid task
 function isATask(task) {
@@ -42,6 +36,53 @@ function isATaskBody(task) {
         return false;
 }
 
+function isATask(task) {
+    return task != null && task.id != null && task.id != 'null' && isAUser(task.owner) && isATaskBody(task);
+}
+
+function isExamBody(exam){
+    return (exam != null && exam.name!=null && isAnArrayOfUser(exam.teachers) && isAUserGroup(exam.students) && exam.start_time!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null && (compareTwoDate(exam.deadline,exam.start_time)==1) );
+}
+
+function compareTwoDate(date1,date2){
+  if(!isAValidDate(date1) && !isAValidDate(date2)){
+    return 0;
+  }else if(!isAValidDate(date2)){
+    return 1;
+  }if(!isAValidDate(date1)){
+    return 2;
+  }else if(date1.year>date2.year){
+    return 1;
+  }else if(date2.year>date1.year){
+    return 2;
+  }else if(date1.month>date2.month){
+    return 1;
+  }else if(date2.month>date1.month){
+    return 2;
+  }else if(date1.day>date2.day){
+    return 1;
+  }else if(date2.day>date1.day){
+    return 2;
+  }else if(date1.hour>date2.hour){
+    return 1;
+  }else if(date2.hour>date1.hour){
+    return 2;
+  }else if(date1.minute>date2.minute){
+    return 1;
+  }else if(date2.minute>date1.minute){
+    return 2;
+  }else if(date1.second>date2.second){
+    return 1;
+  }else if(date2.second>date1.second){
+    return 2;
+  }else{
+    return 0;
+  }
+}
+
+function isExam(exam){
+    return (exam.id!=null && isExamBody(exam));
+}
 //return true if user is a valid user
 function isAUser(user) {
     return (user != null && user.id != null && user.name != null && user.surname != null);
@@ -293,4 +334,4 @@ function convertMonth(month) {
     return ret;
 }
 
-module.exports = {connection, isATask, isATaskBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated};
+module.exports = {connection, isATask, isATaskBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated, compareTwoDate,isExam, isExamBody};

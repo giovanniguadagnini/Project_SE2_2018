@@ -1,10 +1,10 @@
 const submissionDao = require('../src/db/submissionDao');
-const dummiesDB = require('../src/dummies');
+const dummiesDB = require('./dummies');
 const utilities = require('../src/utilities');
 
 const dummyStud = dummiesDB.dummyStud;
 const dummyTeacher = dummiesDB.dummyTeacher;
-const dummyTeacher2 = dummiesDB.dummyTeacher2;
+const dummyUserNoProvileges = dummiesDB.dummyStud2;
 const dummySubm1 = dummiesDB.dummySubmission1;
 const dummySubm2 = dummiesDB.dummySubmission2;
 
@@ -51,6 +51,20 @@ test('check getSubmissionsByExam() with user as student', () => {
     });
 });
 
+test('check getSubmissionsByExam() with user as teacher & exam == null', () => {
+    expect.assertions(1);
+    return submissionDao.getSubmissionsByExam(dummyTeacher, null).then(submissions => {
+        expect(submissions).toBe(null);
+    });
+});
+
+test('check getSubmissionsByExam() with user as teacher & exam != null, but with no id', () => {
+    expect.assertions(1);
+    return submissionDao.getSubmissionsByExam(dummyTeacher, {banana: 'Very good fruit'}).then(submissions => {
+        expect(submissions).toBe(null);
+    });
+});
+
 test('check getAllSubmissions() by exam with user as teacher', () => {
     expect.assertions(2);
     return submissionDao.getAllSubmissions(dummyTeacher, dummiesDB.dummyExam).then(submissions => {
@@ -66,9 +80,9 @@ test('check getAllSubmissions() with user as null ', () => {
     });
 });
 
-test('check getAllSubmission() with user as teacher without privileges', () => {
+test('check getAllSubmission() with user without any privileges', () => {
     expect.assertions(1);
-    return submissionDao.getAllSubmissions(dummyTeacher2).then(submissions => {
+    return submissionDao.getAllSubmissions(dummyUserNoProvileges).then(submissions => {
         expect(submissions).toEqual([]);
     });
 });
@@ -98,9 +112,9 @@ test('check getSubmission() with user as teacher', () => {
     });
 });
 
-test('check getSubmission() with user as teacher without privileges', () => {
+test('check getSubmission() with user without privileges', () => {
     expect.assertions(1);
-    return submissionDao.getSubmission(dummyTeacher2, dummySubm1.id).then(submission => {
+    return submissionDao.getSubmission(dummyUserNoProvileges, dummySubm1.id).then(submission => {
         expect(submission).toBe(null);
     });
 });

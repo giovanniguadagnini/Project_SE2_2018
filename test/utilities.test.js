@@ -865,6 +865,110 @@ test('check isAnArrayOfSubmission() with invalid submission', () => {
     expect(utilities.isAnArrayOfSubmission([{id:111111, gelato: 'cioccolata', boffo: 'marcolino'}])).toEqual(false);
 });
 
+let date1 ={
+  year: 1997,
+  month: 9,
+  day: 2,
+  hour: 23,
+  minute: 0,
+  second: 0
+};
+
+date2 = jsonCopy(date1);
+
+test('check compareTwoDate() with equal date time values', () => {
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(0);
+});
+
+
+test('check compareTwoDate() with year1 > year 2', () => {
+    date1.year++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(1);
+});
+
+test('check compareTwoDate() with month1 > month2', () => {
+    date1.year--;
+    date1.month++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(1);
+});
+
+test('check compareTwoDate() with day1 > day2', () => {
+    date1.month--;
+    date1.day++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(1);
+});
+
+test('check compareTwoDate() with hour1 > hour2', () => {
+    date1.day--;
+    date1.hour++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(1);
+});
+
+test('check compareTwoDate() with minute1 > minute2', () => {
+    date1.hour--;
+    date1.minute++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(1);
+});
+
+test('check compareTwoDate() with second1 > second2', () => {
+    date1.minute--;
+    date1.second++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(1);
+});
+
+test('check compareTwoDate() with year1 < year 2', () => {
+    date1.second--;
+    date2.year++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(2);
+});
+
+test('check compareTwoDate() with month1 < month2', () => {
+    date2.year--;
+    date2.month++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(2);
+});
+
+test('check compareTwoDate() with day1 < day2', () => {
+    date2.month--;
+    date2.day++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(2);
+});
+
+test('check compareTwoDate() with hour1 < hour2', () => {
+    date2.day--;
+    date2.hour++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(2);
+});
+
+test('check compareTwoDate() with minute1 < minute2', () => {
+    date2.hour--;
+    date2.minute++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(2);
+});
+
+test('check compareTwoDate() with second1 < second2', () => {
+    date2.minute--;
+    date2.second++;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(2);
+});
+
+test('check compareTwoDate() with date2 == null', () => {
+    date2 = null;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(1);
+});
+
+test('check compareTwoDate() with date1 == null', () => {
+    date2 = jsonCopy(date1);
+    date1 = null;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(2);
+});
+
+test('check compareTwoDate() with date1 == null && date2==null', () => {
+    date2 = null;
+    date1 = null;
+    expect(utilities.compareTwoDate(date1, date2)).toEqual(0);
+});
+
 function jsonCopy(src) {
     return JSON.parse(JSON.stringify(src));
 }
