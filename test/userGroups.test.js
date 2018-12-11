@@ -11,7 +11,8 @@ let dummyUserGroup = {
     users: [dummyStud]
 };
 let validUGId = dummyUserGroup.id;
-const validId = dummyStud.id;
+const validId = dummyTeacher.id;
+const invalidId = dummyStud.id;
 const invalidUGId = '999999999999999999999999';
 const pureStringUGId = 'aaaaaaaaaaaaaaaaaaaaaa';
 beforeAll(() => {
@@ -152,7 +153,7 @@ describe('GET userGroup test cases', async () => {
 describe('PUT userGroup test cases', async () => {
     test('PUT /userGroups/validUGId; should return 200 + userGroup obj', async () => {
         expect.assertions(4);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroup});
         expect(response.statusCode).toBe(200);
         let GETUserGroup = {
             id: response.body.id,
@@ -169,7 +170,7 @@ describe('PUT userGroup test cases', async () => {
         expect.assertions(4);
         let dummyUserGroupUpdate = jsonCopy(dummyUserGroup);
         dummyUserGroupUpdate.users.push(dummyTeacher);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroupUpdate});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroupUpdate});
         expect(response.statusCode).toBe(200);
         let GETUserGroup = {
             id: response.body.id,
@@ -185,7 +186,7 @@ describe('PUT userGroup test cases', async () => {
     test('PUT /userGroups/validUGId removing a user; should return 200 + userGroup obj', async () => {
         expect.assertions(4);
         let dummyUserGroupUpdate = jsonCopy(dummyUserGroup);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroupUpdate});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroupUpdate});
         expect(response.statusCode).toBe(200);
         let GETUserGroup = {
             id: response.body.id,
@@ -200,30 +201,37 @@ describe('PUT userGroup test cases', async () => {
 
     test('PUT /userGroups/validUGId; with user without privileges, should return 403', async () => {
         expect.assertions(2);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyStud, userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + invalidId).send({userGroup:dummyUserGroup});
         expect(response.statusCode).toBe(403);
         expect(response.body).toEqual({});
     });
 
     test('PUT /userGroups/invalidUGId; should return 404', async () => {
         expect.assertions(2);
-        let response = await request(app).put('/userGroups/' + invalidUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + invalidUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroup});
         expect(response.statusCode).toBe(404);
         expect(response.body).toEqual({});
     });
 
     test('PUT /userGroups/pureStringUGId; should return 404', async () => {
         expect.assertions(2);
-        let response = await request(app).put('/userGroups/' + pureStringUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + pureStringUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroup});
         expect(response.statusCode).toBe(404);
         expect(response.body).toEqual({});
     });
 });
 
 describe('DELETE userGroup test cases', async () => {
+    test('DELETE /userGroups/validUGId with user without privileges; should return 403', async () => {
+        expect.assertions(2);
+        let response = await request(app).delete('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + invalidId).send();
+        expect(response.statusCode).toBe(403);
+        expect(response.body).toEqual({});
+    });
+
     test('DELETE /userGroups/validUGId; should return 200 + userGroup obj', async () => {
         expect.assertions(4);
-        let response = await request(app).delete('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
+        let response = await request(app).delete('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send();
         expect(response.statusCode).toBe(200);
         let GETUserGroup = {
             id: response.body.id,
@@ -231,21 +239,21 @@ describe('DELETE userGroup test cases', async () => {
             name: response.body.name,
             users: response.body.users
         };
-        expect(GETUserGroup.id).toEqual(dummyUserGroup.id);
+        expect(GETUserGroup.id).toEqual(dummyUserGroup.id.toString());
         expect(GETUserGroup.name).toEqual(dummyUserGroup.name);
         expect(GETUserGroup.users.length).toBe(1);
     });
 
     test('DELETE /userGroups/invalidUGId; should return 404', async () => {
         expect.assertions(2);
-        let response = await request(app).delete('/userGroups/' + invalidUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
+        let response = await request(app).delete('/userGroups/' + invalidUGId).set('Authorization', 'Bearer ' + validId).send();
         expect(response.statusCode).toBe(404);
         expect(response.body).toEqual({});
     });
 
     test('DELETE /userGroups/pureStringUGId; should return 400', async () => {
         expect.assertions(2);
-        let response = await request(app).delete('/userGroups/' + pureStringUGId).set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
+        let response = await request(app).delete('/userGroups/' + pureStringUGId).set('Authorization', 'Bearer ' + validId).send();
         expect(response.statusCode).toBe(400);
         expect(response.body).toEqual({});
     });

@@ -80,59 +80,35 @@ function updateUserGroup(req, res){
         name: req.body.userGroup.name,
         users: req.body.userGroup.users
     };
-    //the user requesting the changes
-    let user = {
-        id: req.body.user.id,
-        name: req.body.user.name,
-        surname: req.body.user.surname,
-        email: req.body.user.email,
-        born: req.body.user.born,
-        enrolled: req.body.user.enrolled
-    };
     //if the ids are the same, updates the user group
-    if(id == userGroup.id){
-        userGroupsDao.updateUserGroup(user, userGroup).then(userGroup => {
-            if(userGroup == '403')
-                res.status(403).send('Forbidden');
-            else if(userGroup!=null)
-                res.status(200).json(userGroup);
-            else
-                res.status(404).send('userGroup not found');
-        });
-    } else res.status(404).send('userGroup not found');
+    if(req.user.id==userGroup.creator.id){
+        if(id == userGroup.id){
+            userGroupsDao.updateUserGroup(req.user, userGroup).then(userGroup => {
+                if(userGroup == '403')
+                    res.status(403).send('Forbidden');
+                else if(userGroup!=null)
+                    res.status(200).json(userGroup);
+                else
+                    res.status(404).send('userGroup not found');
+            });
+        } else res.status(404).send('userGroup not found');
+    }else res.status(403).send('Forbidden');
 }
 
 //this function deletes a user group from the db
 function deleteUserGroup(req, res){
     //the id of the user group to delete
     let id = req.params.id;
-    
-    let userGroup = {
-        id: req.body.userGroup.id,
-        creator: req.body.userGroup.creator,
-        name: req.body.userGroup.name,
-        users: req.body.userGroup.users
-    };
-    let user = {
-        id: req.body.user.id,
-        name: req.body.user.name,
-        surname: req.body.user.surname,
-        email: req.body.user.email,
-        born: req.body.user.born,
-        enrolled: req.body.user.enrolled
-    };
+
     if(Number.isInteger(+id)){
-        if(id == userGroup.id){
-            userGroupsDao.deleteUserGroup(user, userGroup.id).then( userGroup2 => {
-                if(userGroup == '403')
-                    res.status(403).send('Forbidden');
-                else if(userGroup2!=null)
-                    res.status(200).json(userGroup2);
-                else
-                    res.status(404).send('User Group not found' );
-            });
-        } else
-            res.status(404).send('userGroup not found');
+        userGroupsDao.deleteUserGroup(req.user, id).then( userGroup2 => {
+            if(userGroup2 == '403')
+                res.status(403).send('Forbidden');
+            else if(userGroup2!=null)
+                res.status(200).json(userGroup2);
+            else
+                res.status(404).send('User Group not found' );
+        });
     }else res.status(400).send('Bad request');
 }
 
