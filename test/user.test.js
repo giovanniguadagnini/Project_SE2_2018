@@ -72,7 +72,7 @@ describe('GET user test cases', async() => {
         expect(response.body).toEqual({});
     });
 
-    test('GET /users/invalidId?access_token=validId should return 200 + invalid fields', async () => {
+    test('GET /users/invalidId?access_token=validId should return 404 + empty obj', async () => {
         expect.assertions(2);
         let response = await request(app).get('/users/' + invalidId + '?access_token=' + validId);
         expect(response.statusCode).toBe(404);
@@ -80,7 +80,7 @@ describe('GET user test cases', async() => {
     });
 
 
-    test('GET /users/purestringid?access_token=validId with string as id in the uri; should return 400', async () => {
+    test('GET /users/purestringid?access_token=validId with string as id in the uri; should return 404 + empty obj', async () => {
         expect.assertions(2);
         let response = await request(app).get('/users/' + pureStringId + '?access_token=' + validId);
         expect(response.statusCode).toBe(404);
@@ -95,7 +95,7 @@ describe('GET user test cases', async() => {
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
     });
 
-    test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system', async () => {
+    test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system enrolled before 2019', async () => {
         expect.assertions(3);
         let response = await request(app).get('/users?access_token=' + validId).query({enrolledBefore: '2019'});
         expect(response.statusCode).toBe(200);
@@ -103,7 +103,7 @@ describe('GET user test cases', async() => {
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
     });
 
-    test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system', async () => {
+    test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system enrolled after 2012', async () => {
         expect.assertions(4);
         let response = await request(app).get('/users?access_token=' + validId).query({enrolledAfter: '2012'});
         expect(response.statusCode).toBe(200);
@@ -117,7 +117,7 @@ describe('GET user test cases', async() => {
         expect(before).toBe(false);
     });
 
-    test('GET /users?access_token=validId with enrolledAfter & enrolledBefore param; should return 200 + all users in the system', async () => {
+    test('GET /users?access_token=validId with enrolledAfter & enrolledBefore param; should return 200 + all users in the system enrolled in [2010-2013]', async () => {
         expect.assertions(4);
         let response = await request(app).get('/users?access_token=' + validId).query({enrolledAfter: '2010', enrolledBefore: '2013'});
         expect(response.statusCode).toBe(200);
@@ -134,7 +134,7 @@ describe('GET user test cases', async() => {
         expect(before || after).toBe(false);
     });
 
-    test('GET /users?access_token=validId with alpha sorting, enrolledAfter & enrolledBefore param; should return 200 + all users in the system', async () => {
+    test('GET /users?access_token=validId with alpha sorting, enrolledAfter & enrolledBefore param; should return 200 + all users in the system enrolled in [2010-2013]', async () => {
         expect.assertions(5);
         let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'alpha', enrolledAfter: '2010', enrolledBefore: '2013'});
         expect(response.statusCode).toBe(200);

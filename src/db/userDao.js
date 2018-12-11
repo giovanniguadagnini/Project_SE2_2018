@@ -69,9 +69,9 @@ function createUser(user) {
     based also on what the logged user can actually see)
     enrolledBefore & enrolledAfter are just year values
 */
-function getAllUsers(loggedUser, enrolledAfter, enrolledBefore, sortUsrBy) {
+function getAllUsers(loggedUser, enrolledAfter, enrolledBefore, sortUsrBy) {//sortUsrBy can be null => alpha sorting by default
     return new Promise(resolve => {
-        if(!enrolledAfter || !enrolledBefore || !sortUsrBy || !Number.isInteger(+enrolledAfter) || !Number.isInteger(+enrolledBefore))
+        if(!enrolledAfter || !enrolledBefore || !Number.isInteger(+enrolledAfter) || !Number.isInteger(+enrolledBefore))
             resolve([]);
 
         let retval = []; //array of users
@@ -95,7 +95,7 @@ function getAllUsers(loggedUser, enrolledAfter, enrolledBefore, sortUsrBy) {
             }
 
             Promise.all(promises_users).then(b => {
-                if (sortUsrBy == 'alpha')
+                if (sortUsrBy != 'enrol') //alpha sorting by default
                     retval.sort(utilities.compareAlfa);
                 else
                     retval.sort(utilities.compareEnrol);

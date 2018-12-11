@@ -38,63 +38,63 @@ describe('GET submission test cases', async () => {
         expect(response.statusCode).toBe(200);
     });
 
-    test('GET /submissions?access_token=stud_id with user as student', async () => {
+    test('GET /submissions?access_token=stud_id with user as student: should return 200 + a valid array of subm', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions?access_token=' + validStudId);
         expect(response.statusCode).toBe(200);
         expect(utilities.isAnArrayOfSubmission(response.body)).toBe(true);
-        dummySubm = response.body[0];
+        dummySubm = response.body[0];// for next test
     });
-    test('GET /submissions?access_token=teach_id with user as teacher', async () => {
+    test('GET /submissions?access_token=teach_id with user as teacher: should return 200 + a valid array of subm', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions?access_token=' + validTeachId);
         expect(response.statusCode).toBe(200);
         expect(utilities.isAnArrayOfSubmission(response.body)).toBe(true);
     });
 
-    test('GET /submissions?access_token=invalid_id with user as invalid', async () => {
+    test('GET /submissions?access_token=invalid_id with user as invalid: should return 401 + {}', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions?access_token=' + invalidId);
         expect(response.statusCode).toBe(401);
         expect(response.body).toEqual({});
     });
 
-    test('GET /submissions?access_token=valid_id  with user without privileges to see anything', async () => {
+    test('GET /submissions?access_token=valid_id  with user without privileges to see anything: should return 200 + empty array', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions?access_token=' + dummyUserNoProvileges.id);
         expect(response.statusCode).toBe(200);
         expect(response.body).toEqual([]);
     });
 
-    test('GET /submissions/id?access_token=stud_id with user as student', async () => {
+    test('GET /submissions/id?access_token=stud_id with user as student: should return 200 + a valid subm', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + validStudId);
         expect(response.statusCode).toBe(200);
         expect(utilities.isASubmission(response.body)).toBe(true);
     });
 
-    test('GET /submissions/id_notvalid?access_token=stud_id with user as student', async () => {
+    test('GET /submissions/id_notvalid?access_token=stud_id with user as student: should return 404 + text \'Submission not found\'', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions/'+ -1000 +'?access_token=' + validStudId);
         expect(response.statusCode).toBe(404);
         expect(response.text).toEqual('Submission not found');
     });
 
-    test('GET /submissions/id_valid?access_token=teach_id with user as teacher', async () => {
+    test('GET /submissions/id_valid?access_token=teach_id with user as teacher: should return 200 + a valid subm', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + validTeachId);
         expect(response.statusCode).toBe(200);
         expect(utilities.isASubmission(response.body)).toBe(true);
     });
 
-    test('GET /submissions/id_valid?access_token=valid_id with user who can\'t see the requested object', async () => {
+    test('GET /submissions/id_valid?access_token=valid_id with user who can\'t see the requested object: should return 404 + text \'Submission not found\'', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + dummyUserNoProvileges.id);
         expect(response.statusCode).toBe(404);
         expect(response.text).toBe('Submission not found');
     });
 
-    test('GET /submissions/id_valid?access_token=invalidtoken ', async () => {
+    test('GET /submissions/id_valid?access_token=invalidtoken: should return 401 + text \'Unauthorized\'', async () => {
         expect.assertions(2);
         let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + invalidId);
         expect(response.statusCode).toBe(401);
@@ -103,14 +103,14 @@ describe('GET submission test cases', async () => {
 });
 
 describe('PUT submission test cases', async () => {
-    test('PUT /submissions/id_valid Authorization=invalidtoken ', async () => {
+    test('PUT /submissions/id_valid Authorization=invalidtoken: should return 401 + text \'Unauthorized\' ', async () => {
         expect.assertions(2);
         let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + invalidId).send(dummySubm);
         expect(response.statusCode).toBe(401);
         expect(response.text).toBe('Unauthorized');
     });
 
-    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer (but answer is not defined) ', async () => {
+    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer (but answer is not defined): should return 400 + text \'Bad request\' ', async () => {
         expect.assertions(2);
         dummySubm.answer = null;
         let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
@@ -118,7 +118,7 @@ describe('PUT submission test cases', async () => {
         expect(response.text).toBe('Bad request');
     });
 
-    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer ', async () => {
+    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer: should return 200 + valid submission answered ', async () => {
         expect.assertions(2);
         dummySubm.answer = 'My answer is Boffo!';
         let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
@@ -126,7 +126,7 @@ describe('PUT submission test cases', async () => {
         expect(response.body.answer).toBe(dummySubm.answer);
     });
 
-    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer & mark submission as still not completed', async () => {
+    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer & mark submission as still not completed: should return 200 + valid submission answered but not completed', async () => {
         expect.assertions(3);
         dummySubm.answer = 'My answer is Boffo!';
         dummySubm.completed = false;
@@ -137,7 +137,7 @@ describe('PUT submission test cases', async () => {
         expect(response.body.completed == false).toBe(true);
     });
 
-    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer & mark submission as completed', async () => {
+    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer & mark submission as completed: should return 200 + valid submission answered and completed', async () => {
         expect.assertions(3);
         dummySubm.answer = 'My answer is Boffo!';
         dummySubm.completed = true;
@@ -148,7 +148,7 @@ describe('PUT submission test cases', async () => {
         expect(response.body.completed == true).toBe(true);
     });
 
-    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to provide an answer & mark submission as completed', async () => {
+    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to provide an answer & mark submission as completed: should return 403 + resp text \'Forbidden\'', async () => {
         expect.assertions(2);
         dummySubm.answer = 'My answer is Boffo!';
         dummySubm.completed = true;
@@ -157,7 +157,7 @@ describe('PUT submission test cases', async () => {
         expect(response.text).toBe('Forbidden');
     });
 
-    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate', async () => {
+    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate: should return 200 + valid submission evaluated', async () => {
         expect.assertions(3);
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Sehr gut';
@@ -168,7 +168,7 @@ describe('PUT submission test cases', async () => {
         expect(response.body.earned_points).toBe(dummySubmFin.earned_points);
     });
 
-    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate, but doesn\'t put the comment', async () => {
+    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate, but doesn\'t put the comment: should return 400 because comment is necessary', async () => {
         expect.assertions(2);
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = null;
@@ -178,7 +178,7 @@ describe('PUT submission test cases', async () => {
         expect(response.text).toBe('Bad request');
     });
 
-    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate, but put earned_points > points', async () => {
+    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate, but put earned_points > points: should return 400 ', async () => {
         expect.assertions(2);
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Very gut';
@@ -188,7 +188,7 @@ describe('PUT submission test cases', async () => {
         expect(response.text).toBe('Bad request');
     });
 
-    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate, but put earned_points < 0', async () => {
+    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate, but put earned_points < 0: should return 400 ', async () => {
         expect.assertions(2);
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Very gut';
@@ -199,7 +199,7 @@ describe('PUT submission test cases', async () => {
     });
 
 
-    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate', async () => {
+    test('PUT /submissions/id_invalid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate: should return 400 (because body is correct but URI is not)', async () => {
         expect.assertions(2);
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Sehr gut';
@@ -209,7 +209,7 @@ describe('PUT submission test cases', async () => {
         expect(response.text).toBe('Bad request');
     });
 
-    test('PUT /submissions/id_valid(of subm already finished) Authorization=valid_id with user that wants to mark & evaluate', async () => {
+    test('PUT /submissions/id_invalid(of subm already finished with id_invalid) Authorization=valid_id with user that wants to mark & evaluate: should return 403 (because everything seems to point to another submission the teacher has no right handle) ', async () => {
         expect.assertions(2);
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.id = invalidId;
@@ -220,7 +220,7 @@ describe('PUT submission test cases', async () => {
         expect(response.text).toBe('Forbidden');
     });
 
-    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to mark & evaluate on a not finished exam\'s submission', async () => {
+    test('PUT /submissions/id_valid Authorization=valid_id with user that wants to mark & evaluate on a not finished exam\'s submission: should return 403 because the exam is not finished yet', async () => {
         expect.assertions(2);
         dummySubm.comment = 'Sehr gut';
         dummySubm.earned_points = dummySubm.points - 1;
