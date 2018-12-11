@@ -20,8 +20,8 @@ let enrolledTemp = {
 let gNewUser = {
     id: '110228',
     name: {
-        familyName : 'Guadagnini',
-        givenName : 'Johnny'
+        familyName: 'Guadagnini',
+        givenName: 'Johnny'
     }
 };
 
@@ -77,14 +77,14 @@ describe('find & creation methods userDao test cases', async () => {
 
     test('check findOrCreate() with data.id undefined: should not create any user', () => {
         expect.assertions(1);
-        return userDao.findOrCreate({notId: 'notId'}).then(valueC => {
+        return userDao.findOrCreate({ notId: 'notId' }).then(valueC => {
             expect(valueC).toEqual(null);
         });
     });
 
     test('check findOrCreate() with data.name undefined: should not create any user', () => {
         expect.assertions(1);
-        return userDao.findOrCreate({id: 'notId', notName: 'notName'}).then(valueC => {
+        return userDao.findOrCreate({ id: 'notId', notName: 'notName' }).then(valueC => {
             expect(valueC).toEqual(null);
         });
     });
@@ -161,8 +161,8 @@ describe('getAllUsers method userDao test cases', async () => {
             expect(utilities.isAnArrayOfUser(users)).toBe(true);
             expect(users.length).toBe(1);
             let enrolled_ok = true;
-            for(let user of users){
-                if(user.enrolled != null && (user.enrolled.year < 1900 || user.enrolled.year > 2018))
+            for (let user of users) {
+                if (user.enrolled != null && (user.enrolled.year < 1900 || user.enrolled.year > 2018))
                     enrolled_ok = false;
             }
             expect(enrolled_ok).toBe(true);
@@ -176,8 +176,8 @@ describe('getAllUsers method userDao test cases', async () => {
                 expect(utilities.isAnArrayOfUser(users)).toBe(true);
                 expect(users.length).toBe(2);
                 let enrolled_ok = true;
-                for(let user of users){
-                    if(user.enrolled != null && (user.enrolled.year < 1900 || user.enrolled.year > 2018))
+                for (let user of users) {
+                    if (user.enrolled != null && (user.enrolled.year < 1900 || user.enrolled.year > 2018))
                         enrolled_ok = false;
                 }
                 expect(enrolled_ok).toBe(true);
@@ -194,10 +194,10 @@ describe('getAllUsers method userDao test cases', async () => {
             expect(users.length).toBe(2);
             let enrolled_ok = true;
             let alpha_ok = true;
-            for(let i = 0; i < users.length && enrolled_ok && alpha_ok; i++){
-                if(users[i].enrolled != null && (users[i].enrolled.year < 1900 || users[i].enrolled.year > 2018))
+            for (let i = 0; i < users.length && enrolled_ok && alpha_ok; i++) {
+                if (users[i].enrolled != null && (users[i].enrolled.year < 1900 || users[i].enrolled.year > 2018))
                     enrolled_ok = false;
-                if((i+1) < users.length && ((users[i].surname > users[i+1].surname) || (users[i].surname == users[i+1].surname && users[i].name == users[i+1].name)))
+                if ((i + 1) < users.length && ((users[i].surname > users[i + 1].surname) || (users[i].surname == users[i + 1].surname && users[i].name == users[i + 1].name)))
                     alpha_ok = false;
             }
             expect(enrolled_ok && alpha_ok).toBe(true);
@@ -211,10 +211,10 @@ describe('getAllUsers method userDao test cases', async () => {
             expect(users.length).toBe(2);
             let enrolled_ok = true;
             let enrolled_sort_ok = true;
-            for(let i = 0; i < users.length && enrolled_ok && enrolled_sort_ok; i++){
-                if(users[i].enrolled != null && (users[i].enrolled.year < 1900 || users[i].enrolled.year > 2018))
+            for (let i = 0; i < users.length && enrolled_ok && enrolled_sort_ok; i++) {
+                if (users[i].enrolled != null && (users[i].enrolled.year < 1900 || users[i].enrolled.year > 2018))
                     enrolled_ok = false;
-                if((i+1) < users.length && users[i].enrolled!=null && users[i+1].enrolled!=null && utilities.compareTwoDate(users[i].enrolled,users[i+1].enrolled) == 1)
+                if ((i + 1) < users.length && users[i].enrolled != null && users[i + 1].enrolled != null && utilities.compareTwoDate(users[i].enrolled, users[i + 1].enrolled) == 1)
                     enrolled_sort_ok = false;
             }
             expect(enrolled_ok && enrolled_sort_ok).toBe(true);
@@ -321,7 +321,7 @@ describe('deleteUser method userDao test cases', async () => {
     test('check deleteUser() after all the operations above in this test suite: should delete newUser & return it', () => {
         expect.assertions(2);
         return (userDao.getUser(newUser, newUser.id)).then(value => {
-            if(value != null){
+            if (value != null) {
                 return (userDao.deleteUser(newUser, newUser.id)).then(user => {
                     expect(user).toEqual(newUser);
                     return (userDao.getUser(newUser, newUser.id)).then(delUser => {
@@ -342,21 +342,21 @@ describe('deleteUser method userDao test cases', async () => {
 
     test('check deleteUser() with not exist id: should not be possible: return value null', () => {
         expect.assertions(1);
-        return (userDao.deleteUser({id:invalidId}, invalidId)).then(value => {
+        return (userDao.deleteUser({ id: invalidId }, invalidId)).then(value => {
             expect(value).toEqual(null);
         });
     });
 
     test('check deleteUser() with pure string as id: should not be possible: return value null', () => {
         expect.assertions(1);
-        return (userDao.deleteUser({id:pureStringId}, pureStringId)).then(value => {
+        return (userDao.deleteUser({ id: pureStringId }, pureStringId)).then(value => {
             expect(value).toEqual(null);
         });
     });
 
     test('check deleteUser() with null as id: should not be possible: return value null', () => {
         expect.assertions(1);
-        return (userDao.deleteUser({id:invalidId}, null)).then(value => {
+        return (userDao.deleteUser({ id: invalidId }, null)).then(value => {
             expect(value).toEqual(null);
         });
     });

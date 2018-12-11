@@ -75,6 +75,8 @@ function deleteTaskById(req, res) { //Delete a task by ID
                 res.status(400).send("Bad Request");
             }
         });
+    } else {
+        res.status(400).send("Bad Request");
     }
 };
 

@@ -88,7 +88,7 @@ describe('getSubmissionsByExam method submissionDao test cases', async () => {
 
     test('check getSubmissionsByExam() with user as teacher & exam != null, but with no id: should return null', () => {
         expect.assertions(1);
-        return submissionDao.getSubmissionsByExam(dummyTeacher, {banana: 'Very good fruit'}).then(submissions => {
+        return submissionDao.getSubmissionsByExam(dummyTeacher, { banana: 'Very good fruit' }).then(submissions => {
             expect(submissions).toBe(null);
         });
     });
@@ -144,7 +144,7 @@ describe('updateSubmission method submissionDao test cases', async () => {
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Sehr gut';
         dummySubmFin.earned_points = dummySubmFin.points - 1;
-        return submissionDao.updateSubmission({id:99}, dummySubmFin).then(submission => {
+        return submissionDao.updateSubmission({ id: 99 }, dummySubmFin).then(submission => {
             expect(submission).toBe('403');
         });
     });
@@ -152,7 +152,7 @@ describe('updateSubmission method submissionDao test cases', async () => {
     test('check updateSubmission() as student with invalid user: should be a bad request', () => {
         expect.assertions(1);
         dummySubm1.answer = 'For me it\'s an apple';
-        return submissionDao.updateSubmission({id:99}, dummySubm1).then(submission => {
+        return submissionDao.updateSubmission({ id: 99 }, dummySubm1).then(submission => {
             expect(submission).toBe('400');// he thinks it's a teacher
         });
     });

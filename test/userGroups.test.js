@@ -23,15 +23,17 @@ afterAll(() => {
     return dummiesDB.cleanDB().then(() => dummiesDB.connection.end());
 });
 
-test('app module should be defined', () => {
-    expect.assertions(1);
-    expect(app).toBeDefined();
+describe('GENERIC userGroup test cases', async () => {
+    test('app module should be defined', () => {
+        expect.assertions(1);
+        expect(app).toBeDefined();
+    });
 });
 
 describe('POST userGroup test cases', async () => {
     test('POST /userGroups; should return 201 + userGroup obj', async () => {
         expect.assertions(2);
-        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:dummyUserGroup});
+        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({ user: dummyTeacher, userGroup: dummyUserGroup });
         expect(response.statusCode).toBe(201);
         dummyUserGroup.id = response.body.id;
         dummyUserGroup.creator = response.body.creator;
@@ -41,21 +43,21 @@ describe('POST userGroup test cases', async () => {
 
     test('POST /userGroups with null userGroup, should return 400', async () => {
         expect.assertions(2);
-        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:null});
+        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({ user: dummyTeacher, userGroup: null });
         expect(response.statusCode).toBe(400);
         expect(response.body).toEqual({});
     });
 
     test('POST /userGroups with null userGroup creator, should return 400', async () => {
         expect.assertions(2);
-        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({user:null, userGroup:dummyUserGroup});
+        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({ user: null, userGroup: dummyUserGroup });
         expect(response.statusCode).toBe(400);
         expect(response.body).toEqual({});
     });
 
     test('POST /userGroups with uncomplete userGroup; should return 400', async () => {
         expect.assertions(2);
-        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({user:dummyTeacher, userGroup:{name:'ciao'}});
+        let response = await request(app).post('/userGroups').set('Authorization', 'Bearer ' + validId).send({ user: dummyTeacher, userGroup: { name: 'ciao' } });
         expect(response.statusCode).toBe(400);
         expect(response.body).toEqual({});
     });
@@ -153,7 +155,7 @@ describe('GET userGroup test cases', async () => {
 describe('PUT userGroup test cases', async () => {
     test('PUT /userGroups/validUGId; should return 200 + userGroup obj', async () => {
         expect.assertions(4);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({ userGroup: dummyUserGroup });
         expect(response.statusCode).toBe(200);
         let GETUserGroup = {
             id: response.body.id,
@@ -170,7 +172,7 @@ describe('PUT userGroup test cases', async () => {
         expect.assertions(4);
         let dummyUserGroupUpdate = jsonCopy(dummyUserGroup);
         dummyUserGroupUpdate.users.push(dummyTeacher);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroupUpdate});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({ userGroup: dummyUserGroupUpdate });
         expect(response.statusCode).toBe(200);
         let GETUserGroup = {
             id: response.body.id,
@@ -186,7 +188,7 @@ describe('PUT userGroup test cases', async () => {
     test('PUT /userGroups/validUGId removing a user; should return 200 + userGroup obj', async () => {
         expect.assertions(4);
         let dummyUserGroupUpdate = jsonCopy(dummyUserGroup);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroupUpdate});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + validId).send({ userGroup: dummyUserGroupUpdate });
         expect(response.statusCode).toBe(200);
         let GETUserGroup = {
             id: response.body.id,
@@ -201,21 +203,21 @@ describe('PUT userGroup test cases', async () => {
 
     test('PUT /userGroups/validUGId; with user without privileges, should return 403', async () => {
         expect.assertions(2);
-        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + invalidId).send({userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + validUGId).set('Authorization', 'Bearer ' + invalidId).send({ userGroup: dummyUserGroup });
         expect(response.statusCode).toBe(403);
         expect(response.body).toEqual({});
     });
 
     test('PUT /userGroups/invalidUGId; should return 404', async () => {
         expect.assertions(2);
-        let response = await request(app).put('/userGroups/' + invalidUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + invalidUGId).set('Authorization', 'Bearer ' + validId).send({ userGroup: dummyUserGroup });
         expect(response.statusCode).toBe(404);
         expect(response.body).toEqual({});
     });
 
     test('PUT /userGroups/pureStringUGId; should return 404', async () => {
         expect.assertions(2);
-        let response = await request(app).put('/userGroups/' + pureStringUGId).set('Authorization', 'Bearer ' + validId).send({userGroup:dummyUserGroup});
+        let response = await request(app).put('/userGroups/' + pureStringUGId).set('Authorization', 'Bearer ' + validId).send({ userGroup: dummyUserGroup });
         expect(response.statusCode).toBe(404);
         expect(response.body).toEqual({});
     });

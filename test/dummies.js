@@ -58,7 +58,6 @@ let dummyTeacher = {
     id: '11',
     name: 'Jimmy',
     surname: 'Teacher',
-    password: 'password',
     email: 'dummy@dummy.com',
     born: {
         year: 1967,
@@ -84,7 +83,6 @@ let dummyTeacher2 = {
     id: '99',
     name: 'Marco',
     surname: 'Boffino',
-    password: 'password2',
     email: 'dummy@dummy.com',
     born: {
         year: 1967,
@@ -114,7 +112,7 @@ let dummyUserGroup = {
 };
 
 let dummyTask1 = {
-    id: 1,
+    id: "1",
     owner: dummyTeacher,
     task_type: "open",
     question: {
@@ -122,11 +120,11 @@ let dummyTask1 = {
         possibilities: [],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
-    points: 2
+    points: "2"
 };
 
 let dummyTask2 = {
-    id: 2,
+    id: "2",
     owner: dummyTeacher,
     task_type: "single_c",
     question: {
@@ -134,11 +132,11 @@ let dummyTask2 = {
         possibilities: ["0", "1", "2", "Infinite"],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
-    points: 1
+    points: "1"
 };
 
 let dummyTask3 = {
-    id: 3,
+    id: "3",
     owner: dummyTeacher,
     task_type: "submit",
     question: {
@@ -146,7 +144,7 @@ let dummyTask3 = {
         possibilities: [],
         base_upload_url: "http://uploadhere.com/dummy/v1/"
     },
-    points: 3
+    points: "3"
 };
 
 let dummySubmission1 = {
@@ -396,11 +394,11 @@ function insertUserGroupMembers() {
 
 function insertExams() {
     return new Promise(resolve => {
-       let promiseFirst = new Promise(resolveFirst => {
-           let start_time = dummyExam.start_time.year + '-' + dummyExam.start_time.month + '-' + dummyExam.start_time.day + ' ' + dummyExam.start_time.hour + ':' + dummyExam.start_time.minute + ':' + dummyExam.start_time.second;
-           let deadline = dummyExam.deadline.year + '-' + dummyExam.deadline.month + '-' + dummyExam.deadline.day + ' ' + dummyExam.deadline.hour + ':' + dummyExam.deadline.minute + ':' + dummyExam.deadline.second;
+        let promiseFirst = new Promise(resolveFirst => {
+            let start_time = dummyExam.start_time.year + '-' + dummyExam.start_time.month + '-' + dummyExam.start_time.day + ' ' + dummyExam.start_time.hour + ':' + dummyExam.start_time.minute + ':' + dummyExam.start_time.second;
+            let deadline = dummyExam.deadline.year + '-' + dummyExam.deadline.month + '-' + dummyExam.deadline.day + ' ' + dummyExam.deadline.hour + ':' + dummyExam.deadline.minute + ':' + dummyExam.deadline.second;
 
-           connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',
+            connection.query('INSERT INTO exam (id_group, id_owner, name, start_time, deadline, reviewable, num_shuffle) VALUES (?,?,?,?,?,?,?)',
                 [dummyExam.students.id, dummyExam.owner.id, dummyExam.name, start_time, deadline, dummyExam.reviewable, dummyExam.num_shuffle],
                 function (error, results, fields) {
                     if (error) {
@@ -472,7 +470,7 @@ function task1() {
                     //connection.end();
                     throw error;
                 }
-                dummyTask1.id = results.insertId;
+                dummyTask1.id = ""+results.insertId;
                 connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
                     [dummyExam.id, dummyTask1.id],
                     function (error, results, fields) {
@@ -505,7 +503,7 @@ function task2() {
                     //connection.end();
                     throw error;
                 }
-                dummyTask2.id = results.insertId;
+                dummyTask2.id = ""+results.insertId;
                 connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
                     [dummyExam.id, dummyTask2.id],
                     function (error, results, fields) {
@@ -530,7 +528,7 @@ function task3() {
                     //connection.end();
                     throw error;
                 }
-                dummyTask3.id = results.insertId;
+                dummyTask3.id = ""+results.insertId;
                 connection.query('INSERT INTO exam_task (id_exam, id_task) VALUES (?,?)',
                     [dummyExam.id, dummyTask3.id],
                     function (error, results, fields) {

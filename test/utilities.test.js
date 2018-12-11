@@ -112,7 +112,7 @@ describe('[Task] utilities test cases', async () => {
     });
     test('check isATask() with invalid task field', () => {
         newTask.points = null;
-        newTask.owner = {id:111111};
+        newTask.owner = { id: 111111 };
         expect(utilities.isATask(newTask)).toEqual(false);
     });
     test('check isATask() with null task field', () => {
@@ -129,7 +129,7 @@ describe('[User] utilities test cases', async () => {
     });
 
     test('check isAnArrayOfUser() with invalid users', () => {
-        expect(utilities.isAnArrayOfUser([{id: 111111}])).toEqual(false);
+        expect(utilities.isAnArrayOfUser([{ id: 111111 }])).toEqual(false);
     });
 
     test('check isAnArrayOfUser() with empty array', () => {
@@ -147,7 +147,7 @@ describe('[UserGroup] utilities test cases', async () => {
     });
 
     test('check isAUserGroupBody() with invalid userGroups', () => {
-        expect(utilities.isAUserGroupBody({id: 111111})).toEqual(false);
+        expect(utilities.isAUserGroupBody({ id: 111111 })).toEqual(false);
     });
 
     test('check isAUserGroupBody() with null as userGroups', () => {
@@ -159,7 +159,7 @@ describe('[UserGroup] utilities test cases', async () => {
     });
 
     test('check isAnArrayOfUserGroups() with invalid users', () => {
-        expect(utilities.isAnArrayOfUserGroups([{id: 111111}])).toEqual(false);
+        expect(utilities.isAnArrayOfUserGroups([{ id: 111111 }])).toEqual(false);
     });
 
     test('check isAnArrayOfUserGroups() with empty array', () => {
@@ -245,7 +245,15 @@ describe('[Date] utilities test cases', async () => {
     test('check convertMonth() with null data', () => {
         expect(utilities.convertMonth(null)).toEqual(0);
     });
-
+    
+    let date1 = {
+        year: 1997,
+        month: 9,
+        day: 2,
+        hour: 23,
+        minute: 0,
+        second: 0
+    };
     date2 = jsonCopy(date1);
 
     test('check compareTwoDate() with equal date time values', () => {
@@ -955,7 +963,7 @@ describe('[Submission] utilities test cases', async () => {
     });
 
     test('check isASubmissionEvaluated() with invalid submission', () => {
-        expect(utilities.isASubmissionEvaluated([{id: 111111}])).toEqual(false);
+        expect(utilities.isASubmissionEvaluated([{ id: 111111 }])).toEqual(false);
     });
 
     test('check isAnArrayOfSubmission() with valid submission', () => {
@@ -977,15 +985,6 @@ describe('[Submission] utilities test cases', async () => {
             boffo: 'marcolino'
         }])).toEqual(false);
     });
-
-    let date1 = {
-        year: 1997,
-        month: 9,
-        day: 2,
-        hour: 23,
-        minute: 0,
-        second: 0
-    };
 });
 
 function jsonCopy(src) {

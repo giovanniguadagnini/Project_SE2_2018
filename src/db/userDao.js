@@ -11,7 +11,7 @@ function findOrCreate(data) {
             resolve(null);
         } else {
             //use an invalid id just to see if the user is already in the db
-            getUser({id: 'invalidId'}, data.id).then(value => {
+            getUser({ id: 'invalidId' }, data.id).then(value => {
                 let userFromDB = value;
                 if (userFromDB == null && data.name != null) { // user doesn't exist in db (registration)
                     let userToDB = {
@@ -71,37 +71,37 @@ function createUser(user) {
 */
 function getAllUsers(loggedUser, enrolledAfter, enrolledBefore, sortUsrBy) {//sortUsrBy can be null => alpha sorting by default
     return new Promise(resolve => {
-        if(!enrolledAfter || !enrolledBefore || !Number.isInteger(+enrolledAfter) || !Number.isInteger(+enrolledBefore))
+        if (!enrolledAfter || !enrolledBefore || !Number.isInteger(+enrolledAfter) || !Number.isInteger(+enrolledBefore))
             resolve([]);
 
         let retval = []; //array of users
         let promises_users = [];
-        connection.query(   'SELECT id FROM user ' +
-                            'WHERE (user.enrolled >= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\') '+
-                            'AND '+
-                            'user.enrolled <= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\')) ' +
-                            'OR user.enrolled IS NULL', [+enrolledAfter, +enrolledBefore], function (error, results, fields) {
-            if (error) {
-                throw error;
-                resolve(null);
-            }
-            let promise_tmp;
-            for (let i = 0; i < results.length; i++) { //for every user retrivied, the function getUser retrieve the user JSON, and it will insert exam data only if the logged user has the privileges to see it
-                promise_tmp = getUser(loggedUser, results[i].id);
-                promises_users.push(promise_tmp);
-                promise_tmp.then(userToAdd => {
-                    retval.push(userToAdd);//every time a promise is completed it means we've got the proper data of the user to add in the return array
-                });
-            }
+        connection.query('SELECT id FROM user ' +
+            'WHERE (user.enrolled >= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\') ' +
+            'AND ' +
+            'user.enrolled <= DATE_FORMAT(\'?-01-01 00:00:00\',\'%Y-%m-%d %H:%i:%s\')) ' +
+            'OR user.enrolled IS NULL', [+enrolledAfter, +enrolledBefore], function (error, results, fields) {
+                if (error) {
+                    throw error;
+                    resolve(null);
+                }
+                let promise_tmp;
+                for (let i = 0; i < results.length; i++) { //for every user retrivied, the function getUser retrieve the user JSON, and it will insert exam data only if the logged user has the privileges to see it
+                    promise_tmp = getUser(loggedUser, results[i].id);
+                    promises_users.push(promise_tmp);
+                    promise_tmp.then(userToAdd => {
+                        retval.push(userToAdd);//every time a promise is completed it means we've got the proper data of the user to add in the return array
+                    });
+                }
 
-            Promise.all(promises_users).then(b => {
-                if (sortUsrBy != 'enrol') //alpha sorting by default
-                    retval.sort(utilities.compareAlfa);
-                else
-                    retval.sort(utilities.compareEnrol);
-                resolve(retval);
+                Promise.all(promises_users).then(b => {
+                    if (sortUsrBy != 'enrol') //alpha sorting by default
+                        retval.sort(utilities.compareAlfa);
+                    else
+                        retval.sort(utilities.compareEnrol);
+                    resolve(retval);
+                });
             });
-        });
 
     });
 }
@@ -119,7 +119,7 @@ function getUser(loggedUser, id) {
                 Promise.all(promises_pcomments).then(b => {
                     resolve(user);
                 });
-            }else {
+            } else {
                 resolve(null);
             }
         });
@@ -188,7 +188,7 @@ function getUser1(loggedUser, id) {
                     '( S.id_exam IN (SELECT id_exam FROM teacher_exam WHERE id_teacher = ?) ' +
                     'OR ' +
                     '(? = ? AND S.comment IS NOT NULL AND S.earned_points IS NOT NULL AND NOT EXISTS ' +
-                        '(SELECT * FROM submission WHERE id_exam = S.id_exam AND (comment IS NULL OR earned_points IS NULL) ))' + // logged user is asking his/her own data
+                    '(SELECT * FROM submission WHERE id_exam = S.id_exam AND (comment IS NULL OR earned_points IS NULL) ))' + // logged user is asking his/her own data
                     ') ' +
                     ') ' +
                     'ORDER BY S.id_exam, id_s ASC) AS TEMP LEFT OUTER JOIN task_possibility TP ' +
@@ -233,7 +233,7 @@ function getUser1(loggedUser, id) {
                                 tot_earned += submission.earned_points;
                                 tot_points += submission.points;
                                 if (i + 1 == results.length || results[i + 1].id_exam != submission.id_exam) {
-                                    user.exam_eval.push({id_exam: id_ex, mark: ((tot_earned / tot_points) * 30)});//the function computes the evalutation of the exam
+                                    user.exam_eval.push({ id_exam: id_ex, mark: ((tot_earned / tot_points) * 30) });//the function computes the evalutation of the exam
                                     tot_points = 0;
                                     tot_earned = 0;
                                 }
@@ -329,18 +329,18 @@ function deleteUser(loggedUser, userId) {
         if (userId != null && loggedUser != null && loggedUser.id != null) {
 
             getUser(loggedUser, userId).then(user => {
-                if(user != null) {
+                if (user != null) {
                     connection.query('DELETE FROM user WHERE id = ?', [userId], function (error, results, fields) {
                         if (error) {
                             throw error;
-                            resolve (null);
+                            resolve(null);
                         }
                         if (results.affectedRows > 0) {
                             retval = user;
                         }
                         resolve(retval);
                     });
-                }else
+                } else
                     resolve(retval);
             });
         } else {
@@ -360,4 +360,4 @@ getAllUsers({id:'12'}, 1990, 2018).then( value =>{
     console.log(JSON.stringify(value));
 });
 */
-module.exports = {findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser, connection};
+module.exports = { findOrCreate, getAllUsers, createUser, getUser, updateUser, deleteUser, connection };

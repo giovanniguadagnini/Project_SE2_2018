@@ -32,8 +32,8 @@ function isATaskBody(task) {
         else if ((task.task_type == 'submit'))
             return (task.question.base_upload_url != null && task.question.possibilities.length == 0);
         else
-        if ((task.task_type == 'open'))
-            return (task.question.possibilities.length == 0);
+            if ((task.task_type == 'open'))
+                return (task.question.possibilities.length == 0);
     } else
         return false;
 }
@@ -42,48 +42,48 @@ function isATask(task) {
     return task != null && task.id != null && task.id != 'null' && isAUser(task.owner) && isATaskBody(task);
 }
 
-function isExamBody(exam){
-    return (exam != null && exam.name!=null && isAnArrayOfUser(exam.teachers) && isAUserGroup(exam.students) && exam.start_time!=null && exam.deadline!=null && exam.reviewable!=null && exam.num_shuffle!=null && (compareTwoDate(exam.deadline,exam.start_time)==1) );
+function isExamBody(exam) {
+    return (exam != null && exam.name != null && isAnArrayOfUser(exam.teachers) && isAUserGroup(exam.students) && exam.start_time != null && exam.deadline != null && exam.reviewable != null && exam.num_shuffle != null && (compareTwoDate(exam.deadline, exam.start_time) == 1));
 }
 
-function compareTwoDate(date1,date2){
-  if(!isAValidDate(date1) && !isAValidDate(date2)){
-    return 0;
-  }else if(!isAValidDate(date2)){
-    return 1;
-  }if(!isAValidDate(date1)){
-    return 2;
-  }else if(date1.year>date2.year){
-    return 1;
-  }else if(date2.year>date1.year){
-    return 2;
-  }else if(date1.month>date2.month){
-    return 1;
-  }else if(date2.month>date1.month){
-    return 2;
-  }else if(date1.day>date2.day){
-    return 1;
-  }else if(date2.day>date1.day){
-    return 2;
-  }else if(date1.hour>date2.hour){
-    return 1;
-  }else if(date2.hour>date1.hour){
-    return 2;
-  }else if(date1.minute>date2.minute){
-    return 1;
-  }else if(date2.minute>date1.minute){
-    return 2;
-  }else if(date1.second>date2.second){
-    return 1;
-  }else if(date2.second>date1.second){
-    return 2;
-  }else{
-    return 0;
-  }
+function compareTwoDate(date1, date2) {
+    if (!isAValidDate(date1) && !isAValidDate(date2)) {
+        return 0;
+    } else if (!isAValidDate(date2)) {
+        return 1;
+    } if (!isAValidDate(date1)) {
+        return 2;
+    } else if (date1.year > date2.year) {
+        return 1;
+    } else if (date2.year > date1.year) {
+        return 2;
+    } else if (date1.month > date2.month) {
+        return 1;
+    } else if (date2.month > date1.month) {
+        return 2;
+    } else if (date1.day > date2.day) {
+        return 1;
+    } else if (date2.day > date1.day) {
+        return 2;
+    } else if (date1.hour > date2.hour) {
+        return 1;
+    } else if (date2.hour > date1.hour) {
+        return 2;
+    } else if (date1.minute > date2.minute) {
+        return 1;
+    } else if (date2.minute > date1.minute) {
+        return 2;
+    } else if (date1.second > date2.second) {
+        return 1;
+    } else if (date2.second > date1.second) {
+        return 2;
+    } else {
+        return 0;
+    }
 }
 
-function isExam(exam){
-    return (exam.id!=null && isExamBody(exam));
+function isExam(exam) {
+    return (exam.id != null && isExamBody(exam));
 }
 //return true if user is a valid user
 function isAUser(user) {
@@ -126,28 +126,28 @@ function isAnArrayOfUserGroups(userGroups) {
     }
 }
 
-function isAQuestion(question){
+function isAQuestion(question) {
     return (question != null && question.text != null && question.possibilities != null && question.base_upload_url != null);
 }
 
-function isASubmission(subm){
+function isASubmission(subm) {
     return (subm != null && subm.id != null && (subm.task_type == 'open' || subm.task_type == 'single_c' || subm.task_type == 'multiple_c' || subm.task_type == 'submit')
         && isAQuestion(subm.question) && subm.id_user != null && subm.id_exam != null && subm.completed != null && subm.points != null && subm.points > 0);
 }
 
-function isASubmissionAnswer(subm){
+function isASubmissionAnswer(subm) {
     return (isASubmission(subm) && subm.answer != null);
 }
 
-function isASubmissionEvaluated(subm){
-    return (isASubmission(subm) && subm.earned_points != null && subm.earned_points >=0 && subm.comment != null && subm.earned_points <= subm.points);
+function isASubmissionEvaluated(subm) {
+    return (isASubmission(subm) && subm.earned_points != null && subm.earned_points >= 0 && subm.comment != null && subm.earned_points <= subm.points);
 }
 
-function isAnArrayOfSubmission(submissions){
-    if(submissions == null || submissions.length == 0){
+function isAnArrayOfSubmission(submissions) {
+    if (submissions == null || submissions.length == 0) {
         return false;
-    }else {
-        for(let subm of submissions){
+    } else {
+        for (let subm of submissions) {
             if (!isASubmission(subm))
                 return false;
         }
@@ -336,4 +336,4 @@ function convertMonth(month) {
     return ret;
 }
 
-module.exports = {connection, isATask, isATaskBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated, compareTwoDate,isExam, isExamBody};
+module.exports = { connection, isATask, isATaskBody, isAUser, isAnArrayOfUser, isAValidDate, compareAlfa, compareEnrol, convertMonth, isAUserGroupBody, isAUserGroup, isAnArrayOfUserGroups, isASubmission, isAnArrayOfSubmission, isASubmissionAnswer, isASubmissionEvaluated, compareTwoDate, isExam, isExamBody };

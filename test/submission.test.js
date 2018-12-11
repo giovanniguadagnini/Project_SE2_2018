@@ -68,35 +68,35 @@ describe('GET submission test cases', async () => {
 
     test('GET /submissions/id?access_token=stud_id with user as student: should return 200 + a valid subm', async () => {
         expect.assertions(2);
-        let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + validStudId);
+        let response = await request(app).get('/submissions/' + dummySubm.id + '?access_token=' + validStudId);
         expect(response.statusCode).toBe(200);
         expect(utilities.isASubmission(response.body)).toBe(true);
     });
 
     test('GET /submissions/id_notvalid?access_token=stud_id with user as student: should return 404 + text \'Submission not found\'', async () => {
         expect.assertions(2);
-        let response = await request(app).get('/submissions/'+ -1000 +'?access_token=' + validStudId);
+        let response = await request(app).get('/submissions/' + -1000 + '?access_token=' + validStudId);
         expect(response.statusCode).toBe(404);
         expect(response.text).toEqual('Submission not found');
     });
 
     test('GET /submissions/id_valid?access_token=teach_id with user as teacher: should return 200 + a valid subm', async () => {
         expect.assertions(2);
-        let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + validTeachId);
+        let response = await request(app).get('/submissions/' + dummySubm.id + '?access_token=' + validTeachId);
         expect(response.statusCode).toBe(200);
         expect(utilities.isASubmission(response.body)).toBe(true);
     });
 
     test('GET /submissions/id_valid?access_token=valid_id with user who can\'t see the requested object: should return 404 + text \'Submission not found\'', async () => {
         expect.assertions(2);
-        let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + dummyUserNoProvileges.id);
+        let response = await request(app).get('/submissions/' + dummySubm.id + '?access_token=' + dummyUserNoProvileges.id);
         expect(response.statusCode).toBe(404);
         expect(response.text).toBe('Submission not found');
     });
 
     test('GET /submissions/id_valid?access_token=invalidtoken: should return 401 + text \'Unauthorized\'', async () => {
         expect.assertions(2);
-        let response = await request(app).get('/submissions/'+ dummySubm.id +'?access_token=' + invalidId);
+        let response = await request(app).get('/submissions/' + dummySubm.id + '?access_token=' + invalidId);
         expect(response.statusCode).toBe(401);
         expect(response.text).toBe('Unauthorized');
     });
@@ -105,7 +105,7 @@ describe('GET submission test cases', async () => {
 describe('PUT submission test cases', async () => {
     test('PUT /submissions/id_valid Authorization=invalidtoken: should return 401 + text \'Unauthorized\' ', async () => {
         expect.assertions(2);
-        let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + invalidId).send(dummySubm);
+        let response = await request(app).put('/submissions/' + dummySubm.id).set('Authorization', 'Bearer ' + invalidId).send(dummySubm);
         expect(response.statusCode).toBe(401);
         expect(response.text).toBe('Unauthorized');
     });
@@ -113,7 +113,7 @@ describe('PUT submission test cases', async () => {
     test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer (but answer is not defined): should return 400 + text \'Bad request\' ', async () => {
         expect.assertions(2);
         dummySubm.answer = null;
-        let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
+        let response = await request(app).put('/submissions/' + dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
         expect(response.statusCode).toBe(400);
         expect(response.text).toBe('Bad request');
     });
@@ -121,7 +121,7 @@ describe('PUT submission test cases', async () => {
     test('PUT /submissions/id_valid Authorization=valid_id with user that wants to provide an answer: should return 200 + valid submission answered ', async () => {
         expect.assertions(2);
         dummySubm.answer = 'My answer is Boffo!';
-        let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
+        let response = await request(app).put('/submissions/' + dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
         expect(response.statusCode).toBe(200);
         expect(response.body.answer).toBe(dummySubm.answer);
     });
@@ -131,7 +131,7 @@ describe('PUT submission test cases', async () => {
         dummySubm.answer = 'My answer is Boffo!';
         dummySubm.completed = false;
 
-        let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
+        let response = await request(app).put('/submissions/' + dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
         expect(response.statusCode).toBe(200);
         expect(response.body.answer).toBe(dummySubm.answer);
         expect(response.body.completed == false).toBe(true);
@@ -142,7 +142,7 @@ describe('PUT submission test cases', async () => {
         dummySubm.answer = 'My answer is Boffo!';
         dummySubm.completed = true;
 
-        let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
+        let response = await request(app).put('/submissions/' + dummySubm.id).set('Authorization', 'Bearer ' + validStudId).send(dummySubm);
         expect(response.statusCode).toBe(200);
         expect(response.body.answer).toBe(dummySubm.answer);
         expect(response.body.completed == true).toBe(true);
@@ -152,7 +152,7 @@ describe('PUT submission test cases', async () => {
         expect.assertions(2);
         dummySubm.answer = 'My answer is Boffo!';
         dummySubm.completed = true;
-        let response = await request(app).put('/submissions/'+ dummiesDB.dummySubmission1Finished.id).set('Authorization', 'Bearer ' + validStudId).send(dummiesDB.dummySubmission1Finished);
+        let response = await request(app).put('/submissions/' + dummiesDB.dummySubmission1Finished.id).set('Authorization', 'Bearer ' + validStudId).send(dummiesDB.dummySubmission1Finished);
         expect(response.statusCode).toBe(403);
         expect(response.text).toBe('Forbidden');
     });
@@ -162,7 +162,7 @@ describe('PUT submission test cases', async () => {
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Sehr gut';
         dummySubmFin.earned_points = dummySubmFin.points - 1;
-        let response = await request(app).put('/submissions/'+ dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
+        let response = await request(app).put('/submissions/' + dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
         expect(response.statusCode).toBe(200);
         expect(response.body.comment).toBe(dummySubmFin.comment);
         expect(response.body.earned_points).toBe(dummySubmFin.earned_points);
@@ -173,7 +173,7 @@ describe('PUT submission test cases', async () => {
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = null;
         dummySubmFin.earned_points = dummySubmFin.points - 1;
-        let response = await request(app).put('/submissions/'+ dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
+        let response = await request(app).put('/submissions/' + dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
         expect(response.statusCode).toBe(400);
         expect(response.text).toBe('Bad request');
     });
@@ -183,7 +183,7 @@ describe('PUT submission test cases', async () => {
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Very gut';
         dummySubmFin.earned_points = dummySubmFin.points + 1;
-        let response = await request(app).put('/submissions/'+ dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
+        let response = await request(app).put('/submissions/' + dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
         expect(response.statusCode).toBe(400);
         expect(response.text).toBe('Bad request');
     });
@@ -192,8 +192,8 @@ describe('PUT submission test cases', async () => {
         expect.assertions(2);
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Very gut';
-        dummySubmFin.earned_points =  - 1;
-        let response = await request(app).put('/submissions/'+ dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
+        dummySubmFin.earned_points = - 1;
+        let response = await request(app).put('/submissions/' + dummySubmFin.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
         expect(response.statusCode).toBe(400);
         expect(response.text).toBe('Bad request');
     });
@@ -204,7 +204,7 @@ describe('PUT submission test cases', async () => {
         let dummySubmFin = dummiesDB.dummySubmission1Finished;
         dummySubmFin.comment = 'Sehr gut';
         dummySubmFin.earned_points = dummySubmFin.points - 1;
-        let response = await request(app).put('/submissions/'+ invalidId).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
+        let response = await request(app).put('/submissions/' + invalidId).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
         expect(response.statusCode).toBe(400);
         expect(response.text).toBe('Bad request');
     });
@@ -215,7 +215,7 @@ describe('PUT submission test cases', async () => {
         dummySubmFin.id = invalidId;
         dummySubmFin.comment = 'Sehr gut';
         dummySubmFin.earned_points = dummySubmFin.points - 1;
-        let response = await request(app).put('/submissions/'+ invalidId).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
+        let response = await request(app).put('/submissions/' + invalidId).set('Authorization', 'Bearer ' + validTeachId).send(dummySubmFin);
         expect(response.statusCode).toBe(403);
         expect(response.text).toBe('Forbidden');
     });
@@ -224,7 +224,7 @@ describe('PUT submission test cases', async () => {
         expect.assertions(2);
         dummySubm.comment = 'Sehr gut';
         dummySubm.earned_points = dummySubm.points - 1;
-        let response = await request(app).put('/submissions/'+ dummySubm.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubm);
+        let response = await request(app).put('/submissions/' + dummySubm.id).set('Authorization', 'Bearer ' + validTeachId).send(dummySubm);
         expect(response.statusCode).toBe(403);
         expect(response.text).toBe('Forbidden');
     });

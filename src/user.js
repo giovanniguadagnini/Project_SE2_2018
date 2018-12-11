@@ -71,7 +71,7 @@ function updateUser(req, res) { //Update user
 
 function deleteUser(req, res) { //Delete user
     let id = req.params.id;
-    let user = {id: req.body.id};
+    let user = { id: req.body.id };
 
     // in delete I check that the user is deleting its own account
     // (delete /users/:id can only be called on profile we're logged with)
@@ -91,4 +91,4 @@ function deleteUser(req, res) { //Delete user
     }
 }
 
-module.exports = {getUsers, getUserById, updateUser, deleteUser};
+module.exports = { getUsers, getUserById, updateUser, deleteUser };

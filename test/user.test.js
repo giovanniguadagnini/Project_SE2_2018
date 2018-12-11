@@ -32,7 +32,7 @@ describe('GENERIC user test cases', async () => {
 });
 
 
-describe('GET user test cases', async() => {
+describe('GET user test cases', async () => {
     test('GET / should return 200', async () => {
         expect.assertions(1);
         let response = await request(app).get('/');
@@ -97,7 +97,7 @@ describe('GET user test cases', async() => {
 
     test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system enrolled before 2019', async () => {
         expect.assertions(3);
-        let response = await request(app).get('/users?access_token=' + validId).query({enrolledBefore: '2019'});
+        let response = await request(app).get('/users?access_token=' + validId).query({ enrolledBefore: '2019' });
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(4);
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
@@ -105,13 +105,13 @@ describe('GET user test cases', async() => {
 
     test('GET /users?access_token=validId with only enrolledBefore param; should return 200 + all users in the system enrolled after 2012', async () => {
         expect.assertions(4);
-        let response = await request(app).get('/users?access_token=' + validId).query({enrolledAfter: '2012'});
+        let response = await request(app).get('/users?access_token=' + validId).query({ enrolledAfter: '2012' });
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(2);
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
         let before = false; // true if there is a user that has been enrolled before 2012
-        for(let user of response.body){
-            if(user.enrolled != null && user.enrolled < 2012)
+        for (let user of response.body) {
+            if (user.enrolled != null && user.enrolled < 2012)
                 before = true;
         }
         expect(before).toBe(false);
@@ -119,16 +119,16 @@ describe('GET user test cases', async() => {
 
     test('GET /users?access_token=validId with enrolledAfter & enrolledBefore param; should return 200 + all users in the system enrolled in [2010-2013]', async () => {
         expect.assertions(4);
-        let response = await request(app).get('/users?access_token=' + validId).query({enrolledAfter: '2010', enrolledBefore: '2013'});
+        let response = await request(app).get('/users?access_token=' + validId).query({ enrolledAfter: '2010', enrolledBefore: '2013' });
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(2);
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
         let before = false; // true if there is a user that has been enrolled before 2010
         let after = false; // true if there is a user that has been enrolled after 2013
-        for(let user of response.body){
-            if(user.enrolled != null && user.enrolled < 2010)
+        for (let user of response.body) {
+            if (user.enrolled != null && user.enrolled < 2010)
                 before = true;
-            if(user.enrolled != null && user.enrolled > 2013)
+            if (user.enrolled != null && user.enrolled > 2013)
                 before = true;
         }
         expect(before || after).toBe(false);
@@ -136,16 +136,16 @@ describe('GET user test cases', async() => {
 
     test('GET /users?access_token=validId with alpha sorting, enrolledAfter & enrolledBefore param; should return 200 + all users in the system enrolled in [2010-2013]', async () => {
         expect.assertions(5);
-        let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'alpha', enrolledAfter: '2010', enrolledBefore: '2013'});
+        let response = await request(app).get('/users?access_token=' + validId).query({ sortUsrBy: 'alpha', enrolledAfter: '2010', enrolledBefore: '2013' });
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(2);
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
         let before = false; // true if there is a user that has been enrolled before 2010
         let after = false; // true if there is a user that has been enrolled after 2013
-        for(let user of response.body){
-            if(user.enrolled != null && user.enrolled < 2010)
+        for (let user of response.body) {
+            if (user.enrolled != null && user.enrolled < 2010)
                 before = true;
-            if(user.enrolled != null && user.enrolled > 2013)
+            if (user.enrolled != null && user.enrolled > 2013)
                 before = true;
         }
         expect(before || after).toBe(false);
@@ -154,7 +154,7 @@ describe('GET user test cases', async() => {
 
     test('GET /users?access_token=validId with enrol sorting param; should return 200 + all users in the system', async () => {
         expect.assertions(4);
-        let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol'});
+        let response = await request(app).get('/users?access_token=' + validId).query({ sortUsrBy: 'enrol' });
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(4);
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
@@ -163,16 +163,16 @@ describe('GET user test cases', async() => {
 
     test('GET /users?access_token=validId with enrol sorting, enrolledAfter & enrolledBefore param; should return 200 + all users in the system', async () => {
         expect.assertions(5);
-        let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol', enrolledAfter: '1970', enrolledBefore: '2019'});
+        let response = await request(app).get('/users?access_token=' + validId).query({ sortUsrBy: 'enrol', enrolledAfter: '1970', enrolledBefore: '2019' });
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(4);
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
         let before = false; // true if there is a user that has been enrolled before 2010
         let after = false; // true if there is a user that has been enrolled after 2013
-        for(let user of response.body){
-            if(user.enrolled != null && user.enrolled < 1970)
+        for (let user of response.body) {
+            if (user.enrolled != null && user.enrolled < 1970)
                 before = true;
-            if(user.enrolled != null && user.enrolled > 2019)
+            if (user.enrolled != null && user.enrolled > 2019)
                 before = true;
         }
         expect(before || after).toBe(false);
@@ -181,7 +181,7 @@ describe('GET user test cases', async() => {
 
     test('GET /users?access_token=validId with enrol sorting param; should return 200 + all users in the system', async () => {
         expect.assertions(4);
-        let response = await request(app).get('/users?access_token=' + validId).query({sortUsrBy: 'enrol'});
+        let response = await request(app).get('/users?access_token=' + validId).query({ sortUsrBy: 'enrol' });
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(4);
         expect(utilities.isAnArrayOfUser(response.body)).toBe(true);
@@ -331,14 +331,14 @@ describe('DELETE user test cases', async () => {
 
     test('DELETE /users/invalidId in the uri + validAccessToken + invalidId in body; should return 401 + {}', async () => {
         expect.assertions(2);
-        let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({id: invalidId});
+        let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + validId).send({ id: invalidId });
         expect(response.statusCode).toBe(401);
         expect(response.body).toEqual({});
     });
 
     test('DELETE /users/invalidId in the uri + invalidAccessToken + invalidId in body; should return 401 + {}', async () => {
         expect.assertions(2);
-        let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + invalidId).send({id: invalidId});
+        let response = await request(app).delete('/users/' + invalidId).set('Authorization', 'Bearer ' + invalidId).send({ id: invalidId });
         expect(response.statusCode).toBe(401);
         expect(response.body).toEqual({});
     });

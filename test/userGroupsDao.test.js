@@ -29,7 +29,7 @@ test('userGroupsDao module should be defined', () => {
 describe('Create userGroup test cases', async () => {
     test('check createUserGroup()', () => {
         expect.assertions(3);
-        return userGroupsDao.createUserGroup(dummyUserGroup).then( value => {
+        return userGroupsDao.createUserGroup(dummyUserGroup).then(value => {
             dummyUserGroup.id = value.id;
             expect(value.name).toEqual(dummyUserGroup.name);
             expect(value.creator.id).toEqual(dummyUserGroup.creator.id);
@@ -39,14 +39,14 @@ describe('Create userGroup test cases', async () => {
 
     test('check createUserGroup() with an empty field', () => {
         expect.assertions(1);
-        return userGroupsDao.createUserGroup({'name':'Gruppo incompleto di prova'}).then( value => {
+        return userGroupsDao.createUserGroup({ 'name': 'Gruppo incompleto di prova' }).then(value => {
             expect(value).toEqual(null);
         });
     });
 
     test('check createUserGroup() with empty userGroup', () => {
         expect.assertions(1);
-        return userGroupsDao.createUserGroup(null).then( value => {
+        return userGroupsDao.createUserGroup(null).then(value => {
             expect(value).toEqual(null);
         });
     });
@@ -97,21 +97,21 @@ describe('Get all userGroup test cases', async () => {
 
     test('check getAllUserGroups() with incomplete user as loggedUser and "enrolled" sorting method', () => {
         expect.assertions(1);
-        return (userGroupsDao.getAllUserGroups({name:"test"}, 'enrolled')).then(value => {
+        return (userGroupsDao.getAllUserGroups({ name: "test" }, 'enrolled')).then(value => {
             expect(value).toEqual(null);
         });
     });
 
     test('check getAllUserGroups() with alphabetical sorting method', () => {
         expect.assertions(1);
-        return (userGroupsDao.getAllUserGroups({name:"test"}, 'alpha')).then(value => {
+        return (userGroupsDao.getAllUserGroups({ name: "test" }, 'alpha')).then(value => {
             expect(value).toEqual(null);
         });
     });
 
     test('check getAllUserGroups() with non-existent sorting method (switch to enrolled default)', () => {
         expect.assertions(1);
-        return (userGroupsDao.getAllUserGroups({name:"test"}, 'random')).then(value => {
+        return (userGroupsDao.getAllUserGroups({ name: "test" }, 'random')).then(value => {
             expect(value).toEqual(null);
         });
     });
@@ -197,7 +197,7 @@ describe('Update userGroup test cases', async () => {
     test('check updateUserGroup with non-existing userGroup and user with privileges', () => {
         expect.assertions(1);
         let dummyUserGroupUpdate = jsonCopy(dummyUserGroup);
-        dummyUserGroupUpdate.id=invalidUGId;
+        dummyUserGroupUpdate.id = invalidUGId;
         return (userGroupsDao.updateUserGroup(dummyTeacher, dummyUserGroupUpdate)).then(value => {
             expect(value).toEqual(null);
         });

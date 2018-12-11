@@ -1,17 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const {auth, protect} = require('./google-auth');
+const { auth, protect } = require('./google-auth');
 
 const app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 auth(app);
 
 // health check (public endpoint)
 app.get('/', (req, res) => {
-    res.json({msg: 'Hello world!'});
+    res.json({ msg: 'Hello world!' });
 });
 
 // FOLLOWING private endpoints
@@ -61,7 +61,7 @@ app.put('/submissions/:id', protect(), submissionModule.updateSubmission);
 
 module.exports = app;
 
-app.on('exit', function (){
+app.on('exit', function () {
     utilities.closeConnection();
     console.log('Goodbye!');
 });

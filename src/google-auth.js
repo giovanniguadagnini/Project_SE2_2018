@@ -1,7 +1,7 @@
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const passport = require('passport');
-const {OAuth2Client} = require('google-auth-library');
-const {Strategy} = require('passport-http-bearer');
+const { OAuth2Client } = require('google-auth-library');
+const { Strategy } = require('passport-http-bearer');
 
 const userDao = require('./db/userDao');
 
@@ -77,7 +77,7 @@ const registerGoogleAuth = app => {
         passport.authenticate('google', {
             failureRedirect: '/auth/google'
         }),
-        function(req, res) {
+        function (req, res) {
             res.json({ token: req.user.token });
         }
     );
